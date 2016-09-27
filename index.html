@@ -1,0 +1,28 @@
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+    var getUrlParameter = function getUrlParameter(sParam) {
+        var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                sURLVariables = sPageURL.split('&'),
+                sParameterName,
+                i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : sParameterName[1];
+            }
+        }
+    };
+    // ---------------------
+    var eventsClient = io.connect();
+    eventsClient.on('connect', function() {
+        // Start receiving events for user 79202560776
+        eventsClient.emit('join', 'events79202560776');
+    });
+    eventsClient.on('newMessage', function(data) {
+        // New message has come
+        console.log('There is a new new message from user ' + data.fromUser);
+    });
+</script>
