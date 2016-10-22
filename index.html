@@ -2,10 +2,7 @@
 
 <script>
     var getUrlParameter = function getUrlParameter(sParam) {
-        var sPageURL = decodeURIComponent(window.location.search.substring(1)),
-                sURLVariables = sPageURL.split('&'),
-                sParameterName,
-                i;
+        var sPageURL = decodeURIComponent(window.location.search.substring(1)), sURLVariables = sPageURL.split('&'), sParameterName, i;
 
         for (i = 0; i < sURLVariables.length; i++) {
             sParameterName = sURLVariables[i].split('=');
@@ -15,14 +12,35 @@
             }
         }
     };
-    // ---------------------
-    var eventsClient = io.connect();
-    eventsClient.on('connect', function() {
-        // Start receiving events for user 79202560776
-        eventsClient.emit('join', 'events79202560776');
-    });
-    eventsClient.on('newMessage', function(data) {
-        // New message has come
-        console.log('There is a new new message from user ' + data.fromUser);
-    });
+    // ----------+----------
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == XMLHttpRequest.DONE) {
+            var token = JSON.parse(xhr.responseText).token;
+            var socket = io.connect();
+
+            socket.on('connect', function(data) {
+                socket.emit('authenticate', {token: token}) //send the jwt
+                        .on('authenticated', function() {
+                            // START AUTHORIZED LOGIC
+
+                            // Start receiving events for user 79202560776
+                            socket.emit('join', {
+                                userId: 2,
+                                chatId: 'chat1'
+                            });
+
+                            socket.on('event', function(data) {
+                                console.log(data);
+                            });
+
+                        }).on('unauthorized', function(msg) {
+                            console.log("unauthorized: " + JSON.stringify(msg.data));
+                            throw new Error(msg.data.type);
+                        })
+            });
+        }
+    }
+    xhr.open('GET', '/login', true);
+    xhr.send(null);
 </script>

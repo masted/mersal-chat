@@ -2,5 +2,14 @@
   "name": "marsel-2persons-chat",
   "version": "0.0.1",
   "description": "Two persons chat for Marsel Apps",
-  "dependencies": {}
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/auth0/socketio-jwt.git"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.13.4",
+    "socket.io": "^1.4.6",
+    "socketio-jwt": "^4.3.4"
+  }
 }
