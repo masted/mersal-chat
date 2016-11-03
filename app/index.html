@@ -1,5 +1,6 @@
 <script src="/socket.io/socket.io.js"></script>
 
+
 <script>
     var getUrlParameter = function getUrlParameter(sParam) {
         var sPageURL = decodeURIComponent(window.location.search.substring(1)), sURLVariables = sPageURL.split('&'), sParameterName, i;
@@ -41,6 +42,7 @@
             });
         }
     }
-    xhr.open('GET', '/login', true);
+    xhr.open('GET', '/api/v1/login', true);
     xhr.send(null);
 </script>
+
