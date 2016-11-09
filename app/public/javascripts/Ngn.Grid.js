@@ -10735,19 +10735,8 @@ var Table = this.Table = function(){
 if (this.Type) new Type('Table', Table);
 
 })();
-
-/*--|/home/user/ngn-env/ngn/more/scripts/js/common/Ngn.php|--*/
-// -- Dynamic Core --
-
-Ngn.projectKey = 'csbuild';
-Ngn.isDebug = true;
-Ngn.fileSizeMax = 104857600;
-Ngn.siteTitle = 'Client Side Demo';
-Ngn.sflmFrontend = 'f_Ngn_Grid';
-
 Locale.define('en-US', 'Dummy', 'dummy', 'dummy');
 Locale.use('en-US');
-
 /*--|/home/user/ngn-env/ngn/i/js/ngn/Ngn.Items.js|--*/
 Ngn.Items = new Class({
   Implements: [Options, Events],
@@ -10815,7 +10804,7 @@ Ngn.Items = new Class({
             var g = {};
             g[this.options.idParam] = id;
             new Request({
-              url: this.getLink() + '/json_' + this.options.deleteAction,
+              url: this.getLink() + '/ajax_' + this.options.deleteAction,
               onComplete: function() {
                 this.options.reloadOnDelete ? this.reload() : eItem.destroy();
               }.bind(this)
@@ -13140,9 +13129,10 @@ Ngn.Grid.toolActions = {};
 Ngn.Grid.toolActions.edit = function(row, opt) {
   new Ngn.Dialog.RequestForm(Object.merge({
     id: 'CHANGE_ME',
-    url: this.options.basePath + '/json_edit?_id=' + row.id,
+    url: this.options.basePath + '/json_edit?id=' + row.id,
     width: 500,
     height: 300,
+    title: false,
     onOkClose: function() {
       this.reload(row.id);
     }.bind(this)

@@ -62,7 +62,6 @@ app.use(session({
     url: 'mongodb://localhost:27017/chat'
   })
 }));
-
 // -------------
 
 mongoClient.connect(url, function(err, _db) {
@@ -536,7 +535,7 @@ app.set('view engine', 'jade');
 
 app.get('/admin/users', function(req, res) {
   if (!req.session || !req.session.admin) {
-    res.status(404).send('access denied. <a href="/admin/auth">auth</a>');
+    res.status(404).send('access denied. <a href="/admin">auth</a>');
     return;
   }
   res.sendFile(__dirname + '/users.html');
@@ -544,7 +543,7 @@ app.get('/admin/users', function(req, res) {
 
 app.get('/admin/users/json_getItems', function(req, res) {
   if (!req.session || !req.session.admin) {
-    res.status(404).send('access denied. <a href="/admin/auth">auth</a>');
+    res.status(404).json({error: 'access denied'});
     return;
   }
   pdb.collection('users');
@@ -573,7 +572,7 @@ app.get('/admin/users/json_getItems', function(req, res) {
 
 app.get('/admin/users/json_new', function(req, res) {
   if (!req.session || !req.session.admin) {
-    res.status(404).send('access denied. <a href="/admin/auth">auth</a>');
+    res.status(404).json({error: 'access denied'});
     return;
   }
   app.render('admin/user/form', {
@@ -590,7 +589,7 @@ app.get('/admin/users/json_new', function(req, res) {
 
 app.post('/admin/users/json_new', function(req, res) {
   if (!req.session || !req.session.admin) {
-    res.status(404).send('access denied. <a href="/admin/auth">auth</a>');
+    res.status(404).json({error: 'access denied'});
     return;
   }
   db.collection('users').insertOne({
@@ -604,11 +603,11 @@ app.post('/admin/users/json_new', function(req, res) {
 
 app.get('/admin/users/json_edit', function(req, res) {
   if (!req.session || !req.session.admin) {
-    res.status(404).send('access denied. <a href="/admin/auth">auth</a>');
+    res.status(404).json({error: 'access denied'});
     return;
   }
   db.collection('users').findOne({
-    _id: ObjectID(req.query._id)
+    _id: ObjectID(req.query.id)
   }, function(err, user) {
     if (!user) {
       res.status(404).send({error: 'no user'});
@@ -625,10 +624,10 @@ app.get('/admin/users/json_edit', function(req, res) {
 
 app.post('/admin/users/json_edit', function(req, res) {
   if (!req.session || !req.session.admin) {
-    res.status(404).send('access denied. <a href="/admin/auth">auth</a>');
+    res.status(404).json({error: 'access denied'});
     return;
   }
-  db.collection('users').update({_id: ObjectID(req.query._id)}, {
+  db.collection('users').update({_id: ObjectID(req.query.id)}, {
     $set: {
       login: req.body.login,
       phone: req.body.phone,
@@ -643,9 +642,9 @@ app.post('/admin/users/json_edit', function(req, res) {
   });
 });
 
-app.get('/admin/users/json_delete', function(req, res) {
+app.get('/admin/users/ajax_delete', function(req, res) {
   if (!req.session || !req.session.admin) {
-    res.status(404).send('access denied. <a href="/admin/auth">auth</a>');
+    res.status(404).send('access denied');
     return;
   }
   db.collection('users').remove({
