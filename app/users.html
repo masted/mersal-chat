@@ -1,15 +1,16 @@
 <link rel="stylesheet" type="text/css" href="/css/grid.css" />
-
 <script src="/javascripts/Ngn.Grid.js"></script>
 
-<div id="table"></div>
-<script>
 
+<div id="table"></div>
+<a href="/admin/logout" style="position: absolute; right: 10; top: 7; display:block;"><span>Logout</span></a>
+
+<script>
     Ngn.Grid.defaultDialogOpts = {
         width: 300
     };
     new Ngn.Grid({
-        basePath: '/api/v1/admin/users',
+        basePath: '/admin/users',
         menu: Ngn.Grid.defaultMenu,
         fromDialog: true,
         toolActions: {
