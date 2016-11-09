@@ -10,14 +10,17 @@ Array.prototype.clean = function(deleteValue) {
 
 // ----------
 
+var config = require('./config');
 var express = require('express');
 var app = express();
+var bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
-var mongodb = require('mongodb');
-var mongoClient = mongodb.MongoClient, assert = require('assert');
-var ObjectID = mongodb.ObjectID;
 var url = 'mongodb://localhost:27017/chat';
 var db;
 
@@ -25,7 +28,7 @@ var jwt = require('jsonwebtoken');
 var socketioJwt = require('socketio-jwt');
 var jwtSecret = 'asd';
 
-function dirname (path) {
+function dirname(path) {
   //  discuss at: http://locutus.io/php/dirname/
   // original by: Ozh
   // improved by: XoraX (http://www.xorax.info)
@@ -36,14 +39,39 @@ function dirname (path) {
   //   example 3: dirname('/dir/test/')
   //   returns 3: '/dir'
 
-  return path.replace(/\\/g, '/')
-    .replace(/\/[^\/]*\/?$/, '')
+  return path.replace(/\\/g, '/').replace(/\/[^\/]*\/?$/, '')
 }
+
+var mongodb = require('mongodb');
+var ObjectID = mongodb.ObjectID;
+var mongoClient = mongodb.MongoClient;
+var assert = require('assert');
+
+// ------------- Session
+var session = require('express-session');
+var MongoStore = require('connect-mongo')(session);
+app.use(session({
+  cookie: {maxAge: 1000 * 60 * 2},
+  secret: "session secret",
+  store: new MongoStore({
+    db: 'chat',
+    host: '127.0.0.1',
+    port: 27017,
+    collection: 'session',
+    auto_reconnect: true,
+    url: 'mongodb://localhost:27017/chat'
+  })
+}));
+
+// -------------
 
 mongoClient.connect(url, function(err, _db) {
   console.log('mongo connected');
   db = _db;
 });
+
+
+var pdb = require('promised-mongo')(url);
 
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
@@ -79,7 +107,7 @@ var push = function(user, msg) {
  *   HTTP/1.1 404 Not Found
  *   {"error": "no user"}
  *
- * @apiSampleRequest http://chat.311.su:8080/api/v1/login
+ * @apiSampleRequest http://chat.311.su:8081/api/v1/login
  */
 app.get('/api/v1/login', function(req, res) {
   db.collection('users').findOne({
@@ -133,11 +161,12 @@ app.get('/api/v1/login', function(req, res) {
  *   HTTP/1.1 404 Not Found
  *   {"error": "error message"}
  *
- * @apiSampleRequest http://chat.311.su:8080/api/v1/user/info
+ * @apiSampleRequest http://chat.311.su:8081/api/v1/user/info
  */
 app.get('/api/v1/user/info', function(req, res) {
-  console.log('get info');
-  console.log(req.query);
+  console.log('get info by ' + req.query.phone);
+
+
   db.collection('users').findOne({
     phone: req.query.phone
   }, {
@@ -167,7 +196,7 @@ app.get('/api/v1/user/info', function(req, res) {
  *   HTTP/1.1 404 Not Found
  *   {"error": "error message"}
  *
- * @apiSampleRequest http://chat.311.su:8080/api/v1/user/create
+ * @apiSampleRequest http://chat.311.su:8081/api/v1/user/create
  */
 app.get('/api/v1/user/create', function(req, res) {
   if (!req.query.phone) {
@@ -244,7 +273,7 @@ var tokenReq = function(req, res, resCallback) {
  *   HTTP/1.1 404 Not Found
  *   {"error": "error message"}
  *
- * @apiSampleRequest http://chat.311.su:8080/api/v1/user/update
+ * @apiSampleRequest http://chat.311.su:8081/api/v1/user/update
  */
 app.get('/api/v1/user/update', function(req, res) {
   tokenReq(req, res, function(res, user) {
@@ -252,8 +281,7 @@ app.get('/api/v1/user/update', function(req, res) {
     delete data.token;
     clean(data);
     db.collection('users').update({_id: ObjectID(user._id)}, {$set: data}, function(err, count) {
-      if (count) res.send('success');
-      else res.json({error: 'use not found'});
+      if (count) res.send('success'); else res.json({error: 'user not found'});
     });
   });
 });
@@ -269,6 +297,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 /**
  * @api {post} /api/v1/user/upload Upload photo
  * @apiName Upload photo
+ * @apiDescription <a href="http://chat.311.su:8081/upload">Web example</a>
  * @apiGroup User
  *
  * @apiParam {String} token JWT token
@@ -293,7 +322,7 @@ app.post('/api/v1/user/upload', function(req, res) {
 });
 
 // ----------------------------------------
-app.get('/api/v1/upload', function(req, res) {
+app.get('/upload', function(req, res) {
   res.sendFile(path.join(__dirname, 'upload.html'));
 });
 
@@ -309,7 +338,7 @@ var apn = require('apn');
  * @apiParam {String} message Message text
  *
  * @apiSuccess {String} success The string "success" on success
- * @apiSampleRequest http://chat.311.su:8080/api/v1/message/send
+ * @apiSampleRequest http://chat.311.su:8081/api/v1/message/send
  */
 app.get('/api/v1/message/send', function(req, res) {
   tokenReq(req, res, function(res, user) {
@@ -332,7 +361,7 @@ app.get('/api/v1/message/send', function(req, res) {
     //  },
     //  production: false
     //});
-        //var note = new apn.Notification();
+    //var note = new apn.Notification();
     //note.expiry = Math.floor(Date.now() / 1000) + 3600; // Expires 1 hour from now.
     //note.badge = 3;
     //note.sound = "ping.aiff";
@@ -355,7 +384,7 @@ app.get('/api/v1/message/send', function(req, res) {
  * @apiParam {Number} toUser Recipient user ID
  *
  * @apiSuccess {json} New messages
- * @apiSampleRequest http://chat.311.su:8080/api/v1/message/getNew
+ * @apiSampleRequest http://chat.311.su:8081/api/v1/message/getNew
  */
 app.get('/api/v1/message/getNew', function(req, res) {
   //
@@ -397,7 +426,7 @@ app.get('/api/v1/message/getNew', function(req, res) {
  *
  * @apiParam {String} token JWT token
  * @apiParam {String} _ids Object IDs separeted by quote ",". ID is the "_id" param of Mongo Document
- * @apiSampleRequest http://chat.311.su:8080/api/v1/message/markAsViewed
+ * @apiSampleRequest http://chat.311.su:8081/api/v1/message/markAsViewed
  */
 app.get('/api/v1/message/markAsViewed', function(req, res) {
   tokenReq(req, res, function(res, user) {
@@ -408,6 +437,8 @@ app.get('/api/v1/message/markAsViewed', function(req, res) {
     });
   });
 });
+
+// =========
 
 /**
  * @api {ws} /socket.io Connection
@@ -498,6 +529,149 @@ io.sockets.on('connection', socketioJwt.authorize({
 
 });
 
-http.listen(8080, function() {
-  console.log('listening on *:8080');
+
+// -------- admin
+
+app.set('view engine', 'jade');
+
+app.get('/admin/users', function(req, res) {
+  if (!req.session || !req.session.admin) {
+    res.status(404).send('access denied. <a href="/admin/auth">auth</a>');
+    return;
+  }
+  res.sendFile(__dirname + '/users.html');
+});
+
+app.get('/admin/users/json_getItems', function(req, res) {
+  if (!req.session || !req.session.admin) {
+    res.status(404).send('access denied. <a href="/admin/auth">auth</a>');
+    return;
+  }
+  pdb.collection('users');
+  var head = ['Phone', 'Login'];
+  pdb.users.find().toArray().then(function(users) {
+    var data = {};
+    data.head = head;
+    data.body = [];
+    for (var i = 0; i < users.length; i++) {
+      var item = {
+        id: users[i]._id,
+        tools: {
+          delete: 'Delete',
+          edit: 'Edit'
+        },
+        data: {
+          phone: users[i].phone,
+          login: users[i].login
+        }
+      }
+      data.body.push(item);
+    }
+    res.json(data);
+  });
+});
+
+app.get('/admin/users/json_new', function(req, res) {
+  if (!req.session || !req.session.admin) {
+    res.status(404).send('access denied. <a href="/admin/auth">auth</a>');
+    return;
+  }
+  app.render('admin/user/form', {
+    phone: '',
+    login: '',
+    password: ''
+  }, function(err, html) {
+    res.json({
+      form: html,
+      title: 'Create User'
+    });
+  });
+});
+
+app.post('/admin/users/json_new', function(req, res) {
+  if (!req.session || !req.session.admin) {
+    res.status(404).send('access denied. <a href="/admin/auth">auth</a>');
+    return;
+  }
+  db.collection('users').insertOne({
+    login: req.body.login,
+    phone: req.body.phone,
+    password: req.body.password
+  }, function() {
+    res.send('null');
+  });
+});
+
+app.get('/admin/users/json_edit', function(req, res) {
+  if (!req.session || !req.session.admin) {
+    res.status(404).send('access denied. <a href="/admin/auth">auth</a>');
+    return;
+  }
+  db.collection('users').findOne({
+    _id: ObjectID(req.query._id)
+  }, function(err, user) {
+    if (!user) {
+      res.status(404).send({error: 'no user'});
+      return;
+    }
+    app.render('admin/user/form', user, function(err, html) {
+      res.json({
+        form: html,
+        title: 'Edit User'
+      });
+    });
+  });
+});
+
+app.post('/admin/users/json_edit', function(req, res) {
+  if (!req.session || !req.session.admin) {
+    res.status(404).send('access denied. <a href="/admin/auth">auth</a>');
+    return;
+  }
+  db.collection('users').update({_id: ObjectID(req.query._id)}, {
+    $set: {
+      login: req.body.login,
+      phone: req.body.phone,
+      password: req.body.password
+    }
+  }, function(err, result) {
+    if (result) {
+      res.send('null');
+    } else {
+      res.json({error: 'user not found'});
+    }
+  });
+});
+
+app.get('/admin/users/json_delete', function(req, res) {
+  if (!req.session || !req.session.admin) {
+    res.status(404).send('access denied. <a href="/admin/auth">auth</a>');
+    return;
+  }
+  db.collection('users').remove({
+    _id: ObjectID(req.query.id)
+  });
+  res.send('null');
+});
+
+app.get('/admin/logout', function(req, res) {
+  delete req.session.admin;
+  res.redirect('/admin/users');
+});
+
+app.get('/admin', function(req, res) {
+  res.send('<form method="post" action="/admin/auth"><p>Admin Password:<br><input type="password" name="password"></p><input type="submit"></form>');
+});
+
+app.post('/admin/auth', function(req, res) {
+  if (req.body.password == config.adminPassword) {
+    req.session.admin = true;
+    res.redirect('/admin/users');
+  } else {
+    res.send('wrong. <a href="javascript:history.back()">back</a>');
+  }
+});
+
+http.listen(config.port, function() {
+  console.log('listening on *:' + config.port);
 });

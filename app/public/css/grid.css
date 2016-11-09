@@ -1,0 +1,2001 @@
+
+/*--|/home/user/ngn-env/ngn/i/css/common/screen.css|--*/
+/* -------------------------------------------------------------- 
+  
+   reset.css
+   * Resets default browser CSS.
+   
+-------------------------------------------------------------- */
+
+html, body, div, span, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, code,
+del, dfn, em, img, q, dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+margin: 0;
+padding: 0;
+border: 0;
+font-weight: inherit;
+font-style: inherit;
+font-size: 100%;
+font-family: inherit;
+vertical-align: baseline;
+}
+
+input, select, textarea {
+margin: 0px;
+}
+
+body {
+line-height: 1.2;
+}
+
+table {
+border-collapse: separate;
+border-spacing: 0;
+}
+caption, th, td {
+text-align: left;
+font-weight: normal;
+}
+/*
+table, td, th {
+vertical-align: middle;
+}
+*/
+
+/* Remove possible quote marks (") from <q>, <blockquote>. */
+blockquote:before, blockquote:after, q:before, q:after {
+content: "";
+}
+blockquote, q {
+quotes: "" "";
+}
+
+/* Remove annoying border on linked images. */
+a img {
+border: none;
+}
+a {
+cursor: pointer;
+}
+/* -------------------------------------------------------------- 
+   
+   typography.css
+   * Sets up some sensible default typography.
+   
+-------------------------------------------------------------- */
+
+h1 img, h2 img, h3 img,
+h4 img, h5 img, h6 img {
+margin: 0;
+}
+
+/* Default font settings. 
+   The font-size percentage is of 16px. (0.75 * 16px = 12px) */
+body {
+font-size: 12px;
+color: #222;
+background: #fff;
+font-family: Verdana, Tahoma, "Helvetica Neue", Helvetica, sans-serif;
+}
+
+body {
+font-size: 12px;
+}
+input {
+font-size: 14px;
+}
+
+/* Headings
+-------------------------------------------------------------- */
+
+h1, h2, h3, h4, h5, h6 {
+font-weight: normal; /*color: #111;*/
+}
+
+h1 {
+font-size: 2em;
+line-height: 1;
+margin-bottom: 0.5em;
+}
+h2 {
+font-size: 1.4em;
+margin-bottom: 0.5em;
+line-height: 1;
+margin-top: 0;
+}
+h3 {
+font-size: 1.3em;
+line-height: 1;
+margin-bottom: 0.5em;
+margin-top: 0.5em;
+}
+h4 {
+font-size: 1.2em;
+line-height: 1.25;
+margin-bottom: 0.7em;
+margin-top: 0.7em;
+font-weight: bold;
+}
+h5 {
+font-size: 1.1em;
+font-weight: bold;
+margin-bottom: 1.5em;
+}
+h6 {
+font-size: 1em;
+font-weight: bold;
+}
+
+/* Text elements
+-------------------------------------------------------------- */
+
+p {
+margin: 0 0 0.7em;
+}
+
+a:focus,
+a:hover {
+color: #000;
+}
+a {
+color: #009;
+text-decoration: underline;
+}
+
+blockquote {
+margin: 1.5em;
+color: #666;
+font-style: italic;
+}
+strong {
+font-weight: bold;
+}
+em, dfn {
+font-style: italic;
+}
+dfn {
+font-weight: bold;
+}
+sup, sub {
+line-height: 0;
+}
+
+abbr,
+acronym {
+border-bottom: 1px dotted #666;
+}
+address {
+margin: 0 0 1.5em;
+font-style: italic;
+}
+del {
+color: #666;
+}
+
+pre {
+margin: 1.5em 0;
+white-space: pre;
+}
+pre, code, tt {
+font: 1em monospacem, 'andale mono', 'lucida console';
+line-height: 1.5;
+}
+
+/* Lists
+-------------------------------------------------------------- */
+
+li ul,
+li ol {
+margin: 0 1.5em;
+}
+ul, ol {
+margin: 0.5em 1.5em 0.5em 2.5em;
+}
+
+ul {
+list-style-type: disc;
+}
+ol {
+list-style-type: decimal;
+}
+
+dl {
+margin: 0 0 1.5em 0;
+}
+dl dt {
+font-weight: bold;
+}
+dd {
+margin-left: 1.5em;
+}
+li {
+margin-bottom: 0.5em
+}
+ul li {
+list-style: square;
+}
+
+/* Tables
+-------------------------------------------------------------- */
+
+th {
+font-weight: bold;
+}
+/*th,td,caption { padding: 4px 10px 4px 5px; }*/
+th, td, caption {
+padding: 0px;
+}
+tr.even td {
+background: #e5ecf9;
+}
+tfoot {
+font-style: italic;
+}
+caption {
+background: #eee;
+}
+
+/* Misc classes
+-------------------------------------------------------------- 
+
+.small      { font-size: .8em; margin-bottom: 1.875em; line-height: 1.875em; }
+.large      { font-size: 16px; }
+
+
+.quiet      { color: #666; }
+.loud       { color: #000; }
+.highlight  { background:#ff0; }
+.added      { background:#060; color: #fff; }
+.removed    { background:#900; color: #fff; }
+
+.first      { margin-left:0; padding-left:0; }
+.last       { margin-right:0; padding-right:0; }
+.top        { margin-top:0; padding-top:0; }
+.bottom     { margin-bottom:0; padding-bottom:0; }
+
+.prepend-top { 
+  margin-top:1.5em; 
+}
+.append-bottom { 
+  margin-bottom:1.5em; 
+}
+*/
+
+/* Use this to create a horizontal ruler across a column. */
+hr {
+background: #ddd;
+color: #ddd;
+clear: both;
+float: none;
+width: 100%;
+height: 1px;
+margin: 0 0 1.45em;
+border: none;
+}
+hr.space {
+background: #fff;
+color: #fff;
+}
+
+/* Clearing floats without extra markup
+   Based on How To Clear Floats Without Structural Markup by PiE
+   [http://www.positioniseverything.net/easyclearing.html] */
+
+.clearfix:after, .container:after {
+content: "\0020";
+display: block;
+height: 0;
+clear: both;
+visibility: hidden;
+overflow: hidden;
+}
+.noOverflow {
+overflow: hidden;
+}
+.clearfix, .container {
+display: block;
+}
+.container {
+position: relative;
+}
+/* Regular clearing
+   apply to column that should drop below previous ones. */
+
+/* --------------------------------------------------------------
+   
+   forms.css
+   * Sets up some default styling for forms
+   * Gives you classes to enhance your forms
+   
+   Usage:
+   * For text fields, use class .title or .text
+   
+-------------------------------------------------------------- */
+
+fieldset {
+padding: 1.4em;
+margin: 0 0 1.5em 0;
+border: 1px solid #ccc;
+}
+legend {
+font-weight: bold;
+font-size: 1.2em;
+}
+
+/* Form fields
+-------------------------------------------------------------- */
+
+.fld, select {
+border: 1px solid #bbb;
+}
+.fld:focus, textarea:focus, select:focus {
+border: 1px solid #666;
+}
+
+input.text,
+input.title {
+width: 300px;
+padding: 5px;
+}
+input.title {
+font-size: 1.5em;
+}
+textarea {
+width: 390px;
+height: 250px;
+padding: 5px;
+font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+
+.error {
+color: #FF7F7F;
+}
+
+embed {
+display: block;
+}
+/*--|/home/user/ngn-env/ngn/i/css/common.css|--*/
+.clear {
+clear: both;
+}
+.clear2 {
+clear: both;
+height: 1px;
+}
+.float-left {
+float: left;
+}
+.float-right {
+float: right;
+}
+.clearfix:after {
+content: ".";
+display: block;
+height: 0;
+clear: both;
+visibility: hidden;
+}
+.heightFix {
+height: 1px;
+}
+select {
+max-width: 300px;
+}
+.help {
+cursor: help;
+}
+.pseudoLink {
+text-decoration: none;
+cursor: pointer;
+border-bottom: 1px dotted;
+}
+.pseudoLink > span {
+border-bottom: 1px dotted #009;
+}
+.pseudoLink:hover > span {
+border-bottom: 1px dotted #000;
+}
+.iconsSet .pseudoLink {
+border-bottom: none;
+}
+.iconsSet .pseudoLink b, .iconsSet .pseudoLink span {
+border-bottom: 1px dotted;
+}
+.data {
+display: none;
+}
+.hidden {
+display: none !important;
+}
+label {
+-webkit-touch-callout: none;
+-webkit-user-select: none;
+-khtml-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+}
+.gray, .gray a {
+color: #AFAFAF;
+}
+.gray a:hover {
+color: #555555;
+}
+.dgray, .dgray a {
+color: #666 !important;
+}
+.dgray a:hover:not(.nonActive), a.dgray:hover:not(.nonActive) {
+color: #000 !important;
+}
+input {
+box-sizing: border-box;
+-webkit-box-sizing: border-box;
+-moz-box-sizing: border-box;
+}
+/*--|/home/user/ngn-env/ngn/i/css/common/itemsTable.css|--*/
+/* SortTable */
+
+.itemsTable {
+margin-bottom: 5px; /* для совместимости с отступами в шаблоне "admin/pages/items/tile" */
+}
+.itemsTable li {
+padding: 0px;
+margin: 0px;
+}
+.itemsTable .t_tagsTreeMultiselect li,
+.itemsTable .t_tagsTreeSelect li{
+white-space: nowrap;
+}
+.itemsTable tr.move td {
+border-color: #EFC400;
+background-color: #FFF9DF;
+}
+.itemsTable th, .itemsTable td {
+text-align: left;
+vertical-align: top;
+border-bottom: 1px solid #CCCCCC;
+padding: 3px 15px 3px 0px;
+}
+.itemsTable table td {
+border: none;
+}
+.itemsTable th, .itemsTableMenu {
+/*background-color: #F1F0DF;*/
+}
+.itemsTable th {
+font-weight: normal;
+font-size: 10px;
+}
+.itemsTableMenu {
+border-bottom: 1px solid #ccc;
+padding: 5px 12px;
+position: relative;
+}
+.itemsTableMenu a {
+display: inline-block;
+float: none;
+}
+.itemsTable td.tools {
+padding-left: 5px;
+}
+.itemsTable .iconBtn {
+margin-bottom: 0px;
+}
+.itemsTable .loader {
+background-image: none;
+}
+.itemsTable .loading .loader {
+background-image: url(/i/img/black/loader.gif);
+}
+.itemsTable .dragBox {
+height: 16px;
+/*float: none;*/
+margin-right: 7px;
+margin-top: 1px;
+}
+.itemsTable .move .dragBox {
+border-color: #555555;
+}
+
+/*======== pagination =========*/
+.itemsTableMenu .pNums {
+position: absolute;
+right: 0px;
+bottom: 0px;
+padding-right: 10px;
+}
+.itemsTableMenu .pNums a {
+background-color: #fff;
+margin: 0px !important;
+}
+.itemsTable.valign td {
+vertical-align: top;
+padding-top: 5px;
+padding-bottom: 5px;
+}
+
+
+/*---------------resizeble---------------*/
+
+.itemsTable table td {
+padding: 0px;
+}
+.itemsTable.resizeble table {
+margin: 3px 0px;
+}
+
+.itemsTable.resizeble {
+width: auto;
+}
+.itemsTable.resizeble .wr {
+overflow-x: hidden;
+white-space: nowrap;
+padding-top: 4px;
+max-height: 30px;
+}
+.itemsTable.resizeble .wr .cont {
+padding: 2px 10px;
+}
+.itemsTable.resizeble th {
+position: relative;
+}
+.itemsTable.resizeble > thead > tr > th,
+.itemsTable.resizeble > tbody > tr > td {
+border-right: 1px solid #E8E8E8;
+padding: 0px;
+}
+.itemsTable.resizeble > thead > tr > th {
+padding-bottom: 4px;
+}
+.itemsTable.resizeble .handler {
+margin-top: 1px;
+width: 10px;
+height: 100%;
+background: #fff url(/i/img/handler/vHandler2.png) top center;
+position: absolute;
+left: -5px;
+top: -1px;
+cursor: col-resize;
+opacity: 0.3;
+}
+.itemsTable.resizeble .handler:hover {
+opacity: 1;
+}
+
+/*--|/home/user/ngn-env/ngn/i/css/common/icons.css|--*/
+.icon18 {
+border: none;
+vertical-align: middle;
+display: inline-block;
+margin-right: 3px;
+}
+
+/*--|/home/user/ngn-env/ngn/more/scripts/css/common/icons.php|--*/
+
+/*-------------------iconsSet-----------------*/
+.iconsSet a, a.iconsSet {
+display: block;
+float: left;
+margin: 0px 15px 5px 0px;
+white-space: nowrap;
+cursor: pointer;
+vertical-align: bottom;
+-webkit-touch-callout: none;
+-webkit-user-select: none;
+-khtml-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+}
+.iconsSet label {
+display: block;
+float: left;
+}
+.iconsSet input {
+margin-right: 7px;
+}
+
+.iconsSet i,
+.icon i,
+.tools i {
+display: block;
+width: 16px;
+height: 16px;
+float: left;
+margin-right: 5px;
+background: url(../../../i/img/icons/pack1.png) no-repeat;
+}
+a.iconBtn i {
+background: url(../../../i/img/icons/pack1.png) no-repeat;
+cursor: pointer; /* for IE */
+}
+.iconsSet a i, a.iconsSet i, a.iconBtn i {
+background-position: 3px -237px; /* Иконка по умолчанию */
+}
+
+
+/*.tools a,*/
+a.iconBtn,
+a.icon,
+.dummyIconBtn {
+display: block;
+float: left;
+width: 18px;
+height: 18px;
+//width: 20px;
+//height: 20px;
+margin: 0px 5px 2px 0px;
+}
+
+a.iconBtnCaption {
+float: left;
+display: block;
+margin-top: 2px;
+font-size: 11px;
+}
+.iconBtnCaptionLinks {
+color: #009F07;
+font-style: italic;
+}
+
+.iconBtnDummy {
+float: left;
+vertical-align: bottom;
+height: 20px;
+}
+
+/*---------------------------------------------------------*/
+
+.iconsSet .rad,
+.iconsSet label,
+.iconsSet .tit {
+display: block;
+float: left;
+}
+.iconsSet .tit {
+margin: 3px 20px 0px 0px;
+}
+.iconsSet label {
+height: 20px;
+}
+
+.info  a {
+color: #389E38;
+}
+
+/*----------------------------------------*/
+
+.iconsSet a.active {
+color: #555555;
+text-decoration: none;
+}
+
+/* used inside "iconsSet" class element */
+.notext a {
+margin-right: 10px;
+}
+.notext i {
+margin-right: 0px;
+}
+
+/*-------------------iconBtn-----------------*/
+/* Кнопки, использующиеся в админке в различных таблицах записей */
+
+a.iconBtn {
+border: 1px solid transparent;
+//border: 1px solid #FFFFFF;
+}
+a.iconBtn.noborder {
+border: 0px;
+}
+a.iconBtn.dummy {
+border: 1px solid transparent !important;
+}
+a.iconBtn.dummy i {
+background: none !important;
+}
+a:hover.iconBtn, a.over.iconBtn {
+border-color: #CCC;
+border-radius: 2px;
+box-shadow: 0 0 10px #bfdeff;
+}
+a.iconBtn i {
+margin: 1px 0px 0px 1px;
+display: block;
+width: 16px;
+height: 16px;
+}
+
+.iconsSet .folder i, .icon_folder i, a.iconBtn.folder i, a.icon.folder i { background-position: -250px -103px }
+.iconsSet .page i, .icon_page i, a.iconBtn.page i, a.icon.page i { background-position: -20px -442px }
+.iconsSet .link i, .icon_link i, a.iconBtn.link i, a.icon.link i { background-position: -158px -234px }
+.iconsSet .isLock .folder i, .icon_isLock .folder i, a.iconBtn.isLock .folder i, a.icon.isLock .folder i { background-position: -458px -182px }
+.iconsSet .isLock .page i, .icon_isLock .page i, a.iconBtn.isLock .page i, a.icon.isLock .page i { background-position: -458px -156px }
+.iconsSet .info i, .icon_info i, a.iconBtn.info i, a.icon.info i { background-position: -67px -391px }
+.iconsSet .logout i, .icon_logout i, a.iconBtn.logout i, a.icon.logout i { background-position: -112px -416px }
+.iconsSet .add i, .icon_add i, a.iconBtn.add i, a.icon.add i { background-position: -388px -312px }
+.iconsSet .add2 i, .icon_add2 i, a.iconBtn.add2 i, a.icon.add2 i { background-position: -456px -442px }
+.iconsSet .edit i, .icon_edit i, a.iconBtn.edit i, a.icon.edit i { background-position: -342px -26px }
+.iconsSet .list i, .icon_list i, a.iconBtn.list i, a.icon.list i { background-position: -158px -442px }
+.iconsSet .ddStructure i, .icon_ddStructure i, a.iconBtn.ddStructure i, a.icon.ddStructure i { background-position: -342px -442px }
+.iconsSet .pages i, .icon_pages i, a.iconBtn.pages i, a.icon.pages i { background-position: -343px -467px }
+.iconsSet .pageBlocks i, .icon_pageBlocks i, a.iconBtn.pageBlocks i, a.icon.pageBlocks i { background-position: -434px -442px }
+.iconsSet .users i, .icon_users i, a.iconBtn.users i, a.icon.users i { background-position: -250px 0px }
+.iconsSet .tags i, .icon_tags i, a.iconBtn.tags i, a.icon.tags i { background-position: -66px -26px }
+.iconsSet .privMsgs i, .icon_privMsgs i, a.iconBtn.privMsgs i, a.icon.privMsgs i { background-position: -158px 0px }
+.iconsSet .slices i, .icon_slices i, a.iconBtn.slices i, a.icon.slices i { background-position: -66px -104px }
+.iconsSet .site i, .icon_site i, a.iconBtn.site i, a.icon.site i { background-position: -158px -234px }
+.iconsSet .settings i, .icon_settings i, a.iconBtn.settings i, a.icon.settings i { background-position: -250px -208px }
+.iconsSet .configManager i, .icon_configManager i, a.iconBtn.configManager i, a.icon.configManager i { background-position: -250px -468px }
+.iconsSet .config i, .icon_config i, a.iconBtn.config i, a.icon.config i { background-position: -250px -468px }
+.iconsSet .siteConfig i, .icon_siteConfig i, a.iconBtn.siteConfig i, a.icon.siteConfig i { background-position: -482px -337px }
+.iconsSet .projectsManagment i, .icon_projectsManagment i, a.iconBtn.projectsManagment i, a.icon.projectsManagment i { background-position: -205px -468px }
+.iconsSet .patcher i, .icon_patcher i, a.iconBtn.patcher i, a.icon.patcher i { background-position: -296px -26px }
+.iconsSet .replacer i, .icon_replacer i, a.iconBtn.replacer i, a.icon.replacer i { background-position: -342px -286px }
+.iconsSet .backup i, .icon_backup i, a.iconBtn.backup i, a.icon.backup i { background-position: -66px -312px }
+.iconsSet .ftp i, .icon_ftp i, a.iconBtn.ftp i, a.icon.ftp i { background-position: -296px -104px }
+.iconsSet .rename i, .icon_rename i, a.iconBtn.rename i, a.icon.rename i { background-position: -480px -78px }
+.iconsSet .editProp i, .icon_editProp i, a.iconBtn.editProp i, a.icon.editProp i { background-position: -388px -442px }
+.iconsSet .editOptions i, .icon_editOptions i, a.iconBtn.editOptions i, a.icon.editOptions i { background-position: -20px -104px }
+.iconsSet .delete i, .icon_delete i, a.iconBtn.delete i, a.icon.delete i { background-position: 3px -263px }
+.iconsSet .cancel i, .icon_cancel i, a.iconBtn.cancel i, a.icon.cancel i { background-position: 3px -263px }
+.iconsSet .deleteGroup i, .icon_deleteGroup i, a.iconBtn.deleteGroup i, a.icon.deleteGroup i { background-position: 3px -263px }
+.iconsSet .import i, .icon_import i, a.iconBtn.import i, a.icon.import i { background-position: -204px -52px }
+.iconsSet .turnOn i, .icon_turnOn i, a.iconBtn.turnOn i, a.icon.turnOn i { background-position: -67px -182px }
+.iconsSet .turnOff i, .icon_turnOff i, a.iconBtn.turnOff i, a.icon.turnOff i { background-position: -21px -182px }
+.iconsSet .versions i, .icon_versions i, a.iconBtn.versions i, a.icon.versions i { background-position: -296px -208px }
+.iconsSet .autosave i, .icon_autosave i, a.iconBtn.autosave i, a.icon.autosave i { background-position: -251px -235px }
+.iconsSet .file i, .icon_file i, a.iconBtn.file i, a.icon.file i { background-position: -204px -234px }
+.iconsSet .save i, .icon_save i, a.iconBtn.save i, a.icon.save i { background-position: -203px -234px }
+.iconsSet .image i, .icon_image i, a.iconBtn.image i, a.icon.image i { background-position: -434px -26px }
+.iconsSet .print i, .icon_print i, a.iconBtn.print i, a.icon.print i { background-position: -66px -156px }
+.iconsSet .rss i, .icon_rss i, a.iconBtn.rss i, a.icon.rss i { background-position: -20px 0px }
+.iconsSet .rssImporter i, .icon_rssImporter i, a.iconBtn.rssImporter i, a.icon.rssImporter i { background-position: -20px 0px }
+.iconsSet .god i, .icon_god i, a.iconBtn.god i, a.icon.god i { background-position: -457px -309px }
+.iconsSet .photo i, .icon_photo i, a.iconBtn.photo i, a.icon.photo i { background-position: -434px -26px }
+.iconsSet .comments i, .icon_comments i, a.iconBtn.comments i, a.icon.comments i { background-position: -434px -52px }
+.iconsSet .book i, .icon_book i, a.iconBtn.book i, a.icon.book i { background-position: -158px -416px }
+.iconsSet .notebook i, .icon_notebook i, a.iconBtn.notebook i, a.icon.notebook i { background-position: -342px -416px }
+.iconsSet .refrash i, .icon_refrash i, a.iconBtn.refrash i, a.icon.refrash i { background-position: -158px -312px }
+.iconsSet .bold i, .icon_bold i, a.iconBtn.bold i, a.icon.bold i { background-position: -481px -27px }
+.iconsSet .italic i, .icon_italic i, a.iconBtn.italic i, a.icon.italic i { background-position: -459px -27px }
+.iconsSet .underline i, .icon_underline i, a.iconBtn.underline i, a.icon.underline i { background-position: -459px -53px }
+.iconsSet .strike i, .icon_strike i, a.iconBtn.strike i, a.icon.strike i { background-position: -480px -52px }
+.iconsSet .quote i, .icon_quote i, a.iconBtn.quote i, a.icon.quote i { background-position: -458px -79px }
+.iconsSet .events i, .icon_events i, a.iconBtn.events i, a.icon.events i { background-position: -113px -182px }
+.iconsSet .cleanup i, .icon_cleanup i, a.iconBtn.cleanup i, a.icon.cleanup i { background-position: -457px -338px }
+.iconsSet .home i, .icon_home i, a.iconBtn.home i, a.icon.home i { background-position: -204px -104px }
+.iconsSet .up i, .icon_up i, a.iconBtn.up i, a.icon.up i { background-position: -342px -260px }
+.iconsSet .down i, .icon_down i, a.iconBtn.down i, a.icon.down i { background-position: -296px -260px }
+.iconsSet .move i, .icon_move i, a.iconBtn.move i, a.icon.move i { background-position: -113px -286px }
+.iconsSet .form i, .icon_form i, a.iconBtn.form i, a.icon.form i { background-position: -388px -442px }
+.iconsSet .fields i, .icon_fields i, a.iconBtn.fields i, a.icon.fields i { background-position: -296px -468px }
+.iconsSet .privileges i, .icon_privileges i, a.iconBtn.privileges i, a.icon.privileges i { background-position: -251px -182px }
+.iconsSet .activate i, .icon_activate i, a.iconBtn.activate i, a.icon.activate i { background-position: -112px -104px }
+.iconsSet .deactivate i, .icon_deactivate i, a.iconBtn.deactivate i, a.icon.deactivate i { background-position: -158px -104px }
+.iconsSet .favorit i, .icon_favorit i, a.iconBtn.favorit i, a.icon.favorit i { background-position: -20px -78px }
+.iconsSet .favoritOff i, .icon_favoritOff i, a.iconBtn.favoritOff i, a.icon.favoritOff i { background-position: -458px -208px }
+.iconsSet .sitemap i, .icon_sitemap i, a.iconBtn.sitemap i, a.icon.sitemap i { background-position: -458px -105px }
+.iconsSet .sitemapRed i, .icon_sitemapRed i, a.iconBtn.sitemapRed i, a.icon.sitemapRed i { background-position: -458px -132px }
+.iconsSet .public i, .icon_public i, a.iconBtn.public i, a.icon.public i { background-position: -458px -234px }
+.iconsSet .unpublic i, .icon_unpublic i, a.iconBtn.unpublic i, a.icon.unpublic i { background-position: -458px -260px }
+.iconsSet .expand i, .icon_expand i, a.iconBtn.expand i, a.icon.expand i { background-position: -205px -495px }
+.iconsSet .collapse i, .icon_collapse i, a.iconBtn.collapse i, a.icon.collapse i { background-position: -250px -494px }
+.iconsSet .sound i, .icon_sound i, a.iconBtn.sound i, a.icon.sound i { background-position: -480px -105px }
+.iconsSet .video i, .icon_video i, a.iconBtn.video i, a.icon.video i { background-position: -481px -2px }
+.iconsSet .flagOn i, .icon_flagOn i, a.iconBtn.flagOn i, a.icon.flagOn i { background-position: -67px -182px }
+.iconsSet .flagOff i, .icon_flagOff i, a.iconBtn.flagOff i, a.icon.flagOff i { background-position: -480px -130px }
+.iconsSet .filter i, .icon_filter i, a.iconBtn.filter i, a.icon.filter i { background-position: -157px -130px }
+.iconsSet .select i, .icon_select i, a.iconBtn.select i, a.icon.select i { background-position: -66px -261px }
+.iconsSet .ok i, .icon_ok i, a.iconBtn.ok i, a.icon.ok i { background-position: -66px -261px }
+.iconsSet .subscribe i, .icon_subscribe i, a.iconBtn.subscribe i, a.icon.subscribe i { background-position: -296px -494px }
+.iconsSet .profile i, .icon_profile i, a.iconBtn.profile i, a.icon.profile i { background-position: -66px 1px }
+.iconsSet .send i, .icon_send i, a.iconBtn.send i, a.icon.send i { background-position: -158px 1px }
+.iconsSet .sendOff i, .icon_sendOff i, a.iconBtn.sendOff i, a.icon.sendOff i { background-position: -480px -182px }
+.iconsSet .send2 i, .icon_send2 i, a.iconBtn.send2 i, a.icon.send2 i { background-position: -342px -494px }
+.iconsSet .notify i, .icon_notify i, a.iconBtn.notify i, a.icon.notify i { background-position: -112px 1px }
+.iconsSet .notify2 i, .icon_notify2 i, a.iconBtn.notify2 i, a.icon.notify2 i { background-position: -296px -494px }
+.iconsSet .notifySettings i, .icon_notifySettings i, a.iconBtn.notifySettings i, a.icon.notifySettings i { background-position: -480px -156px }
+.iconsSet .help i, .icon_help i, a.iconBtn.help i, a.icon.help i { background-position: -480px -209px }
+.iconsSet .stat i, .icon_stat i, a.iconBtn.stat i, a.icon.stat i { background-position: -20px -208px }
+.iconsSet .dummy i, .icon_dummy i, a.iconBtn.dummy i, a.icon.dummy i { background-position: -470px -470px }
+.iconsSet .email i, .icon_email i, a.iconBtn.email i, a.icon.email i { background-position: -480px -233px }
+.iconsSet .close i, .icon_close i, a.iconBtn.close i, a.icon.close i { background-position: -434px -364px }
+.iconsSet .editDate i, .icon_editDate i, a.iconBtn.editDate i, a.icon.editDate i { background-position: -250px -52px }
+.iconsSet .meta i, .icon_meta i, a.iconBtn.meta i, a.icon.meta i { background-position: -388px -208px }
+.iconsSet .grab i, .icon_grab i, a.iconBtn.grab i, a.icon.grab i { background-position: -481px -259px }
+.iconsSet .test i, .icon_test i, a.iconBtn.test i, a.icon.test i { background-position: -297px -182px }
+.iconsSet .attention i, .icon_attention i, a.iconBtn.attention i, a.icon.attention i { background-position: -67px -391px }
+.iconsSet .order i, .icon_order i, a.iconBtn.order i, a.icon.order i { background-position: -66px -261px }
+.iconsSet .layout i, .icon_layout i, a.iconBtn.layout i, a.icon.layout i { background-position: -251px -156px }
+.iconsSet .stm i, .icon_stm i, a.iconBtn.stm i, a.icon.stm i { background-position: -434px -208px }
+.iconsSet .flash i, .icon_flash i, a.iconBtn.flash i, a.icon.flash i { background-position: -480px -286px }
+.iconsSet .preview i, .icon_preview i, a.iconBtn.preview i, a.icon.preview i { background-position: -458px -234px }
+.iconsSet .search i, .icon_search i, a.iconBtn.search i, a.icon.search i { background-position: -388px -104px }
+.iconsSet .grabber i, .icon_grabber i, a.iconBtn.grabber i, a.icon.grabber i { background-position: -480px -314px }
+.iconsSet .news i, .icon_news i, a.iconBtn.news i, a.icon.news i { background-position: -480px -364px }
+.iconsSet .openFolder i, .icon_openFolder i, a.iconBtn.openFolder i, a.icon.openFolder i { background-position: -481px -390px }
+.iconsSet .pageLink i, .icon_pageLink i, a.iconBtn.pageLink i, a.icon.pageLink i { background-position: -455px -416px }
+.iconsSet .pageId i, .icon_pageId i, a.iconBtn.pageId i, a.icon.pageId i { background-position: -480px -442px }
+.iconsSet .stop i, .icon_stop i, a.iconBtn.stop i, a.icon.stop i { background-position: -67px -365px }
+.iconsSet .play i, .icon_play i, a.iconBtn.play i, a.icon.play i { background-position: -19px -339px }
+.iconsSet .addMany i, .icon_addMany i, a.iconBtn.addMany i, a.icon.addMany i { background-position: -457px -468px }
+.iconsSet .repeat i, .icon_repeat i, a.iconBtn.repeat i, a.icon.repeat i { background-position: -251px -313px }
+.iconsSet .briefcase i, .icon_briefcase i, a.iconBtn.briefcase i, a.icon.briefcase i { background-position: -434px -416px }
+.iconsSet .cart i, .icon_cart i, a.iconBtn.cart i, a.icon.cart i { background-position: -481px -467px }
+.iconsSet .role i, .icon_role i, a.iconBtn.role i, a.icon.role i { background-position: -296px 0px }
+.iconsSet .view i, .icon_view i, a.iconBtn.view i, a.icon.view i { background-position: -388px -495px }
+.iconsSet .phone i, .icon_phone i, a.iconBtn.phone i, a.icon.phone i { background-position: -20px -416px }
+.iconsSet .xls i, .icon_xls i, a.iconBtn.xls i, a.icon.xls i { background-position: -367px -494px }
+.iconsSet .money i, .icon_money i, a.iconBtn.money i, a.icon.money i { background-position: -66px -234px }
+.iconsSet .copy i, .icon_copy i, a.iconBtn.copy i, a.icon.copy i { background-position: 2px -54px }
+.iconsSet .guestAuth i, .icon_guestAuth i, a.iconBtn.guestAuth i, a.icon.guestAuth i { background-position: -296px 0px }
+.tools .folder i { background-position: -250px -103px }
+.tools .page i { background-position: -20px -442px }
+.tools .link i { background-position: -158px -234px }
+.tools .isLock .folder i { background-position: -458px -182px }
+.tools .isLock .page i { background-position: -458px -156px }
+.tools .info i { background-position: -67px -391px }
+.tools .logout i { background-position: -112px -416px }
+.tools .add i { background-position: -388px -312px }
+.tools .add2 i { background-position: -456px -442px }
+.tools .edit i { background-position: -342px -26px }
+.tools .list i { background-position: -158px -442px }
+.tools .ddStructure i { background-position: -342px -442px }
+.tools .pages i { background-position: -343px -467px }
+.tools .pageBlocks i { background-position: -434px -442px }
+.tools .users i { background-position: -250px 0px }
+.tools .tags i { background-position: -66px -26px }
+.tools .privMsgs i { background-position: -158px 0px }
+.tools .slices i { background-position: -66px -104px }
+.tools .site i { background-position: -158px -234px }
+.tools .settings i { background-position: -250px -208px }
+.tools .configManager i { background-position: -250px -468px }
+.tools .config i { background-position: -250px -468px }
+.tools .siteConfig i { background-position: -482px -337px }
+.tools .projectsManagment i { background-position: -205px -468px }
+.tools .patcher i { background-position: -296px -26px }
+.tools .replacer i { background-position: -342px -286px }
+.tools .backup i { background-position: -66px -312px }
+.tools .ftp i { background-position: -296px -104px }
+.tools .rename i { background-position: -480px -78px }
+.tools .editProp i { background-position: -388px -442px }
+.tools .editOptions i { background-position: -20px -104px }
+.tools .delete i { background-position: 3px -263px }
+.tools .cancel i { background-position: 3px -263px }
+.tools .deleteGroup i { background-position: 3px -263px }
+.tools .import i { background-position: -204px -52px }
+.tools .turnOn i { background-position: -67px -182px }
+.tools .turnOff i { background-position: -21px -182px }
+.tools .versions i { background-position: -296px -208px }
+.tools .autosave i { background-position: -251px -235px }
+.tools .file i { background-position: -204px -234px }
+.tools .save i { background-position: -203px -234px }
+.tools .image i { background-position: -434px -26px }
+.tools .print i { background-position: -66px -156px }
+.tools .rss i { background-position: -20px 0px }
+.tools .rssImporter i { background-position: -20px 0px }
+.tools .god i { background-position: -457px -309px }
+.tools .photo i { background-position: -434px -26px }
+.tools .comments i { background-position: -434px -52px }
+.tools .book i { background-position: -158px -416px }
+.tools .notebook i { background-position: -342px -416px }
+.tools .refrash i { background-position: -158px -312px }
+.tools .bold i { background-position: -481px -27px }
+.tools .italic i { background-position: -459px -27px }
+.tools .underline i { background-position: -459px -53px }
+.tools .strike i { background-position: -480px -52px }
+.tools .quote i { background-position: -458px -79px }
+.tools .events i { background-position: -113px -182px }
+.tools .cleanup i { background-position: -457px -338px }
+.tools .home i { background-position: -204px -104px }
+.tools .up i { background-position: -342px -260px }
+.tools .down i { background-position: -296px -260px }
+.tools .move i { background-position: -113px -286px }
+.tools .form i { background-position: -388px -442px }
+.tools .fields i { background-position: -296px -468px }
+.tools .privileges i { background-position: -251px -182px }
+.tools .activate i { background-position: -112px -104px }
+.tools .deactivate i { background-position: -158px -104px }
+.tools .favorit i { background-position: -20px -78px }
+.tools .favoritOff i { background-position: -458px -208px }
+.tools .sitemap i { background-position: -458px -105px }
+.tools .sitemapRed i { background-position: -458px -132px }
+.tools .public i { background-position: -458px -234px }
+.tools .unpublic i { background-position: -458px -260px }
+.tools .expand i { background-position: -205px -495px }
+.tools .collapse i { background-position: -250px -494px }
+.tools .sound i { background-position: -480px -105px }
+.tools .video i { background-position: -481px -2px }
+.tools .flagOn i { background-position: -67px -182px }
+.tools .flagOff i { background-position: -480px -130px }
+.tools .filter i { background-position: -157px -130px }
+.tools .select i { background-position: -66px -261px }
+.tools .ok i { background-position: -66px -261px }
+.tools .subscribe i { background-position: -296px -494px }
+.tools .profile i { background-position: -66px 1px }
+.tools .send i { background-position: -158px 1px }
+.tools .sendOff i { background-position: -480px -182px }
+.tools .send2 i { background-position: -342px -494px }
+.tools .notify i { background-position: -112px 1px }
+.tools .notify2 i { background-position: -296px -494px }
+.tools .notifySettings i { background-position: -480px -156px }
+.tools .help i { background-position: -480px -209px }
+.tools .stat i { background-position: -20px -208px }
+.tools .dummy i { background-position: -470px -470px }
+.tools .email i { background-position: -480px -233px }
+.tools .close i { background-position: -434px -364px }
+.tools .editDate i { background-position: -250px -52px }
+.tools .meta i { background-position: -388px -208px }
+.tools .grab i { background-position: -481px -259px }
+.tools .test i { background-position: -297px -182px }
+.tools .attention i { background-position: -67px -391px }
+.tools .order i { background-position: -66px -261px }
+.tools .layout i { background-position: -251px -156px }
+.tools .stm i { background-position: -434px -208px }
+.tools .flash i { background-position: -480px -286px }
+.tools .preview i { background-position: -458px -234px }
+.tools .search i { background-position: -388px -104px }
+.tools .grabber i { background-position: -480px -314px }
+.tools .news i { background-position: -480px -364px }
+.tools .openFolder i { background-position: -481px -390px }
+.tools .pageLink i { background-position: -455px -416px }
+.tools .pageId i { background-position: -480px -442px }
+.tools .stop i { background-position: -67px -365px }
+.tools .play i { background-position: -19px -339px }
+.tools .addMany i { background-position: -457px -468px }
+.tools .repeat i { background-position: -251px -313px }
+.tools .briefcase i { background-position: -434px -416px }
+.tools .cart i { background-position: -481px -467px }
+.tools .role i { background-position: -296px 0px }
+.tools .view i { background-position: -388px -495px }
+.tools .phone i { background-position: -20px -416px }
+.tools .xls i { background-position: -367px -494px }
+.tools .money i { background-position: -66px -234px }
+.tools .copy i { background-position: 2px -54px }
+.tools .guestAuth i { background-position: -296px 0px }
+
+.smIcons.drag i {
+background-image: none;
+}
+.smIcons.drag  {
+background-image: url(/i/img/black/drag-bg.gif);
+cursor: url(http://www.google.com/intl/en_ALL/mapfiles/closedhand.cur) 4 4, move;
+}
+/*--|/home/user/ngn-env/ngn/i/css/common/btns.css|--*/
+/*-------- common buttons -----------*/
+.btn {
+box-sizing: border-box;
+color: #000 !important;
+border: 1px solid #999;
+border-radius: 3px;
+box-shadow: 0 1px 6px rgba(0, 0, 0, .2);
+text-align: center;
+display: inline-block;
+text-decoration: none;
+outline: none;
+-webkit-touch-callout: none;
+-webkit-user-select: none;
+-khtml-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+font-size: 12px;
+}
+.btn.basicBtn {
+padding: 3px 10px;
+}
+a.btn.lrg {
+width: 30px;
+height: 30px;
+}
+a.btn.lrg i {
+margin-top: 6px;
+margin-left: 6px;
+}
+.btn.icon {
+margin-right: 0;
+}
+.btn:hover, b.btn {
+color: #000;
+text-decoration: none !important;
+}
+
+.btn {
+border-color: #a9a89c;
+background: -webkit-linear-gradient(top, #f6f5e9, #d9d8c9);
+}
+.btn:hover:not(.nonActive):not(.pushed):not(:active):not(:disabled),b.btn {
+background: -webkit-linear-gradient(top, #fbfbf6, #F1F0DF);
+}
+.btn:active:not(.nonActive),
+.btn.pushed,
+.btn:disabled {
+background: -webkit-linear-gradient(top, #d9d8c9, #cdccbe);
+box-shadow: inset 0 1px 2px rgba(121, 120, 112, 0.5);
+color: #87867C;
+}
+.btn:disabled {
+cursor: default !important;
+}
+.smIcons.btn {
+color: #000;
+height: auto;
+padding: 2px 7px 2px 5px;
+margin-right: 7px !important;
+}
+
+.btn > span {
+padding: 3px 7px 0 7px;
+display: block;
+}
+.btnFake > span {
+display: block;
+margin: 3px 7px 0 7px;
+}
+b.btn {
+color: #FFF !important;
+}
+a.btn, b.btn, .btnFake {
+height: 22px;
+}
+/*
+a.btn.loading {
+background-image: url(/i/img/btn-loader.gif) !important;
+background-position: center center !important;
+background-repeat: no-repeat !important;
+}
+.iconsSet a.loading i, a.loading.iconsSet i, a.loading.iconBtn i {
+background: url(/i/img/black/loader.gif) no-repeat 0px 0px !important;
+}
+.iconsSet a.loading, a.loading.iconsSet, a.loading.iconBtn {
+color: #CCCCCC !important;
+}
+*/
+.apeform input[type=submit] {
+width: 220px;
+cursor: pointer;
+vertical-align: center;
+}
+.btn2, .btnSubmit {
+background: #555555;
+color: #FFFFFF;
+}
+.btn2 {
+border: 1px solid #FFFFFF;
+}
+a.btnSubmitLarge {
+width: 200px;
+height: 25px;
+text-decoration: none;
+margin-top: 5px;
+border-radius: 5px;
+font-size: 15px;
+}
+.hHandler {
+border: 1px solid;
+}
+.vHandler {
+border-left: 1px solid;
+border-right: 1px solid;
+}
+.hHandler, .vHandler {
+border-color: #DFDDC3/**/;
+}
+.hHandler:hover, .vHandler:hover {
+border-color: #CCCAB1;
+}
+.hHandler {
+box-sizing: border-box;
+cursor: s-resize;
+display: block;
+height: 11px;
+overflow: hidden;
+clear: both;
+width: 100%;
+background: #F1F0DF url(../../../i/img/handler/hHandler.png) no-repeat 50% 2px;
+}
+.vHandler {
+cursor: w-resize;
+background: #F1F0DF url(../../../i/img/handler/vHandler.png) no-repeat center center;
+width: 7px;
+height: 100px;
+}
+/*--|/home/user/ngn-env/ngn/i/css/common/dialog.css|--*/
+/*
+body.noscroll {
+position: fixed;
+overflow-y: scroll;
+width: 100%;
+}
+*/
+
+.goright {
+float: right;
+}
+
+.goleft {
+float: left;
+}
+
+.clear, .md-clear {
+clear: both;
+}
+
+.none {
+display: none;
+}
+
+.icon-button {
+cursor: pointer;
+background: transparent none no-repeat center center;
+width: 26px;
+height: 26px;
+}
+
+.alert-icon {
+background-image: url(../../../i/img/dialog/alert.png);
+}
+
+.confirm-icon {
+background-image: url(../../../i/img/dialog/info.png);
+}
+
+.prompt-icon {
+background-image: url(../../../i/img/dialog/info.png);
+}
+
+.image-button {
+cursor: pointer;
+background: transparent none no-repeat left center;
+margin-right: 10px;
+}
+.image-button.cancel {
+margin-right: 0;
+}
+.image-button i {
+margin-top: -1px;
+}
+.image-button .btn span {
+display: block;
+padding: 4px 7px 0 7px;
+}
+/* advanced button 
+.image-button a {
+display: block;
+position: relative;
+height: 25px;
+width: 80px;
+margin: 0 10px 18px 0;
+text-align: center;
+
+-webkit-border-radius: 3px;
+-moz-border-radius: 3px;
+border-radius: 3px;
+}
+
+.image-button a,
+.image-button a:hover,
+a.gray:visited {
+color: #555;
+border-bottom: 4px solid #b2b1b1;
+background: #eee;
+background: #eee;
+background: -webkit-gradient(linear, left top, left bottom, from(#eee), to(#e2e2e2));
+background: -moz-linear-gradient(top,  #eee,  #e2e2e2);
+box-shadow: inset 1px 1px 0 #f5f5f5;
+}
+
+.image-button a:hover {
+background: #e2e2e2;
+background: -webkit-gradient(linear, left top, left bottom, from(#e2e2e2), to(#eee));
+background: -moz-linear-gradient(top,  #e2e2e2,  #eee);
+}
+
+.image-button a:before,
+.image-button a:after {
+content: '';
+position: absolute;
+left: -1px;
+height: 25px;
+width: 80px;
+bottom: -1px;
+
+-webkit-border-radius: 3px;
+-moz-border-radius: 3px;
+border-radius: 3px;
+}
+ 
+.image-button a:before {
+height: 23px;
+bottom: -4px;
+border-top: 0;
+
+-webkit-border-radius: 0 0 3px 3px;
+-moz-border-radius: 0 0 3px 3px;
+border-radius: 0 0 3px 3px;
+ 
+-webkit-box-shadow: 0 1px 1px 0px #bfbfbf;
+-moz-box-shadow: 0 1px 1px 0px #bfbfbf;
+box-shadow: 0 1px 1px 0px #bfbfbf;
+}
+.image-button a:before,
+.image-button a:after {
+border: 1px solid #cbcbcb;
+border-bottom: 1px solid #a5a5a5;
+}
+
+*/
+
+.image-button a,.image-button span.app-link {
+display: block;
+/*padding-left: 0px;*/
+text-decoration: none;
+}
+
+.dialog .iconsSet a {
+margin: 0px;
+}
+
+.dialog {
+padding: 15px;
+margin: 0;
+position: fixed;
+top: 200px;
+/*background: transparent url(/library/public/dialog/images/b.png);*/
+border: 0px solid #888;
+}
+
+.mid-float-box {
+position: relative;
+border: 1px solid #4fa4ff;
+background: #bfdeff;
+border-radius: 7px;
+box-shadow: 0 0 50px #555;
+}
+.dialog a {
+color: #004eb8;
+}
+.dialog-footer a {
+color: #555555;
+text-decoration: none;
+}
+.dialog-footer a:hover {
+color: #000000;
+text-decoration: underline;
+}
+.dialog-footer .foot-status {
+float: left;
+padding-top: 3px;
+opacity: 0.8;
+}
+
+.dialog-title {
+background: #fff;
+color: #000;
+cursor: default;
+font-size: 16px;
+margin: 5px 5px 0;
+padding: 4px 4px 0px 4px;
+position: relative;
+border-top-left-radius: 4px;
+border-top-right-radius: 4px;
+/*height: 31px;*/
+}
+
+.dialog-message {
+background: #fff;
+margin: 0 5px;
+padding: 8px;
+font-size: 100%;
+color: #333;
+/*max-height: 400px;*/
+}
+.dialog-scroll {
+overflow-y: auto;
+}
+
+.mav-no-title {
+margin-top: 5px;
+}
+
+.mav-no-footer {
+margin-bottom: 5px;
+}
+
+.mav-alert-msg {
+margin-left: 10px;
+}
+
+.mav-prompt-input {
+width: 330px;
+height: 25px;
+font-size: 100%;
+padding: 2px 0 0 2px;
+}
+
+.message-title {
+padding-bottom: 6px;
+margin-bottom: 6px;
+}
+
+.dialog-footer {
+background: #fff;
+margin: 0 5px 5px;
+}
+
+.dialog-footer .foot-wrap {
+background: #bfdeff;
+padding: 7px 5px 3px 5px;
+height: 22px;
+}
+
+.dialog-footer .foot-wrap .image-button:first-child {
+margin-right: 3px;
+}
+
+.md-title-text {
+overflow: hidden;
+display: block;
+text-align: center;
+padding-right: 25px;
+padding-bottom: 4px;
+border-bottom: 1px solid #EFEFEF;
+}
+.dialog-tabs .md-title-text {
+border-bottom: 0px;
+padding-bottom: 0px;
+}
+
+.md-closer {
+position: absolute;
+right: 4px;
+top: 3px;
+background-position: right 1px;
+background-image: url(/i/img/dialog/cross.png);
+height: 25px;
+}
+.md-closer:active {
+background-image: url(/i/img/dialog/cross-pushed.png);
+}
+.dialog-shade {
+border: 0;
+left: 0;
+top: 0;
+position: fixed;
+right: 0;
+bottom: 0;
+background: #000;
+opacity: 0.5;
+z-index: 10;
+}
+
+.mav-content {
+padding: 20px;
+}
+
+/* Убираем лишние бордюры у tinyMCE */
+.dialog table.mceLayout {
+border: 0 !important;
+}
+.dialog table.mceLayout tr.mceFirst td {
+border-top: 0 !important;
+}
+.dialog table.mceLayout tr.mceLast td {
+border-bottom: 0 !important;
+}
+.dialog-nopadding {
+padding: 0;
+}
+
+.dialog-tabs .md-title-text ul {
+margin: 0px;
+padding: 0px;
+}
+.dialog-tabs .md-title-text li {
+margin: 0px 2px 0px 0px;
+list-style: none;
+float: left;
+}
+.dialog-tabs .dialog-title {
+background-color: #FFEE9F;
+}
+.dialog-tabs .dialog-title .md-title-text ul {
+line-height: 1.1em;
+}
+.dialog-tabs .md-title-text a {
+border: 1px solid transparent;
+display: block;
+height: 27px;
+background-color: #DEDCC7;
+}
+.dialog-tabs .md-title-text li a {
+text-decoration: none;
+border-top-left-radius: 3px;
+border-top-right-radius: 3px;
+color: rgba(0, 0, 0, 0.5);
+}
+.dialog-tabs .md-title-text li.tab-selected a {
+background-color: #FFFFFF;
+border-bottom: 1px solid #FFFFFF;
+color: #000;
+}
+.dialog-tabs .md-title-text li a span {
+display: block;
+margin: 3px 10px 0px 10px;
+}
+.dialog-progress {
+height: 19px;
+margin: 7px 0px 5px 0px;
+background: url(../../../i/img/loader-flat.gif) no-repeat bottom center;
+}
+.dialog-progress.stopped {
+background: none;
+}
+.dialog-message-loader {
+text-align: center;
+}
+.dialog-loader-title {
+display: block;
+color: #FFFFFF;
+text-align: center;
+}
+
+.dialog-loading {
+padding: 8px 8px 15px 8px;
+}
+
+/* dialog apeform */
+
+.dialog .apeform {
+padding-top: 10px;
+}
+.dialog .apeform input#oki[type="submit"] {
+margin-top: 5px;
+margin-bottom: 5px;
+}
+.dialog .apeform .element, .dialog .apeform h3 {
+padding-left: 8px;
+padding-right: 8px;
+}
+.apeform h3 {
+padding-bottom: 0px;
+margin-bottom: 0px;
+}
+.dialog .apeform .smIcons {
+margin-left: 5px;
+}
+
+.mav-center {
+text-align: center;
+}
+
+.dialog-footer.loading .foot-wrap, .dialog-message.loading {
+background-image: url(/i/img/loader-horizontal.gif);
+background-repeat: repeat-x;
+}
+.dialog-footer.loading .foot-wrap {
+background-position: 0px 32px;
+}
+.dialog-message.loading {
+background-position: bottom;
+}
+
+.dialog-addPhotos .btn2 {
+margin-bottom: 10px;
+}
+
+.dialog textarea { 
+resize: none;
+}
+
+.dialog .bHandle {
+height: 5px;
+cursor: n-resize;
+}
+.tab-menu a {
+font-size: 14px;
+}
+
+.textBefore, .textAfter {
+padding: 10px;
+}
+.textAfter {
+padding-top: 3px;
+padding-bottom: 1px;
+}
+.textBefore {
+background-color: #F1F0DF;
+border-bottom: 1px solid #CCC
+}
+.textBefore .textAfter {
+padding: 10px;
+}
+
+
+
+
+.dialog .vResizeHandler {
+height: 12px;
+position: absolute;
+bottom: -1px;
+width: 100%;
+background: url(/i/img/handler/hHandler.png) no-repeat center 3px;
+cursor: s-resize;
+}
+.vResize .dialog-footer, .vResize .dialog-message.mav-no-footer {
+margin-bottom: 12px;
+}
+
+.dialog-confirm h3 {
+text-align: center;
+}
+.dialog-confirm .checkbox {
+margin-left: 5px;
+width: 200px;
+height: 40px;
+white-space: normal;
+}
+.dialog-confirm .checkbox label {
+position: absolute;
+padding-left: 5px;
+}
+.dialog-confirm .checkbox {
+position: relative;
+}
+/*--|/home/user/ngn-env/ngn/i/css/common/form.css|--*/
+/* Звездочки около названий полей */
+.apeform .reqStar {
+color: #FF0000;
+}
+
+.apeform td {
+vertical-align: top;
+border-bottom: 1px solid #CCCCCC;
+}
+.dialog .apeform input[type=text], .dialog .apeform input[type=password] {
+max-width: 100%;
+}
+.apeform #titlei, .apeform input[name=title], input.fldLarge {
+width: 100%;
+box-sizing: border-box;
+-webkit-box-sizing:border-box;
+-moz-box-sizing: border-box;
+-ms-box-sizing: border-box;
+font-size: 18px;
+}
+.fieldFullWidth input[type=text] {
+width: 100%;
+}
+.apeform .placeholders input {
+padding: 3px 5px;
+padding-left: 23px;
+}
+.apeform .placeholders select {
+padding-left: 19px;
+height: 24px;
+}
+.apeform .placeholders .reqStar {
+position: absolute;
+top: 3px;
+left: 8px;
+font-size: 22px;
+}
+/* Обнуляем свойство для таблицы инструментов визуального редактора */
+.apeform table table {
+width: auto;
+}
+.apeform table table td {
+vertical-align: middle;
+border-bottom: none;
+padding: 0px;
+}
+
+/*--------- перенесено из design.css ------------- */
+.apeform table {
+width: 100%;
+}
+.apeform textarea {
+width: 100%;
+height: 30px;
+}
+.apeform a.btnSubmit {
+width: 200px;
+}
+.apeform p.label {
+margin: 2px 0px 3px 0px;
+}
+.apeform .help {
+font-size: 10px;
+margin-top: 2px;
+/*height: 14px;*/
+/*clear: both;*/
+}
+/*
+.apeform .type_file .help {
+width: 200px;
+float: left;
+}
+*/
+.apeform .type_price input {
+width: 100px !important;
+}
+.apeform .type_time input {
+width: 50px !important;
+}
+
+/*--------- Element ---------*/
+.apeform .element {
+padding: 5px;
+padding-right: 7px;
+position: relative;
+}
+.elNoPadding .apeform .element {
+padding: 0;
+}
+
+.headerToggleClosed {
+padding-bottom: 5px; /* должно быть таким же как и отступ сверху элемента ".apeform .element" */
+}
+.apeform h3 {
+padding-left: 5px;
+font-size: 14px;
+}
+.apeform .staticText {
+padding: 0 10px;
+}
+.apeform .element.row_ok {
+border-bottom: none;
+padding-top: 5px;
+}
+/* убираем отступ у кнопок */
+.apeform .element .iconsSet a {
+margin-bottom: 0px;
+}
+
+
+.apeform .type_tagsMultiselect div label,
+.apeform .type_multiselect div label {
+margin-right: 10px;
+}
+
+.apeform .iconsSet {
+/*padding-top: 3px; сделать это более четким */
+}
+.apeform .iconsSet a {
+color: #999999;
+}
+.apeform .iconsSet a:hover {
+color: #000000;
+}
+
+
+.tagsTreeSelect ul {
+margin: 0px;
+}
+.tagsTreeSelect li {
+list-style: none;
+margin: 0px;
+}
+.tagsTreeSelect ul ul {
+margin-left: 15px;
+}
+.tagsTreeSelect ul ul {
+margin-left: 15px;
+}
+.tagsTreeSelect .marker {
+display: inline-block;
+width: 10px;
+}
+
+
+.apeform .error {
+background: none;
+color: #8a1f11;
+padding: 0px;
+margin-bottom: 0px;
+border: 0px;
+}
+
+
+.consecutiveSelect .loader {
+background-position: bottom right;
+}
+.consecutiveSelect {
+float: left;
+padding-right: 20px;
+}
+.consecutiveSelect .arrow {
+float: left;
+margin-right: 3px;
+}
+.consecutiveSelect select {
+display: block;
+float: left;
+margin-right: 3px;
+}
+.type_ddCityRussia select {
+width: 150px;
+}
+
+
+
+.type_ddSlaveItemsSelect {
+display: none;
+}
+
+/* --------- multiText field ------------*/
+.type_multiText input {
+width: 400px;
+}
+.type_multiText .smIcons {
+margin-left: 5px;
+}
+.type_multiText .genRow {
+clear: both;
+}
+.type_multiText .genRow input {
+display: block;
+margin-bottom: 5px;
+float: left;
+}
+.type_multiText .add {
+display: block;
+clear: both;
+}
+
+
+
+/* --------- fieldSet ------------*/
+
+.fieldSet .element {
+float: left;
+padding-right: 0px;
+padding-bottom: 0px;
+}
+.fieldSet .element input[type=text] {
+width: 150px;
+}
+.fieldSet .bottomBtns a {
+float: none !important;
+display: inline-block;
+margin: 10px 10px 5px 5px;
+}
+.fieldSet a.bordered {
+/*position: absolute;
+bottom: 0px;
+right: 0px;
+*/
+}
+/*
+.fieldSet .hgrp {
+clear: both;
+float: left;
+position: relative;
+padding-right: 25px;
+}
+*/
+.fieldSet .rowElement {
+position: relative;
+}
+.fieldSet .rowNumber {
+display: inline-block;
+padding-right: 5px;
+}
+
+.type_submit:after {
+content: ".";
+display: block;
+height: 0;
+clear: both;
+visibility: hidden;
+}
+
+.apeform .colSet {
+display: table;
+}
+.apeform .colSet.colN2 .type_col {
+width: 50%;
+}
+.apeform .colSet.colN3 .type_col {
+width: 33%;
+}
+.apeform .colSet.colN4 .type_col {
+width: 25%;
+}
+.apeform .colSet.colN5 .type_col {
+width: 20%;
+}
+.apeform .type_col {
+display: table-cell;
+}
+.apeform .type_col:first-child {
+border-left: none;
+}
+.apeform .type_col .element:last-child {
+border-bottom: none;
+}
+
+/*----------------dropdownWin---------------*/
+.dropdownTitle {
+padding: 5px;
+border-bottom: 1px solid #CCCCCC;
+background-color: #FFEB8F;
+}
+.dropdownWin {
+position: absolute;
+border: 1px solid #CCCCCC;
+background: #FFFFFF;
+width: 270px;
+padding: 0px;
+overflow: nidden;
+}
+.dropdownBody {
+height: 200px;
+}
+
+
+.captcha {
+width: 160px;
+height: 80px;
+background: url(/i/img/black/loader.gif) center center no-repeat;
+}
+
+.longElement {
+height: 100px;
+overflow-y: scroll;
+}
+.longElement .checkbox {
+display: block;
+}
+.checkbox input, .radio input {
+margin-right: 5px;
+vertical-align: middle;
+}
+.radio input {
+margin-right: 3px;
+}
+.checkbox label, .radio label {
+vertical-align: middle;
+}
+.checkbox, .radio {
+padding-right: 15px;
+white-space: nowrap;
+display: inline-block;
+}
+.apeform .checkbox label,
+.apeform .radio label,
+.apeform .treeCheckbox label {
+border-bottom: 1px dotted transparent;
+}
+.apeform .checkbox:hover label,
+.apeform .radio:hover label,
+.apeform .treeCheckbox:hover label {
+border-color: #000;
+cursor: pointer;
+}
+
+.apeform .checkboxText {
+padding-left: 5px;
+}
+
+
+.dropdownWin-pagesTree {
+color: #000000;
+}
+
+
+.fileNav {
+float: right;
+}
+.dialog .iconsSet.fileNav .iconBtn {
+margin-left: 10px;
+}
+.fileNav .thumb {
+margin-right: 0;
+}
+.fileNav .thumb img {
+max-width: 50px;
+max-height: 50px;
+}
+
+textarea {
+display: block;
+box-sizing: border-box;
+-webkit-box-sizing:border-box;
+-moz-box-sizing: border-box;
+-ms-box-sizing: border-box;
+}
+
+.type_ddCity select {
+width: 100px;
+}
+
+.type_ddTagsMultiselect .help {
+margin-top: 5px;
+}
+
+.elWisiwig {
+padding: 0px !important;
+}
+.elWisiwig .label {
+display: none;
+}
+
+.field-wrapper {
+position: relative;
+}
+.advice {
+font-size: 12px;
+}
+.advice-wrapper {
+position: absolute;
+left: 7px;
+padding-top: 9px;
+display: inline-block;
+max-width: 290px;
+}
+.advice-wrapper .corner {
+background: url(/i/img/black/corner.png) no-repeat;
+top: 0px;
+left: 10px;
+width: 10px;
+height: 10px;
+position: absolute;
+}
+.validation-advice {
+clear: both;
+padding: 5px 10px;
+display: inline-block;
+border: 1px solid #FFBF00;
+border-radius: 5px;
+background: #FFF9DF;
+color: #555;
+box-shadow: 0 0 5px #FFC926;
+}
+
+input.fld, textarea, input[type=text], input[type=password] {
+border: 1px solid #BFBFBF;
+border-bottom: 1px solid #DFDFDF;
+border-right: 1px solid #DFDFDF;
+}
+input[type=text].active, input[type=password].active {
+background: #FFF4BF;
+color: #000000;
+}
+
+.longMultiselect .checkbox {
+display: block;
+}
+.longMultiselect .field-wrapper {
+height: 150px;
+overflow-y: auto;
+}
+
+.type_datetime input[type=text] {
+width: 25px;
+text-align: center;
+}
+
+.type_user input.ac {
+background: url(/i/img/icons/user.png) no-repeat 5px 5px;
+padding-left: 20px;
+}
+.fileProgress {
+margin: 2px 0;
+height: 3px;
+background: #87867C;
+width: 0;
+}
+.fileDroppable {
+clear: both;
+width: 100%;
+padding: 10px;
+background: url(/i/img/black/drag-bg.gif);
+background-color: #FFD515;
+border: 1px solid #CCC;
+border-radius: 10px;
+}

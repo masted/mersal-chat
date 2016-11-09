@@ -1,0 +1,10 @@
+form(action="/api/v1/admin/user/update")
+    input(name="_id",  type="hidden", value="#{_id}")
+    p
+        input(name="login", placeholder="login", value="#{login}")
+    p
+        input(name="phone", placeholder="phone", value="#{phone}")
+    p
+        input(name="password", type="password", placeholder="password", value="#{password}")
+    p
+        input(type="submit", value="save")

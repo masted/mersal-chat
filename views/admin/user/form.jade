@@ -1,0 +1,31 @@
+.apeform
+    form#f3cde258a57db39721e5e59b4b557bb01(action='', method='post')
+        .element.row_phone.type_text.name_phone
+            p.label
+                span.ttl Phone
+                b.reqStar(title='Required', style='cursor:help') *
+                span :
+            .field-wrapper
+                input#phonei.required(size='40', type='text', maxlength='255', name='phone', value='#{phone}')
+            .help
+            .clear
+        .element.row_login.type_text.name_login
+            p.label
+                span.ttl Login
+                b.reqStar(title='Required', style='cursor:help') *
+                span :
+            .field-wrapper
+                input#logini.required(size='40', type='text', maxlength='255', name='login', value='#{login}')
+            .help
+            .clear
+        .element.row_password.type_password.name_password
+            p.label
+                span.ttl Password
+                b.reqStar(title='Required', style='cursor:help') *
+                span :
+            .field-wrapper
+                input#passwordi.required(size='40', type='password', maxlength='255', name='password', value='#{password}')
+            .help
+            .clear
+        input#formIdi(size='40', type='hidden', maxlength='255', name='formId', value='f3cde258a57db39721e5e59b4b557bb01')
+        .clear
