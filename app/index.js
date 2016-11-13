@@ -184,21 +184,27 @@ app.get('/api/v1/user/info', function(req, res) {
 });
 
 /**
- * @api {get} /users/list Getting users list
+ * @api {get} /users/list/:status Getting users list
  * @apiName List
  * @apiGroup Users
+ *
+ * @apiParam {String} status Status ('online', 'offline'; optional)
  *
  * @apiSampleRequest /users/list
  */
 app.get('/api/v1/users/list', function(req, res) {
-  db.collection('users').find({}, {
+  var query = {};
+  if (req.query.status && (req.query.status == 'online' || req.query.status == 'offline')) {
+    query.status = req.query.status;
+  }
+  db.collection('users').find(query, {
     login: 1,
-    phone: 1
+    phone: 1,
+    status: 1
   }).toArray(function(err, users) {
     res.json(users);
   });
 });
-
 
 /**
  * @api {get} /user/create/:phone/:login/:password Create user
