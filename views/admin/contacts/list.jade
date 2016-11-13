@@ -1,0 +1,9 @@
+link(rel='stylesheet', type='text/css', href='/css/grid.css')
+script(src='/javascripts/Ngn.Grid.js')
+#table
+a(href='/admin/logout', style='position: absolute; right: 10; top: 7; display:block;')
+    span Logout
+script.
+    new Ngn.Grid({
+        basePath: '/admin/contacts/#{userId}'
+    }).reload();

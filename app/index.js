@@ -1,3 +1,5 @@
+// apidoc -f ".*index\\.js" -i app
+
 Array.prototype.clean = function(deleteValue) {
   for (var i = 0; i < this.length; i++) {
     if (this[i] == deleteValue) {
@@ -17,6 +19,8 @@ var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({
   extended: true
 }));
+app.set('view engine', 'jade');
+//app.set('views', __dirname + '/views');
 
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
@@ -86,7 +90,7 @@ var push = function(user, msg) {
 };
 
 /**
- * @api {get} /api/v1/login/:login/:password Login
+ * @api {get} /login/:login/:password Login
  * @apiDescription Token expiration time: 1 week
  * @apiName Login
  * @apiGroup Auth
@@ -105,8 +109,6 @@ var push = function(user, msg) {
  * @apiErrorExample Error-Response:
  *   HTTP/1.1 404 Not Found
  *   {"error": "no user"}
- *
- * @apiSampleRequest http://chat.311.su:8081/api/v1/login
  */
 app.get('/api/v1/login', function(req, res) {
   db.collection('users').findOne({
@@ -123,6 +125,7 @@ app.get('/api/v1/login', function(req, res) {
     }
     profile.device = req.query.device;
     profile.deviceToken = req.query.deviceToken;
+    console.log(profile);
     var token = jwt.sign(profile, jwtSecret, {expiresIn: 60 * 60 * 24 * 7});
     res.json({token: token});
   });
@@ -148,7 +151,7 @@ app.get('/api/v1/login', function(req, res) {
 //});
 
 /**
- * @api {get} /api/v1/user/info/:phone Get user info
+ * @api {get} /user/info/:phone Get user info
  * @apiName GetUserInfo
  * @apiGroup User
  *
@@ -160,7 +163,7 @@ app.get('/api/v1/login', function(req, res) {
  *   HTTP/1.1 404 Not Found
  *   {"error": "error message"}
  *
- * @apiSampleRequest http://chat.311.su:8081/api/v1/user/info
+ * @apiSampleRequest /user/info
  */
 app.get('/api/v1/user/info', function(req, res) {
   console.log('get info by ' + req.query.phone);
@@ -181,7 +184,24 @@ app.get('/api/v1/user/info', function(req, res) {
 });
 
 /**
- * @api {get} /api/v1/user/create/:phone/:login/:password Create user
+ * @api {get} /users/list Getting users list
+ * @apiName List
+ * @apiGroup Users
+ *
+ * @apiSampleRequest /users/list
+ */
+app.get('/api/v1/users/list', function(req, res) {
+  db.collection('users').find({}, {
+    login: 1,
+    phone: 1
+  }).toArray(function(err, users) {
+    res.json(users);
+  });
+});
+
+
+/**
+ * @api {get} /user/create/:phone/:login/:password Create user
  * @apiName Create
  * @apiGroup User
  *
@@ -195,7 +215,7 @@ app.get('/api/v1/user/info', function(req, res) {
  *   HTTP/1.1 404 Not Found
  *   {"error": "error message"}
  *
- * @apiSampleRequest http://chat.311.su:8081/api/v1/user/create
+ * @apiSampleRequest /user/create
  */
 app.get('/api/v1/user/create', function(req, res) {
   if (!req.query.phone) {
@@ -255,8 +275,22 @@ var tokenReq = function(req, res, resCallback) {
   });
 };
 
+var fakeTokenRequest = function(req, res, resCallback) {
+  var user = {
+    _id: '57e9120d8e2016833717515f',
+    id: 79202560776,
+    login: 'Anton',
+    phone: '888',
+    password: '888',
+    status: 'offline',
+    device: 'android',
+    deviceToken: ''
+  };
+  resCallback(res, user);
+};
+
 /**
- * @api {get} /api/v1/user/update/:name/:surname/:password Update user
+ * @api {get} /user/update/:name/:surname/:password Update user
  * @apiName Update
  * @apiGroup User
  *
@@ -271,8 +305,6 @@ var tokenReq = function(req, res, resCallback) {
  * @apiErrorExample Error-Response:
  *   HTTP/1.1 404 Not Found
  *   {"error": "error message"}
- *
- * @apiSampleRequest http://chat.311.su:8081/api/v1/user/update
  */
 app.get('/api/v1/user/update', function(req, res) {
   tokenReq(req, res, function(res, user) {
@@ -294,14 +326,13 @@ var path = require('path');
 app.use(express.static(path.join(__dirname, 'public')));
 
 /**
- * @api {post} /api/v1/user/upload Upload photo
+ * @api {post} /user/upload Upload photo
  * @apiName Upload photo
  * @apiDescription <a href="http://chat.311.su:8081/upload">Web example</a>
  * @apiGroup User
  *
  * @apiParam {String} token JWT token
  * @apiParam {File} image Image (File via multipart/form-data)
- *
  */
 app.post('/api/v1/user/upload', function(req, res) {
   tokenReq(req, res, function(res, user) {
@@ -320,6 +351,68 @@ app.post('/api/v1/user/upload', function(req, res) {
   });
 });
 
+/**
+ * @api {get} /contacts/update/:phones Update contacts
+ * @apiName UpdateContacts
+ * @apiGroup Contacts
+ *
+ * @apiParam {String} token JWT token
+ * @apiParam {Array} phones Phones separeted by quote ","
+ */
+app.get('/api/v1/contacts/update', function(req, res) {
+  fakeTokenRequest(req, res, function(res, user) {
+    var phones = req.query.phones.split(',');
+    var records = [];
+    for (var i = 0; i < phones.length; i++) {
+      records.push({
+        userId: user._id,
+        phone: phones[i]
+      });
+      db.collection('contacts').insert(records);
+    }
+  });
+});
+
+app.get('/admin/contacts/:userId', function(req, res) {
+  res.render('admin/contacts/list', {
+    userId: req.params.userId
+  });
+});
+
+
+app.param('userId', function(req, res, next, userId) {
+  db.collection('users').findOne({
+    _id: ObjectID(userId)
+  }, function(err, user) {
+    if (err) return next(err);
+    if (!user) return next({error: 'no error'});
+    req.user = user;
+    next()
+  });
+});
+
+app.get('/admin/contacts/:userId/json_getItems', function(req, res) {
+  var head = ['Phone'];
+  var data = {};
+  data.head = head;
+  data.body = [];
+  db.collection('contacts').find({
+    userId: req.user._id.toString()
+  }).toArray(function(err, contacts) {
+    for (var i = 0; i < contacts.length; i++) {
+      var item = {
+        id: contacts[i]._id,
+        data: {
+          phone: contacts[i].phone
+        }
+      };
+      data.body.push(item);
+    }
+    res.json(data);
+  });
+});
+
+
 // ----------------------------------------
 app.get('/upload', function(req, res) {
   res.sendFile(path.join(__dirname, 'upload.html'));
@@ -328,7 +421,7 @@ app.get('/upload', function(req, res) {
 var apn = require('apn');
 
 /**
- * @api {get} /api/v1/message/send/:fromUser/:toUser/:message Send a message
+ * @api {get} /message/send/:fromUser/:toUser/:message Send a message
  * @apiName SendMessage
  * @apiGroup Message
  *
@@ -337,7 +430,6 @@ var apn = require('apn');
  * @apiParam {String} message Message text
  *
  * @apiSuccess {String} success The string "success" on success
- * @apiSampleRequest http://chat.311.su:8081/api/v1/message/send
  */
 app.get('/api/v1/message/send', function(req, res) {
   tokenReq(req, res, function(res, user) {
@@ -375,7 +467,7 @@ app.get('/api/v1/message/send', function(req, res) {
 });
 
 /**
- * @api {get} /api/v1/message/getNew/:fromUser/:toUser Getting new messages from chat (FOR DEBUG ONLY)
+ * @api {get} /message/getNew/:fromUser/:toUser Getting new messages from chat (FOR DEBUG ONLY)
  * @apiName GetNew
  * @apiGroup Message
  *
@@ -383,7 +475,6 @@ app.get('/api/v1/message/send', function(req, res) {
  * @apiParam {Number} toUser Recipient user ID
  *
  * @apiSuccess {json} New messages
- * @apiSampleRequest http://chat.311.su:8081/api/v1/message/getNew
  */
 app.get('/api/v1/message/getNew', function(req, res) {
   //
@@ -419,13 +510,12 @@ app.get('/api/v1/message/getNew', function(req, res) {
 });
 
 /**
- * @api {get} /api/v1/message/markAsViewed/:_ids Mark as viewed
+ * @api {get} /message/markAsViewed/:_ids Mark as viewed
  * @apiName MarkAsViewed
  * @apiGroup Message
  *
  * @apiParam {String} token JWT token
  * @apiParam {String} _ids Object IDs separeted by quote ",". ID is the "_id" param of Mongo Document
- * @apiSampleRequest http://chat.311.su:8081/api/v1/message/markAsViewed
  */
 app.get('/api/v1/message/markAsViewed', function(req, res) {
   tokenReq(req, res, function(res, user) {
@@ -468,77 +558,88 @@ io.sockets.on('connection', socketioJwt.authorize({
   secret: jwtSecret,
   timeout: 15000 // 15 seconds to send the authentication message
 })).on('authenticated', function(socket) {
-  console.log('authenticated');
+  console.log('authenticated ' + socket.decoded_token._id);
+  // update status
+  db.collection('users').update({_id: ObjectID(socket.decoded_token._id)}, {
+    $set: {
+      status: 'online'
+    }
+  }, function(/*err, result*/) {
 
-  console.log(socket.decoded_token);
+    socket.emit('event', {type: 'authenticated'});
 
-
-  socket.emit('event', {type: 'authenticated'});
-
-  /**
-   * @api {emit} join Join a chat
-   * @apiGroup Socket
-   * @apiDescription Joins a chat
-   * @apiExample {js} Example usage:
-   *                  client.emit('join', {userId: 78888888888, chatId: 'chat79202560776'})
-   *
-   * @apiParam {String} userId User ID
-   * @apiParam {String} chatId Chat ID
-   */
-  socket.on('join', function(chat) {
-    console.log('joined ' + chat.chatId);
-    socket.emit('event', {
-      type: 'joined',
-      chat: chat
+    /**
+     * @api {emit} join Join a chat
+     * @apiGroup Socket
+     * @apiDescription Joins a chat
+     * @apiExample {js} Example usage:
+     *                  client.emit('join', {userId: 78888888888, chatId: 'chat79202560776'})
+     *
+     * @apiParam {String} userId User ID
+     * @apiParam {String} chatId Chat ID
+     */
+    socket.on('join', function(chat) {
+      console.log('joined ' + chat.chatId);
+      socket.emit('event', {
+        type: 'joined',
+        chat: chat
+      });
+      socket.chatId = chat.chatId;
+      socket.join(chat.chatId);
+      var fromUserId = chat.chatId.replace(/chat(\d+)/, '$1');
+      console.log('getting msgs from ' + fromUserId + ' to ' + chat.userId);
+      // sending new messages from db to client
+      db.collection('messages').find({
+        fromUser: '' + fromUserId,
+        toUser: '' + chat.userId,
+        viewed: false
+      }, {
+        //_id: 0
+      }).toArray(function(err, messages) {
+        console.log(messages);
+        io.in(socket.chatId).emit('event', {
+          type: 'messages',
+          messages: messages
+        });
+      });
     });
 
-    socket.chatId = chat.chatId;
-    socket.join(chat.chatId);
-    var fromUserId = chat.chatId.replace(/chat(\d+)/, '$1');
-    console.log('getting msgs from ' + fromUserId + ' to ' + chat.userId);
-    // sending new messages from db to client
-    db.collection('messages').find({
-      fromUser: '' + fromUserId,
-      toUser: '' + chat.userId,
-      viewed: false
-    }, {
-      //_id: 0
-    }).toArray(function(err, messages) {
-      console.log(messages);
+    /**
+     * @api {emit} message Get new messages
+     * @apiGroup Socket
+     * @apiDescription Get a new messages from joined chat
+     *
+     * @apiParam {String} message Message text
+     */
+    socket.on('messages', function(messages) {
       io.in(socket.chatId).emit('event', {
         type: 'messages',
         messages: messages
       });
     });
+
+    socket.on('disconnect', function() {
+      db.collection('users').update({_id: ObjectID(socket.decoded_token._id)}, {
+        $set: {
+          status: 'offline'
+        }
+      });
+    });
+
   });
 
-  /**
-   * @api {emit} message Get new messages
-   * @apiGroup Socket
-   * @apiDescription Get a new messages from joined chat
-   *
-   * @apiParam {String} message Message text
-   */
-  socket.on('messages', function(messages) {
-    io.in(socket.chatId).emit('event', {
-      type: 'messages',
-      messages: messages
-    });
-  });
 
 });
 
 
 // -------- admin
 
-app.set('view engine', 'jade');
-
 app.get('/admin/users', function(req, res) {
   if (!req.session || !req.session.admin) {
     res.status(404).send('access denied. <a href="/admin">auth</a>');
     return;
   }
-  res.sendFile(__dirname + '/users.html');
+  res.render('admin/user/list');
 });
 
 app.get('/admin/users/json_getItems', function(req, res) {
@@ -547,7 +648,7 @@ app.get('/admin/users/json_getItems', function(req, res) {
     return;
   }
   pdb.collection('users');
-  var head = ['Phone', 'Login'];
+  var head = ['ID', 'Phone', 'Login', 'Status'];
   pdb.users.find().toArray().then(function(users) {
     var data = {};
     data.head = head;
@@ -560,8 +661,10 @@ app.get('/admin/users/json_getItems', function(req, res) {
           edit: 'Edit'
         },
         data: {
+          id: users[i]._id,
           phone: users[i].phone,
-          login: users[i].login
+          login: users[i].login,
+          status: users[i].status
         }
       }
       data.body.push(item);
