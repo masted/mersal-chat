@@ -1,3 +1,5 @@
-#marsel-2persons-chat#
+#Mersal Chat Server
 
-http://chat.311.su:3000/doc
+##Generating docs
+
+    apidoc -i app/lib/routes/api
