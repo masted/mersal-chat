@@ -2,23 +2,28 @@ class Chat
   messages: []
   constructor: (@userInfo, @toUserId) ->
     MicroEvent.mixin @
+  restart: () ->
+    @socket.disconnect()
+    @socket.connect();
   startSocket: (token, chatId) ->
-    socket = io.connect()
+    @token = token
+    @chatId = chatId
+    @socket = socket = io.connect()
     socket.on 'connect', (->
       socket.emit 'authenticate',
         token: token
-      .on 'authenticated', (->
-        @chatId = chatId
-        socket.emit 'join',
-          userId: 2
-          chatId: chatId
-      ).bind(this)
-      .on 'event', ((data) ->
-          @.trigger data.type, data
-        ).bind(@)
-      .on 'unauthorized', (msg) ->
-          console.log 'unauthorized: ' + JSON.stringify(msg.data)
     ).bind(@)
+    socket.on 'authenticated', (->
+      @chatId = chatId
+      socket.emit 'join',
+        chatId: chatId
+    ).bind(@)
+    .on 'event', ((data) ->
+      console.log data
+      @.trigger data.type, data
+    ).bind(@)
+    .on 'unauthorized', (msg) ->
+      console.log 'unauthorized: ' + JSON.stringify(msg.data)
   start: () ->
     new Request.JSON(
       url: '/api/v1/login'
@@ -41,6 +46,7 @@ class Chat
         console.log('status: ' + status);
       ).bind(@)
     ).get(
+      token: @token
       chatId: @chatId
       message: message
     )

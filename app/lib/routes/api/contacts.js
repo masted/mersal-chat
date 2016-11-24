@@ -15,7 +15,7 @@ module.exports = function(server) {
   };
 
   /**
-   * @api {get} /contacts/update/:phones Update contacts
+   * @api {get} /contacts/update Update contacts
    * @apiName UpdateContacts
    * @apiGroup Contacts
    *

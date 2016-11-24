@@ -10,6 +10,7 @@ class Server
     require('./routes/admin/contacts')(@)
     require('./routes/debug')(@)
     require('./socket')(@)
+    require('./dev')(@)
   tokenReq: (req, res, resCallback) ->
     @jwt.verify(req.query.token, @config.jwtSecret, (err, decoded) ->
       if !err
@@ -17,5 +18,22 @@ class Server
       else
         res.send err
     )
+  djb2Code: (str) ->
+    hash = 5381
+    i = 0
+    while i < str.length
+      char = str.charCodeAt(i)
+      hash = (hash << 5) + hash + char
+      i++
+    hash
+  chatName: (fromUserId, toUserId) ->
+    if @djb2Code(fromUserId) < @djb2Code(toUserId)
+      userId1 = fromUserId
+      userId2 = toUserId
+    else
+      userId1 = toUserId
+      userId2 = fromUserId
+    return 'chat-' + userId1 + '-' + userId2
+
 
 module.exports = Server

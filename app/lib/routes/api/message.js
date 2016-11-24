@@ -1,7 +1,53 @@
 module.exports = function(server) {
 
+  var saveViewed = function(messages, ownUserId, viewed, onComplete) {
+    if (!ownUserId) throw new Error('ownUserId not defined');
+    if (!onComplete) onComplete = function() {
+    };
+    var total = messages.length, result = [];
+    var _save = function(doc, callback) {
+      server.db.collection('mViewed').updateOne({
+        messageId: doc._id,
+        chatId: doc.chatId,
+        ownUserId: ownUserId,
+        viewed: viewed
+      }, {
+        messageId: doc._id,
+        chatId: doc.chatId,
+        ownUserId: ownUserId,
+        viewed: viewed
+      }, {
+        upsert: true
+      }, function(err, r) {
+        console.log('save mViewed ' + viewed + '; msgId=' + doc._id);
+        callback();
+      });
+    };
+    var saveAll = function() {
+      var doc = messages.pop();
+      _save(doc, function() {
+        if (--total) {
+          saveAll();
+        } else {
+          onComplete();
+        }
+      });
+    };
+    saveAll();
+  };
+
+  var setViewed = function(server, ids, ownUserId, viewed, onComplete) {
+    server.db.collection('messages').find({
+      _id: {
+        $in: ids
+      }
+    }).toArray(function(err, messages) {
+      saveViewed(messages, ownUserId, viewed, onComplete);
+    });
+  };
+
   /**
-   * @api {get} /message/send/:chatId/:message Send a message
+   * @api {get} /message/send Send a message
    * @apiName SendMessage
    * @apiGroup Message
    *
@@ -13,14 +59,28 @@ module.exports = function(server) {
    */
   server.app.get('/api/v1/message/send', function(req, res) {
     server.tokenReq(req, res, function(res, user) {
-      server.db.collection('messages').insertOne({
+      var message = {
         userId: user._id,
         chatId: req.query.chatId,
-        message: req.query.message,
-        viewed: false
+        message: req.query.message
+      };
+      server.db.collection('messages').insertOne(message, function(err, r) {
+        server.io.in(req.query.chatId).emit('event', {
+          type: 'newMessage',
+          message: message
+        });
       });
-      io.in('events' + req.query.toUser).emit('newMessage', {
-        fromUser: req.query.fromUser
+
+      server.db.collection('chatUsers').find({
+        chatId: req.query.chatId
+      }, {
+        userId: 1
+      }).toArray(function(err, userIds) {
+
+        for (var i = 0; i < userIds.length; i++) {
+
+          setViewed(server, [message._id], userIds[i].userId, userIds[i].userId == user._id);
+        }
       });
       res.send('success');
     });
@@ -69,28 +129,29 @@ module.exports = function(server) {
   //   });
   // });
   //
-  // /**
-  //  * @api {get} /message/markAsViewed/:_ids Mark as viewed
-  //  * @apiName MarkAsViewed
-  //  * @apiGroup Message
-  //  *
-  //  * @apiParam {String} token JWT token
-  //  * @apiParam {String} _ids Object IDs separeted by quote ",". ID is the "_id" param of Mongo Document
-  //  */
-  // server.app.get('/api/v1/message/markAsViewed', function(req, res) {
-  //   tokenReq(req, res, function(res, user) {
-  //     var ids = req.query._ids.split(',');
-  //     db.collection('messages').updateMany({
-  //       _id: new db.ObjectID.createFromHexString('57ea54fd8a2fef5fea82041f')
-  //     }, {
-  //       $set: {
-  //         viewed: true
-  //       }
-  //     }, function(err, r) {
-  //       console.log(r.result);
-  //       res.send(r.result.n ? 'success' : 'failed');
-  //     });
-  //   });
-  // });
+
+  /**
+   * @api {get} /api/v1/message/markAsViewed Mark as viewed
+   * @apiName MarkAsViewed
+   * @apiGroup Message
+   *
+   * @apiParam {String} token JWT token
+   * @apiParam {String} _ids Object IDs separeted by quote ",". ID is the "_id" param of Mongo Document
+   */
+  server.app.get('/api/v1/message/markAsViewed', function(req, res) {
+    server.tokenReq(req, res, function(res, user) {
+      if (!req.query._ids) {
+        res.status(404).send({error: '_ids not defined'})
+        return;
+      }
+      var ids = req.query._ids.split(',');
+      ids = ids.map(function(id) {
+        return server.db.ObjectID.createFromHexString(id)
+      });
+      setViewed(server, ids, user._id, true, function(n) {
+        res.send('success');
+      });
+    });
+  });
 
 };

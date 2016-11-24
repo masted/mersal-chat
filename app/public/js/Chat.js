@@ -11,24 +11,32 @@
       MicroEvent.mixin(this);
     }
 
+    Chat.prototype.restart = function() {
+      this.socket.disconnect();
+      return this.socket.connect();
+    };
+
     Chat.prototype.startSocket = function(token, chatId) {
       var socket;
-      socket = io.connect();
-      return socket.on('connect', (function() {
+      this.token = token;
+      this.chatId = chatId;
+      this.socket = socket = io.connect();
+      socket.on('connect', (function() {
         return socket.emit('authenticate', {
           token: token
-        }).on('authenticated', (function() {
-          this.chatId = chatId;
-          return socket.emit('join', {
-            userId: 2,
-            chatId: chatId
-          });
-        }).bind(this)).on('event', (function(data) {
-          return this.trigger(data.type, data);
-        }).bind(this)).on('unauthorized', function(msg) {
-          return console.log('unauthorized: ' + JSON.stringify(msg.data));
         });
       }).bind(this));
+      return socket.on('authenticated', (function() {
+        this.chatId = chatId;
+        return socket.emit('join', {
+          chatId: chatId
+        });
+      }).bind(this)).on('event', (function(data) {
+        console.log(data);
+        return this.trigger(data.type, data);
+      }).bind(this)).on('unauthorized', function(msg) {
+        return console.log('unauthorized: ' + JSON.stringify(msg.data));
+      });
     };
 
     Chat.prototype.start = function() {
@@ -55,6 +63,7 @@
           return console.log('status: ' + status);
         }).bind(this)
       }).get({
+        token: this.token,
         chatId: this.chatId,
         message: message
       });

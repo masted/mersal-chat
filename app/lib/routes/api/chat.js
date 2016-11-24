@@ -1,12 +1,10 @@
 module.exports = function(server) {
 
-  var chatName = function(fromUserId, toUserId) {
-    return 'chat-' + fromUserId + '-' + toUserId;
-  };
+
 
   server.app.get('/api/v1/chat/getIdByFromToUsers', function(req, res) {
     server.db.collection('chat').findOne({
-      name: chatName(req.fromUserId, req.toUserId)
+      name: server.chatName(req.fromUserId, req.toUserId)
     }, function(err, r) {
       if (r === null) {
         res.send('none');
@@ -31,7 +29,12 @@ module.exports = function(server) {
       res.status(404).send({error: 'toUserId not defined'});
       return;
     }
-    var name = chatName(req.query.fromUserId, req.query.toUserId);
+    if (req.query.fromUserId == req.query.toUserId) {
+      res.status(404).send({error: 'cat not create chat to yourself'});
+      return;
+    }
+    var name = server.chatName(req.query.fromUserId, req.query.toUserId);
+
     server.db.collection('chat').findOne({
       name: name
     }, function(err, chat) {
@@ -43,6 +46,17 @@ module.exports = function(server) {
           console.log('chat created ' + chat._id);
           res.json({chatId: chat._id});
         });
+        // chat users
+        server.db.collection('chatUsers').insertMany([
+          {
+            userId: req.query.fromUserId,
+            chatId: server.db.ObjectID(chat._id).toString()
+          },
+          {
+            userId: req.query.toUserId,
+            chatId: server.db.ObjectID(chat._id).toString()
+          }
+        ]);
       } else {
         res.json({chatId: chat._id});
       }

@@ -9,10 +9,6 @@ Array.prototype.clean = function(deleteValue) {
   }
   return this;
 };
-function dirname(path) {
-  return path.replace(/\\/g, '/').replace(/\/[^\/]*\/?$/, '')
-}
-// ----------
 
 var config = require('./config');
 var express = require('express');
@@ -52,42 +48,18 @@ app.use(session({
 }));
 // -------------
 
-var pdb = require('promised-mongo')(url);
-
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
-var clean = function(obj) {
-  for (var propName in obj) {
-    if (!obj[propName]) {
-      delete obj[propName];
-    }
-  }
-};
-
 mongoClient.connect(url, function(err, db) {
+
+
   console.log('mongo connected');
   db.ObjectID = mongodb.ObjectID;
-  var server = require('./lib/Server')
-  new server(config, app, db, io, jwt);
-});
 
-// mongoClient.connect(url, function(err, db) {
-//   console.log('mongo connected');
-//   db.ObjectID = mongodb.ObjectID;
-//   // modules
-//   require('./lib/routes/api/login')(app, db, config, jwt);
-//   require('./lib/routes/api/user')(app, db);
-//   require('./lib/routes/api/contacts')(app, db);
-//   require('./lib/routes/api/message')(app, db, jwt);
-//   require('./lib/routes/api/chat')(app, db);
-//   require('./lib/routes/admin/login')(app);
-//   require('./lib/routes/admin/users')(app, db);
-//   require('./lib/routes/admin/contacts')(app, db);
-//   require('./lib/routes/debug')(app);
-//   require('./lib/socket')(io, db, config);
-// });
+
+});
 
 http.listen(config.port, function() {
   console.log('listening on *:' + config.port);

@@ -1,5 +1,6 @@
 module.exports = function(server) {
   var socketioJwt = require('socketio-jwt');
+  //server.io.set('transports', ['websocket']);
 
   /**
    * @api {ws} /socket.io Connection
@@ -30,9 +31,10 @@ module.exports = function(server) {
     secret: server.config.jwtSecret,
     timeout: 15000 // 15 seconds to send the authentication message
   })).on('authenticated', function(socket) {
-    console.log('authenticated ' + socket.decoded_token._id);
+    var userId = socket.decoded_token._id;
+    console.log('authenticated userId=' + userId);
     // update status
-    server.db.collection('users').update({_id: server.db.ObjectID(socket.decoded_token._id)}, {
+    server.db.collection('users').update({_id: server.db.ObjectID(userId)}, {
       $set: {
         status: 'online'
       }
@@ -60,34 +62,45 @@ module.exports = function(server) {
               error: 'chat does not exists'
             });
           } else {
+            console.log('joined ' + data.chatId);
+            socket.chatId = data.chatId;
+            socket.join(data.chatId);
+
             socket.emit('event', {
               type: 'joined'
             });
+
+
+            // ======================
+            server.db.collection('mViewed').find({
+              ownUserId: '' + userId,
+              chatId: '' + data.chatId,
+              viewed: false
+            }, {
+              messageId: 1
+            }).toArray(function(err, messageIds) {
+              console.log('-=----------------');
+              console.log(messageIds);
+            });
+
+            //        sending new messages from db to client
+            server.db.collection('messages').find({
+              chatId: '' + data.chatId
+            }).toArray(function(err, messages) {
+              if (messages.length === 0) {
+                console.log('NOTHING FOUND');
+                return;
+              }
+              server.io.in(data.chatId).emit('event', {
+                type: 'messages',
+                messages: messages
+              });
+            });
+
+            // ======================
+
           }
         });
-        console.log('joined ' + data.chatId);
-        socket.chatId = data.chatId;
-        var chatName = 'chat' + data.chatId;
-        socket.join(chatName);
-
-        //var fromUserId = chat.chatId.replace(/chat(\d+)/, '$1');
-        //console.log('getting msgs from ' + fromUserId + ' to ' + chat.userId);
-
-        // sending new messages from db to client
-        // db.collection('messages').find({
-        //   chatId: '' + fromUserId,
-        //   // toUser: '' + chat.userId,
-        //   viewed: false
-        // }, {
-        //   //_id: 0
-        // }).toArray(function(err, messages) {
-        //   console.log(messages);
-        //   io.in(socket.chatId).emit('event', {
-        //     type: 'messages',
-        //     messages: messages
-        //   });
-        // });
-
 
       });
 
@@ -106,6 +119,7 @@ module.exports = function(server) {
       });
 
       socket.on('disconnect', function() {
+        console.log('disconnect');
         server.db.collection('users').update({_id: server.db.ObjectID(socket.decoded_token._id)}, {
           $set: {
             status: 'offline'

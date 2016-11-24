@@ -19,6 +19,7 @@
       require('./routes/admin/contacts')(this);
       require('./routes/debug')(this);
       require('./socket')(this);
+      require('./dev')(this);
     }
 
     Server.prototype.tokenReq = function(req, res, resCallback) {
@@ -29,6 +30,30 @@
           return res.send(err);
         }
       });
+    };
+
+    Server.prototype.djb2Code = function(str) {
+      var char, hash, i;
+      hash = 5381;
+      i = 0;
+      while (i < str.length) {
+        char = str.charCodeAt(i);
+        hash = (hash << 5) + hash + char;
+        i++;
+      }
+      return hash;
+    };
+
+    Server.prototype.chatName = function(fromUserId, toUserId) {
+      var userId1, userId2;
+      if (this.djb2Code(fromUserId) < this.djb2Code(toUserId)) {
+        userId1 = fromUserId;
+        userId2 = toUserId;
+      } else {
+        userId1 = toUserId;
+        userId2 = fromUserId;
+      }
+      return 'chat-' + userId1 + '-' + userId2;
     };
 
     return Server;
