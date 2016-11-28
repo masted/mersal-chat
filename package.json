@@ -13,9 +13,9 @@
     "express": "^4.13.4",
     "express-session": "^1.14.2",
     "formidable": "^1.0.17",
+    "get-folder-size": "^1.0.0",
     "jade": "^1.11.0",
-    "node-gcm": "^0.14.4",
-    "promised-mongo": "^1.2.0",
+    "mocha": "^3.2.0",
     "socket.io": "^1.4.6",
     "socketio-jwt": "^4.3.4"
   }
