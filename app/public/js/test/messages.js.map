@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "messages.js",
+  "sourceRoot": "",
+  "sources": [
+    "messages.coffee"
+  ],
+  "names": [],
+  "mappings": ";AAAA;;AAAA"
+}

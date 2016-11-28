@@ -1,9 +1,34 @@
 module.exports = function(server) {
   var socketioJwt = require('socketio-jwt');
-  //server.io.set('transports', ['websocket']);
+  var MessageActions = require('../../actions/MessageActions');
+  var messageActions = new MessageActions(server.db);
+
+  server.event.on('newMessage', function(message) {
+    var clients = server.io.sockets.adapter.rooms[message.chatId];
+    if (!clients) return;
+    if (clients.sockets.length === 0) return;
+    var userMessages = {}
+    var userMessage;
+    var socket;
+    messageActions.getViewStatuses(message._id, function(statuses) {
+      for (var j =0; j<statuses.length; j++) {
+        userMessage = Object.assign({}, message);
+        userMessage.viewed = statuses[j].viewed;
+        userMessages[statuses[j].ownUserId] = userMessage;
+      }
+      for (var socketId in clients.sockets) {
+        socket = server.io.sockets.connected[socketId];
+        if (!userMessages[socket.userId]) continue;
+        socket.emit('event', {
+          type: 'newMessage',
+          message: userMessages[socket.userId]
+        });
+      }
+    });
+  });
 
   /**
-   * @api {ws} /socket.io Connection
+   * @api {ws} /socket.io Overview
    * @apiGroup Socket
    *
    * @apiDescription WebSocket API allows you to receive events from Chat Server in real time and send messages.
@@ -26,12 +51,17 @@ module.exports = function(server) {
    *                 <code>
    *                   client.emit('eventName', {someParam: 'asd'})
    *                 </code><br><br>
+   *                 <h2>Events:</h2>
+   *                 <code>{type: 'joined'}</code><br>
+   *                 <code>{type: 'newMessage', message: {...}}</code>
+   *                 </code>
    */
   server.io.sockets.on('connection', socketioJwt.authorize({
     secret: server.config.jwtSecret,
     timeout: 15000 // 15 seconds to send the authentication message
   })).on('authenticated', function(socket) {
     var userId = socket.decoded_token._id;
+    socket.userId = userId;
     console.log('authenticated userId=' + userId);
     // update status
     server.db.collection('users').update({_id: server.db.ObjectID(userId)}, {
@@ -40,18 +70,8 @@ module.exports = function(server) {
       }
     }, function(/*err, result*/) {
       socket.emit('event', {type: 'authenticated'});
-
-      /**
-       * @api {emit} join Join a chat
-       * @apiGroup Socket
-       * @apiDescription Joins a chat
-       * @apiExample {js} Example usage:
-       *                  client.emit('join', {userId: 78888888888, chatId: '582ed9b585da7c238f4a1f4e'})
-       *
-       * @apiParam {String} userId User ID
-       * @apiParam {String} chatId Chat ID
-       */
       socket.on('join', function(data) {
+        var messageActions = new MessageActions(server.db);
         console.log('joining chat ' + data.chatId);
         server.db.collection('chat').findOne({
           _id: server.db.ObjectID(data.chatId)
@@ -65,52 +85,19 @@ module.exports = function(server) {
             console.log('joined ' + data.chatId);
             socket.chatId = data.chatId;
             socket.join(data.chatId);
-
             socket.emit('event', {
               type: 'joined'
             });
-
-
-            // ======================
-            server.db.collection('mViewed').find({
-              ownUserId: '' + userId,
-              chatId: '' + data.chatId,
-              viewed: false
-            }, {
-              messageId: 1
-            }).toArray(function(err, messageIds) {
-              console.log('-=----------------');
-              console.log(messageIds);
-            });
-
-            //        sending new messages from db to client
-            server.db.collection('messages').find({
-              chatId: '' + data.chatId
-            }).toArray(function(err, messages) {
-              if (messages.length === 0) {
-                console.log('NOTHING FOUND');
-                return;
-              }
-              server.io.in(data.chatId).emit('event', {
-                type: 'messages',
-                messages: messages
-              });
-            });
-
-            // ======================
-
+            // new MessageActions(server.db).getUnseen(userId, data.chatId, function(messages) {
+            //   server.io.in(data.chatId).emit('event', {
+            //     type: 'messages',
+            //     messages: messages
+            //   });
+            // });
           }
         });
-
       });
 
-      /**
-       * @api {emit} message Get new messages
-       * @apiGroup Socket
-       * @apiDescription Get a new messages from joined chat
-       *
-       * @apiParam {String} message Message text
-       */
       socket.on('messages', function(messages) {
         io.in(socket.chatId).emit('event', {
           type: 'messages',

@@ -3,41 +3,32 @@
   new Request({
     url: '/dev/cleanupChat/57e9120d8e2016833717515f/580b4d3d2aa614094c58cff5',
     onComplete: function() {
-      var chat1, messages1, sent, user1;
+      var chat1, chat2, messages1, messages2, user1, user2;
       user1 = {
         login: 'Anton',
         password: '888',
         device: 'android'
       };
-      sent = false;
+      user2 = {
+        login: '123123',
+        password: 'null',
+        device: 'android'
+      };
       chat1 = new Chat(user1, '580b4d3d2aa614094c58cff5');
-      chat1.bind('joined', function() {
-        if (sent) {
-          return;
-        }
-        sent = true;
-        return chat1.sendMessage('TEST');
-      });
       chat1.start();
-      chat1.bind('newMessage', function(data) {
-        console.log('markAsViewed');
-        return new Request({
-          url: '/api/v1/message/markAsViewed',
-          onComplete: function() {
-            return chat1.restart();
-          }
-        }).get({
-          token: chat1.token,
-          _ids: data.message._id
-        });
-      });
+      chat2 = new Chat(user2, '57e9120d8e2016833717515f');
+      chat2.start();
       messages1 = [];
       chat1.bind('messages', function(data) {
         return messages1 = data.messages;
       });
+      messages2 = [];
+      chat2.bind('messages', function(data) {
+        return messages2 = data.messages;
+      });
       return setTimeout(function() {
-        return console.log(messages1);
-      }, 2000);
+        return chat1.sendMessage('TEST');
+      }, 1000);
     }
   }).get();
 

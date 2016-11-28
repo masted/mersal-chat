@@ -4,29 +4,90 @@
 
   ChatApp = (function() {
     function ChatApp(config) {
-      var app, assert, bodyParser, express, http, io, jwt, mongoClient, mongodb, path, url;
       this.config = config;
+    }
+
+    ChatApp.prototype.start = function() {
+      this.initApp();
+      this.initMongo();
+      return this.startHttp();
+    };
+
+    ChatApp.prototype.initApp = function() {
+      var bodyParser, express, path;
       express = require('express');
-      app = express();
+      this.app = express();
       bodyParser = require('body-parser');
       path = require('path');
-      app.use(bodyParser.urlencoded({
+      this.app.use(bodyParser.urlencoded({
         extended: true
       }));
-      app.set('view engine', 'jade');
-      app.use(express["static"](path.join(__dirname, 'public')));
-      http = require('http').Server(app);
-      io = require('socket.io')(http);
-      url = 'mongodb://localhost:27017/chat';
-      jwt = require('jsonwebtoken');
+      this.app.set('view engine', 'jade');
+      this.app.use(express["static"](path.join(this.config.appFolder, 'public')));
+      this.app.get('/', (function(req, res) {
+        return res.sendFile(this.config.appFolder + '/index.html');
+      }).bind(this));
+      return this.http = require('http').Server(this.app);
+    };
+
+    ChatApp.prototype.initMongo = function() {
+      this.connectMongo((function(db) {
+        var Server;
+        Server = require('./Server');
+        return new Server(this.config, this.app, db, require('socket.io')(this.http), require('jsonwebtoken'));
+      }).bind(this));
+      return this.initSession();
+    };
+
+    ChatApp.prototype.connectMongo = function(onConnect) {
+      var mongoClient, mongodb;
+      this.mongoUrl = 'mongodb://localhost:27017/chat';
       mongodb = require('mongodb');
       mongoClient = mongodb.MongoClient;
-      assert = require('assert');
-    }
+      return mongoClient.connect(this.mongoUrl, (function(err, db) {
+        console.log('mongo connected');
+        db.ObjectID = function(id) {
+          if (typeof id === 'string') {
+            return mongodb.ObjectID(id);
+          } else {
+            return id;
+          }
+        };
+        return onConnect(db);
+      }).bind(this));
+    };
+
+    ChatApp.prototype.initSession = function() {
+      var MongoStore, session;
+      session = require('express-session');
+      MongoStore = require('connect-mongo')(session);
+      return this.app.use(session({
+        cookie: {
+          maxAge: 1000 * 60 * 2
+        },
+        secret: "session secret",
+        store: new MongoStore({
+          db: 'chat',
+          host: '127.0.0.1',
+          port: 27017,
+          collection: 'session',
+          auto_reconnect: true,
+          url: this.mongoUrl
+        })
+      }));
+    };
+
+    ChatApp.prototype.startHttp = function() {
+      return this.http.listen(this.config.port, (function() {
+        return console.log('listening on *:' + this.config.port);
+      }).bind(this));
+    };
 
     return ChatApp;
 
   })();
+
+  module.exports = ChatApp;
 
 }).call(this);
 

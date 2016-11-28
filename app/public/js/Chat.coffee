@@ -29,7 +29,7 @@ class Chat
       url: '/api/v1/login'
       onComplete: ((data) ->
         new Request.JSON(
-          url: '/api/v1/chat/getOrCreateIdByFromToUsers'
+          url: '/api/v1/chat/getOrCreateByTwoUser'
           onComplete: ((chat) ->
             @startSocket data.token, chat.chatId
             return

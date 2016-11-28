@@ -44,7 +44,7 @@
         url: '/api/v1/login',
         onComplete: (function(data) {
           return new Request.JSON({
-            url: '/api/v1/chat/getOrCreateIdByFromToUsers',
+            url: '/api/v1/chat/getOrCreateByTwoUser',
             onComplete: (function(chat) {
               this.startSocket(data.token, chat.chatId);
             }).bind(this)

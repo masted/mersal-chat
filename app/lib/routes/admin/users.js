@@ -24,9 +24,8 @@ module.exports = function(server) {
       res.status(404).json({error: 'access denied'});
       return;
     }
-    pserver.db.collection('users');
     var head = ['ID', 'Phone', 'Login', 'Status'];
-    pserver.db.users.find().toArray().then(function(users) {
+    server.db.collection('users').find().toArray().then(function(users) {
       var data = {};
       data.head = head;
       data.body = [];

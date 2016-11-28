@@ -3,7 +3,7 @@
   new Request({
     url: '/dev/cleanupChat/57e9120d8e2016833717515f/580b4d3d2aa614094c58cff5',
     onComplete: function() {
-      var chat1, chat2, messages1, messages2, newMessages, newMessages2, user1, user2;
+      var chat1, chat2, messages1, messages2, user1, user2;
       user1 = {
         login: 'Anton',
         password: '888',
@@ -15,23 +15,9 @@
         device: 'android'
       };
       chat1 = new Chat(user1, '580b4d3d2aa614094c58cff5');
-      chat1.bind('joined', function() {
-        return chat1.sendMessage('TEST');
-      });
       chat1.start();
       chat2 = new Chat(user2, '57e9120d8e2016833717515f');
       chat2.start();
-      newMessages2 = [];
-      chat2.bind('newMessage', function(data) {
-        newMessages2.push(data);
-        return setTimeout(function() {
-          return chat2.restart();
-        }, 50);
-      });
-      newMessages = [];
-      chat1.bind('newMessage', function(data) {
-        return newMessages.push(data);
-      });
       messages1 = [];
       chat1.bind('messages', function(data) {
         return messages1 = data.messages;
@@ -53,9 +39,6 @@
         }
         if (messages2[0].userId !== '57e9120d8e2016833717515f') {
           throw new Error('test 4 filed');
-        }
-        if (messages2[0].viewed !== false) {
-          throw new Error('test 5 filed');
         }
         _id = messages2[0]._id;
         messages1 = [];

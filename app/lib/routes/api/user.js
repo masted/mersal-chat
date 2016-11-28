@@ -1,7 +1,7 @@
 module.exports = function(server) {
 
   /**
-   * @api {get} /user/info/:phone Get user info
+   * @api {get} /user/info Get user info
    * @apiName GetUserInfo
    * @apiGroup User
    *
@@ -113,7 +113,7 @@ module.exports = function(server) {
   });
 
   /**
-   * @api {get} /user/update/:name/:surname/:password Update user
+   * @api {get} /user/update Update user
    * @apiName Update
    * @apiGroup User
    *
@@ -130,6 +130,13 @@ module.exports = function(server) {
    *   {"error": "error message"}
    */
   server.app.get('/api/v1/user/update', function(req, res) {
+    var clean = function(obj) {
+      for (var propName in obj) {
+        if (!obj[propName]) {
+          delete obj[propName];
+        }
+      }
+    };
     tokenReq(req, res, function(res, user) {
       var data = req.query;
       delete data.token;
@@ -154,7 +161,7 @@ module.exports = function(server) {
   server.app.post('/api/v1/user/upload', function(req, res) {
     tokenReq(req, res, function(res, user) {
       var form = new formidable.IncomingForm();
-      form.uploadDir = path.join(__dirname, '/uploads');
+      form.uploadDir = path.join(config.appFolder, '/uploads');
       form.on('file', function(field, file) {
         fs.rename(file.path, path.join(form.uploadDir, file.name));
       });

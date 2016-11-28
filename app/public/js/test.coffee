@@ -12,25 +12,11 @@ new Request(
       device: 'android'
 
     chat1 = new Chat(user1, '580b4d3d2aa614094c58cff5')
-    chat1.bind 'joined', ->
-      chat1.sendMessage 'TEST'
 
     chat1.start()
 
     chat2 = new Chat(user2, '57e9120d8e2016833717515f')
     chat2.start()
-
-    newMessages2 = []
-    chat2.bind 'newMessage', (data)->
-      newMessages2.push(data)
-      setTimeout(->
-        chat2.restart()
-      , 50)
-
-    # test 2
-    newMessages = []
-    chat1.bind 'newMessage', (data)->
-      newMessages.push(data)
 
     messages1 = []
     chat1.bind 'messages', (data)->
@@ -39,6 +25,10 @@ new Request(
     messages2 = []
     chat2.bind 'messages', (data)->
       messages2 = data.messages;
+
+    # send 1 msg
+    # user1 does not receiving
+    # user2 does not receiving
 
     setTimeout(->
       if newMessages.length != 1
@@ -49,8 +39,6 @@ new Request(
         throw new Error('test 3 filed')
       if messages2[0].userId != '57e9120d8e2016833717515f'
         throw new Error('test 4 filed')
-      if messages2[0].viewed != false
-        throw new Error('test 5 filed')
 
       _id = messages2[0]._id
 

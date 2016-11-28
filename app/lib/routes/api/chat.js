@@ -1,6 +1,5 @@
 module.exports = function(server) {
-
-
+  var ChatActions = require('../../actions/ChatActions');
 
   server.app.get('/api/v1/chat/getIdByFromToUsers', function(req, res) {
     server.db.collection('chat').findOne({
@@ -20,7 +19,7 @@ module.exports = function(server) {
     });
   });
 
-  server.app.get('/api/v1/chat/getOrCreateIdByFromToUsers', function(req, res) {
+  server.app.get('/api/v1/chat/getOrCreateByTwoUser', function(req, res) {
     if (!req.query.fromUserId) {
       res.status(404).send({error: 'fromUserId not defined'});
       return;
@@ -34,32 +33,12 @@ module.exports = function(server) {
       return;
     }
     var name = server.chatName(req.query.fromUserId, req.query.toUserId);
-
     server.db.collection('chat').findOne({
       name: name
     }, function(err, chat) {
-      if (chat === null) {
-        chat = {
-          name: name
-        };
-        server.db.collection('chat').insertOne(chat, function(err, r) {
-          console.log('chat created ' + chat._id);
-          res.json({chatId: chat._id});
-        });
-        // chat users
-        server.db.collection('chatUsers').insertMany([
-          {
-            userId: req.query.fromUserId,
-            chatId: server.db.ObjectID(chat._id).toString()
-          },
-          {
-            userId: req.query.toUserId,
-            chatId: server.db.ObjectID(chat._id).toString()
-          }
-        ]);
-      } else {
+      new ChatActions(server.db).getOrCreateByTwoUser(req.query.fromUserId, req.query.toUserId, function(chatId) {
         res.json({chatId: chat._id});
-      }
+      });
     });
   });
 };
