@@ -24,6 +24,7 @@
       require('./routes/admin/stat')(this);
       require('./routes/debug')(this);
       require('./routes/doc')(this);
+      require('./stat').startCollecting(this);
       require('./dev')(this);
     }
 

@@ -14,8 +14,8 @@ class Server
     require('./routes/admin/stat')(@)
     require('./routes/debug')(@)
     require('./routes/doc')(@)
+    require('./stat').startCollecting(@)
     require('./dev')(@)
-    # require('./stat')(@)
   tokenReq: (req, res, resCallback) ->
     @jwt.verify(req.query.token, @config.jwtSecret, (err, decoded) ->
       if !err
