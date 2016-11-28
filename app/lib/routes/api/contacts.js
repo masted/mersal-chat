@@ -21,9 +21,12 @@ module.exports = function(server) {
    *
    * @apiParam {String} token JWT token
    * @apiParam {Array} phones Phones separeted by quote ","
+   *
+   * @apiSuccess {String} json Existing contacts in recipient client list
+   *
    */
   server.app.get('/api/v1/contacts/update', function(req, res) {
-    fakeTokenRequest(req, res, function(res, user) {
+    server.tokenReq(req, res, function(res, user) {
       var phones = req.query.phones.split(',');
       var records = [];
       for (var i = 0; i < phones.length; i++) {
@@ -31,8 +34,21 @@ module.exports = function(server) {
           userId: user._id,
           phone: phones[i]
         });
-        server.db.collection('contacts').insert(records);
       }
+      server.db.collection('contacts').insert(records, function(err, r) {
+        server.db.collection('users').find({
+          phone: {
+            $in: phones
+          }
+        }, {
+          _id: 1,
+          phone: 1,
+          login: 1
+        }).toArray(function(err, users) {
+          res.json(users);
+          //console.log(users)
+        })
+      });
     });
   });
 
