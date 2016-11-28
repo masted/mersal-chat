@@ -11,7 +11,7 @@
     send;
 
     UserMessage.prototype.getUnseen = function(chatId, callback) {
-      return this.db.collection('mViewed').find({
+      return this.db.collection('messageStatuses').find({
         ownUserId: '' + this.userId,
         chatId: '' + data.chatId,
         viewed: false

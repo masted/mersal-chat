@@ -23,10 +23,10 @@ class ChatActions
         #chatId: chat._id
       }, ((err, r) ->
         console.log 'cleanup chat id ' + chat._id + ' messages. deleted: ' + r.result.n
-        @db.collection('mViewed').remove({
+        @db.collection('messageStatuses').remove({
           #chatId: chat._id
         }, (err, r) ->
-          console.log 'cleanup chat id ' + chat._id + ' mViewed. deleted: ' + r.result.n
+          console.log 'cleanup chat id ' + chat._id + ' messageStatuses. deleted: ' + r.result.n
           onComplete()
         )
       ).bind(@))
@@ -68,5 +68,26 @@ class ChatActions
         onComplete chat._id
       ).bind(@)
     )
+
+  canJoin: (userId, chatId, callback) ->
+    userId = @db.ObjectID(userId)
+    chatId = @db.ObjectID(chatId)
+    @db.collection('chat').findOne({
+      _id: chatId
+    }, ((err, r) ->
+      if r == null
+        callback(false, 'chat does not exists')
+      else
+        @db.collection('chatUsers').findOne({
+          chatId: chatId,
+          userId: userId
+        }, (err, r) ->
+          if r == null
+            callback(false, 'user not in chat')
+          else
+            callback(true)
+        )
+    ).bind(@))
+
 
 module.exports = ChatActions

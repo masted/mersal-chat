@@ -19,6 +19,22 @@ module.exports = function(server) {
     });
   });
 
+  /**
+   * @api {get} /getOrCreateByTwoUser Get or create
+   * @apiDescription Get chat ID by two user IDs or creates it
+   * @apiGroup Chat
+   *
+   * @apiParam {Integer} fromUserId User ID 1
+   * @apiParam {Integer} toUserId User ID 2
+   *
+   * @apiSuccess {String} json JSON with chat ID
+   *
+   * @apiSuccessExample Success-Response:
+   *   HTTP/1.1 200 OK
+   *   {
+   *     "chatId": "..."
+   *   }
+   */
   server.app.get('/api/v1/chat/getOrCreateByTwoUser', function(req, res) {
     if (!req.query.fromUserId) {
       res.status(404).send({error: 'fromUserId not defined'});
@@ -32,13 +48,8 @@ module.exports = function(server) {
       res.status(404).send({error: 'cat not create chat to yourself'});
       return;
     }
-    var name = server.chatName(req.query.fromUserId, req.query.toUserId);
-    server.db.collection('chat').findOne({
-      name: name
-    }, function(err, chat) {
-      new ChatActions(server.db).getOrCreateByTwoUser(req.query.fromUserId, req.query.toUserId, function(chatId) {
-        res.json({chatId: chat._id});
-      });
+    new ChatActions(server.db).getOrCreateByTwoUser(req.query.fromUserId, req.query.toUserId, function(chatId) {
+      res.json({chatId: chatId});
     });
   });
 };

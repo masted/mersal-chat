@@ -1,31 +1,7 @@
 module.exports = function(server) {
   var socketioJwt = require('socketio-jwt');
-  var MessageActions = require('../../actions/MessageActions');
-  var messageActions = new MessageActions(server.db);
-
-  server.event.on('newMessage', function(message) {
-    var clients = server.io.sockets.adapter.rooms[message.chatId];
-    if (!clients) return;
-    if (clients.sockets.length === 0) return;
-    var userMessages = {}
-    var userMessage;
-    var socket;
-    messageActions.getViewStatuses(message._id, function(statuses) {
-      for (var j =0; j<statuses.length; j++) {
-        userMessage = Object.assign({}, message);
-        userMessage.viewed = statuses[j].viewed;
-        userMessages[statuses[j].ownUserId] = userMessage;
-      }
-      for (var socketId in clients.sockets) {
-        socket = server.io.sockets.connected[socketId];
-        if (!userMessages[socket.userId]) continue;
-        socket.emit('event', {
-          type: 'newMessage',
-          message: userMessages[socket.userId]
-        });
-      }
-    });
-  });
+  var SocketMessageActions = require('../../actions/SocketMessageActions');
+  var ChatActions = require('../../actions/ChatActions');
 
   /**
    * @api {ws} /socket.io Overview
@@ -71,15 +47,14 @@ module.exports = function(server) {
     }, function(/*err, result*/) {
       socket.emit('event', {type: 'authenticated'});
       socket.on('join', function(data) {
-        var messageActions = new MessageActions(server.db);
+        new SocketMessageActions(server);
+
         console.log('joining chat ' + data.chatId);
-        server.db.collection('chat').findOne({
-          _id: server.db.ObjectID(data.chatId)
-        }, function(err, r) {
-          if (r === null) {
+        new ChatActions(server.db).canJoin(userId, data.chatId, function(success, error) {
+          if (success === false) {
             socket.emit('event', {
               type: 'joinError',
-              error: 'chat does not exists'
+              error: error
             });
           } else {
             console.log('joined ' + data.chatId);
@@ -112,6 +87,8 @@ module.exports = function(server) {
             status: 'offline'
           }
         });
+        // при смене статуса
+
       });
     });
   });

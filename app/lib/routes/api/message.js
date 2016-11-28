@@ -14,7 +14,9 @@ module.exports = function(server) {
    */
   server.app.get('/api/v1/message/send', function(req, res) {
     server.tokenReq(req, res, function(res, user) {
+      console.log('1111111');
       new MessageActions(server.db).send(user._id, req.query.chatId, req.query.message, function(message) {
+        console.log('222222222');
         server.event.emit('newMessage', message);
         res.send('success');
       });
@@ -35,7 +37,7 @@ module.exports = function(server) {
         res.status(404).send({error: '_ids not defined'})
         return;
       }
-      new MessageActions(server.db).setViewed(req.query._ids.split(','), user._id, true, function() {
+      new MessageActions(server.db).setStatuses(req.query._ids.split(','), user._id, true, function() {
         res.send('success');
       });
     });

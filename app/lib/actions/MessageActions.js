@@ -7,7 +7,7 @@
       this.db = db;
     }
 
-    MessageActions.prototype.saveViewed = function(messages, ownUserId, viewed, onComplete) {
+    MessageActions.prototype.saveStatuses = function(messages, ownUserId, viewed, onComplete) {
       var _save, saveAll, total;
       if (!ownUserId) {
         throw new Error('ownUserId not defined');
@@ -18,20 +18,20 @@
       total = messages.length;
       ownUserId = this.db.ObjectID(ownUserId);
       _save = (function(message, callback) {
-        return this.db.collection('mViewed').updateOne({
+        return this.db.collection('messageStatuses').updateOne({
           messageId: message._id,
           chatId: message.chatId,
-          ownUserId: ownUserId,
-          viewed: viewed
+          ownUserId: ownUserId
         }, {
           messageId: message._id,
           chatId: message.chatId,
           ownUserId: ownUserId,
-          viewed: viewed
+          viewed: viewed,
+          delivered: false
         }, {
           upsert: true
         }, function(err, r) {
-          console.log('save mViewed ' + viewed + '; msgId=' + message._id);
+          console.log('save messageStatuses ' + viewed + '; msgId=' + message._id);
           return callback();
         });
       }).bind(this);
@@ -49,7 +49,7 @@
       return saveAll();
     };
 
-    MessageActions.prototype.setViewed = function(messageIds, ownUserId, viewed, onComplete) {
+    MessageActions.prototype.setStatuses = function(messageIds, ownUserId, viewed, onComplete) {
       messageIds = messageIds.map((function(id) {
         return this.db.ObjectID(id);
       }).bind(this));
@@ -58,7 +58,7 @@
           $in: messageIds
         }
       }).toArray((function(err, messages) {
-        return this.saveViewed(messages, ownUserId, viewed, onComplete);
+        return this.saveStatuses(messages, ownUserId, viewed, onComplete);
       }).bind(this));
     };
 
@@ -82,7 +82,7 @@
           results = [];
           for (i = 0, len = records.length; i < len; i++) {
             record = records[i];
-            results.push(this.setViewed([message._id], record.userId, record.userId.toString() === userId.toString(), function() {
+            results.push(this.setStatuses([message._id], record.userId, record.userId.toString() === userId.toString(), function() {
               n--;
               if (n === 0) {
                 return onComplete(message);
@@ -96,7 +96,7 @@
 
     MessageActions.prototype.getUnseen = function(ownUserId, chatId, onComplete) {
       console.log(ownUserId + ' ---- ' + chatId);
-      return this.db.collection('mViewed').find({
+      return this.db.collection('messageStatuses').find({
         ownUserId: this.db.ObjectID(ownUserId),
         chatId: this.db.ObjectID(chatId)
       }, {
@@ -122,28 +122,28 @@
       }).bind(this));
     };
 
-    MessageActions.prototype.addViewedStatus = function(messages, onComplete) {
-      var messageIds;
-      messageIds = messages.map(function(message) {
-        return message._id;
-      });
-      return this.db.collection('mViewed').find({
-        messageId: {
-          $in: messageIds
-        }
-      }, {
-        viewed: 1,
-        ownUserId: 1
-      }).toArray(function(err, statuses) {});
-    };
-
-    MessageActions.prototype.getViewStatuses = function(messageId, onComplete) {
-      return this.db.collection('mViewed').find({
+    MessageActions.prototype.getStatuses = function(messageId, onComplete) {
+      return this.db.collection('messageStatuses').find({
         messageId: messageId
       }).toArray(function(err, statuses) {
-        console.log('################');
-        console.log(statuses);
         return onComplete(statuses);
+      });
+    };
+
+    MessageActions.prototype.getUserMessages = function(message, onComplete) {
+      return this.getStatuses(message._id, function(statuses) {
+        var i, len, status, userMessage, userMessages;
+        userMessages = {};
+        for (i = 0, len = statuses.length; i < len; i++) {
+          status = statuses[i];
+          userMessage = Object.assign({}, message);
+          userMessage._id = status._id;
+          userMessage.ownUserId = status.ownUserId;
+          userMessage.viewed = status.viewed;
+          userMessage.delivered = status.delivered;
+          userMessages[status.ownUserId] = userMessage;
+        }
+        return onComplete(userMessages);
       });
     };
 

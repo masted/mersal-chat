@@ -14,10 +14,10 @@ module.exports = function(server) {
         chatId: '' + chat._id
       }, function(err, r) {
         console.log('cleanup chat id ' + chat._id + ' messages. deleted: ' + r.result.n);
-        server.db.collection('mViewed').remove({
+        server.db.collection('messageStatuses').remove({
           chatId: '' + chat._id
         }, function(err, r) {
-          console.log('cleanup chat id ' + chat._id + ' mViewed. deleted: ' + r.result.n);
+          console.log('cleanup chat id ' + chat._id + ' messageStatuses. deleted: ' + r.result.n);
           res.send('done');
         });
       });

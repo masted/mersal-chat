@@ -12,6 +12,7 @@ new Request(
       device: 'android'
 
     chat1 = new Chat(user1, '580b4d3d2aa614094c58cff5')
+
     chat1.start()
 
     chat2 = new Chat(user2, '57e9120d8e2016833717515f')

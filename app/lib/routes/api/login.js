@@ -1,7 +1,7 @@
 module.exports = function(server) {
 
   /**
-   * @api {get} /login/:login/:password Login
+   * @api {get} /login Login
    * @apiDescription Token expiration time: 1 week
    * @apiName Login
    * @apiGroup Auth

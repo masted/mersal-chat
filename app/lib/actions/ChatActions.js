@@ -32,8 +32,8 @@
         }
         return this.db.collection('messages').remove({}, (function(err, r) {
           console.log('cleanup chat id ' + chat._id + ' messages. deleted: ' + r.result.n);
-          return this.db.collection('mViewed').remove({}, function(err, r) {
-            console.log('cleanup chat id ' + chat._id + ' mViewed. deleted: ' + r.result.n);
+          return this.db.collection('messageStatuses').remove({}, function(err, r) {
+            console.log('cleanup chat id ' + chat._id + ' messageStatuses. deleted: ' + r.result.n);
             return onComplete();
           });
         }).bind(this));
@@ -79,6 +79,29 @@
         } else {
           console.log('chat exists ' + chat._id);
           return onComplete(chat._id);
+        }
+      }).bind(this));
+    };
+
+    ChatActions.prototype.canJoin = function(userId, chatId, callback) {
+      userId = this.db.ObjectID(userId);
+      chatId = this.db.ObjectID(chatId);
+      return this.db.collection('chat').findOne({
+        _id: chatId
+      }, (function(err, r) {
+        if (r === null) {
+          return callback(false, 'chat does not exists');
+        } else {
+          return this.db.collection('chatUsers').findOne({
+            chatId: chatId,
+            userId: userId
+          }, function(err, r) {
+            if (r === null) {
+              return callback(false, 'user not in chat');
+            } else {
+              return callback(true);
+            }
+          });
         }
       }).bind(this));
     };

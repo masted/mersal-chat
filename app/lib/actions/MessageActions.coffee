@@ -2,7 +2,7 @@ class MessageActions
 
   constructor: (@db) ->
 
-  saveViewed: (messages, ownUserId, viewed, onComplete) ->
+  saveStatuses: (messages, ownUserId, viewed, onComplete) ->
     if !ownUserId
       throw new Error('ownUserId not defined');
     if !onComplete
@@ -10,20 +10,20 @@ class MessageActions
     total = messages.length
     ownUserId = @db.ObjectID(ownUserId)
     _save = ((message, callback) ->
-      @db.collection('mViewed').updateOne({
+      @db.collection('messageStatuses').updateOne({
         messageId: message._id,
         chatId: message.chatId,
-        ownUserId: ownUserId,
-        viewed: viewed
+        ownUserId: ownUserId
       }, {
         messageId: message._id,
         chatId: message.chatId,
         ownUserId: ownUserId,
-        viewed: viewed
+        viewed: viewed,
+        delivered: false
       }, {
         upsert: true
       }, (err, r) ->
-        console.log 'save mViewed ' + viewed + '; msgId=' + message._id
+        console.log 'save messageStatuses ' + viewed + '; msgId=' + message._id
         callback()
       )
     ).bind(@)
@@ -37,7 +37,7 @@ class MessageActions
       )
     saveAll()
 
-  setViewed: (messageIds, ownUserId, viewed, onComplete) ->
+  setStatuses: (messageIds, ownUserId, viewed, onComplete) ->
     messageIds = messageIds.map(((id) ->
       return @db.ObjectID(id)
     ).bind(@))
@@ -46,7 +46,7 @@ class MessageActions
         $in: messageIds
       }
     }).toArray(((err, messages) ->
-      @saveViewed(messages, ownUserId, viewed, onComplete)
+      @saveStatuses(messages, ownUserId, viewed, onComplete)
     ).bind(@))
 
   send: (userId, chatId, message, onComplete) ->
@@ -66,7 +66,7 @@ class MessageActions
         console.log 'adding messages for ' + records.length + ' users'
         n = records.length
         for record in records
-          @setViewed([message._id], record.userId, record.userId.toString() == userId.toString(), ->
+          @setStatuses([message._id], record.userId, record.userId.toString() == userId.toString(), ->
             n--
             if n == 0
               onComplete(message)
@@ -76,7 +76,7 @@ class MessageActions
 
   getUnseen: (ownUserId, chatId, onComplete) ->
     console.log ownUserId + ' ---- ' + chatId
-    @db.collection('mViewed').find({
+    @db.collection('messageStatuses').find({
       ownUserId: @db.ObjectID(ownUserId),
       chatId: @db.ObjectID(chatId),
       #viewed: false
@@ -98,28 +98,25 @@ class MessageActions
       )
     ).bind(@))
 
-  addViewedStatus: (messages, onComplete) ->
-    messageIds = messages.map((message) ->
-      return message._id
-    )
-    @db.collection('mViewed').find({
-      messageId: {
-        $in: messageIds
-      }
-    }, {
-      viewed: 1,
-      ownUserId: 1
-    }).toArray((err, statuses) ->
-
-    )
-
-  getViewStatuses: (messageId, onComplete) ->
-    @db.collection('mViewed').find({
+  getStatuses: (messageId, onComplete) ->
+    @db.collection('messageStatuses').find({
       messageId: messageId
     }).toArray((err, statuses) ->
-      console.log '################'
-      console.log statuses
       onComplete(statuses)
+    )
+
+  # get messages for all users that must recieve it
+  getUserMessages: (message, onComplete) ->
+    @getStatuses(message._id, (statuses) ->
+      userMessages = {}
+      for status in statuses
+        userMessage = Object.assign({}, message)
+        userMessage._id = status._id
+        userMessage.ownUserId = status.ownUserId
+        userMessage.viewed = status.viewed
+        userMessage.delivered = status.delivered
+        userMessages[status.ownUserId] = userMessage
+      onComplete(userMessages)
     )
 
 module.exports = MessageActions
