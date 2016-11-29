@@ -19,7 +19,7 @@ class Chat
         chatId: chatId
     ).bind(@)
     .on 'event', ((data) ->
-      console.log data
+      #console.log data
       @.trigger data.type, data
     ).bind(@)
     .on 'unauthorized', (msg) ->
@@ -42,9 +42,6 @@ class Chat
   sendMessage: (message) ->
     new Request(
       url: '/api/v1/message/send'
-      onComplete: ((status) ->
-        console.log('status: ' + status);
-      ).bind(@)
     ).get(
       token: @token
       chatId: @chatId

@@ -53,6 +53,7 @@ class MessageActions
     chatId = @db.ObjectID(chatId)
     userId = @db.ObjectID(userId)
     message = {
+      createTime: new Date().getTime(),
       userId: userId,
       chatId: chatId,
       message: message
@@ -75,11 +76,10 @@ class MessageActions
     ).bind(@))
 
   getUnseen: (ownUserId, chatId, onComplete) ->
-    console.log ownUserId + ' ---- ' + chatId
     @db.collection('messageStatuses').find({
       ownUserId: @db.ObjectID(ownUserId),
       chatId: @db.ObjectID(chatId),
-      #viewed: false
+      viewed: false
     }, {
       messageId: 1
     }).toArray(((err, items) ->
@@ -105,7 +105,7 @@ class MessageActions
       onComplete(statuses)
     )
 
-  # get messages for all users that must recieve it
+  # get messages for all users that must receive it
   getUserMessages: (message, onComplete) ->
     @getStatuses(message._id, (statuses) ->
       userMessages = {}

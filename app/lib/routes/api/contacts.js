@@ -1,19 +1,5 @@
 module.exports = function(server) {
 
-  var fakeTokenRequest = function(req, res, resCallback) {
-    var user = {
-      _id: '57e9120d8e2016833717515f',
-      id: 79202560776,
-      login: 'Anton',
-      phone: '888',
-      password: '888',
-      status: 'offline',
-      device: 'android',
-      deviceToken: ''
-    };
-    resCallback(res, user);
-  };
-
   /**
    * @api {get} /contacts/update Update contacts
    * @apiName UpdateContacts

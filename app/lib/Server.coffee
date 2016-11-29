@@ -23,6 +23,17 @@ class Server
       else
         res.send err
     )
+  fakeTokenReq: (req, res, resCallback) ->
+    user =
+      _id: '57e9120d8e2016833717515f'
+      id: 79202560776
+      login: 'Anton'
+      phone: '888'
+      password: '888'
+      status: 'offline'
+      device: 'android'
+      deviceToken: ''
+    resCallback res, user
   djb2Code: (str) ->
     hash = 5381
     i = 0

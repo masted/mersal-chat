@@ -32,7 +32,7 @@ module.exports = function(server) {
   });
 
   /**
-   * @api {get} /user/list/:status Getting users list
+   * @api {get} /user/list Getting users list
    * @apiName List
    * @apiGroup User
    *
@@ -56,7 +56,7 @@ module.exports = function(server) {
   });
 
   /**
-   * @api {get} /user/create/:phone/:login/:password Create user
+   * @api {get} /user/create Create user
    * @apiName Create
    * @apiGroup User
    *

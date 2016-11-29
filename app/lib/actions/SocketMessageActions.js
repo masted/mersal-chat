@@ -26,21 +26,12 @@
       }
       return new MessageActions(this.server.db).getUserMessages(message, (function(userMessages) {
         var onlineMessageStatusIds, onlineUserId, results, userMessage;
-        console.log(userMessages);
         onlineMessageStatusIds = [];
         for (userMessage in userMessages) {
           if (onlineUserIds[userMessage.ownUserId]) {
             onlineMessageStatusIds.push(userMessage._id);
           }
         }
-        this.server.db.collection('messageStatuses').update({
-          _id: {
-            $in: onlineMessageStatusIds
-          }
-        }, {
-          delivered: true
-        });
-        console.log(onlineUserIds);
         results = [];
         for (onlineUserId in onlineUserIds) {
           results.push(socket.emit('event', {

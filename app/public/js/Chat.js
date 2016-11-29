@@ -32,7 +32,6 @@
           chatId: chatId
         });
       }).bind(this)).on('event', (function(data) {
-        console.log(data);
         return this.trigger(data.type, data);
       }).bind(this)).on('unauthorized', function(msg) {
         return console.log('unauthorized: ' + JSON.stringify(msg.data));
@@ -58,10 +57,7 @@
 
     Chat.prototype.sendMessage = function(message) {
       return new Request({
-        url: '/api/v1/message/send',
-        onComplete: (function(status) {
-          return console.log('status: ' + status);
-        }).bind(this)
+        url: '/api/v1/message/send'
       }).get({
         token: this.token,
         chatId: this.chatId,

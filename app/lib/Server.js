@@ -38,6 +38,21 @@
       });
     };
 
+    Server.prototype.fakeTokenReq = function(req, res, resCallback) {
+      var user;
+      user = {
+        _id: '57e9120d8e2016833717515f',
+        id: 79202560776,
+        login: 'Anton',
+        phone: '888',
+        password: '888',
+        status: 'offline',
+        device: 'android',
+        deviceToken: ''
+      };
+      return resCallback(res, user);
+    };
+
     Server.prototype.djb2Code = function(str) {
       var char, hash, i;
       hash = 5381;

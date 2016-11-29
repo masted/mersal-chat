@@ -2,35 +2,56 @@ module.exports = function(server) {
   var socketioJwt = require('socketio-jwt');
   var SocketMessageActions = require('../../actions/SocketMessageActions');
   var ChatActions = require('../../actions/ChatActions');
+  var MessageActions = require('../../actions/MessageActions');
 
   /**
    * @api {ws} /socket.io Overview
    * @apiGroup Socket
    *
-   * @apiDescription WebSocket API allows you to receive events from Chat Server in real time and send messages.
-   *                 <h2>Basics</h2>
-   *                 <p>To begin a WebSocket session use native Socket.IO client for your platform.
-   *                 Once you have connected to the message server it will provide a stream of events.</p>
-   *                 <p>If you connect successfully the first event received will be a "authenticated":</p>
-   *                 <code>
-   *                   {type: 'authenticated'}
-   *                 </code><br><br>
-   *                 <p>All events in Socket.IO client receives on 'event' event with a data in JSON format.
-   *                 See the JS example:</p>
-   *                 <code>
-   *                   client.on('event', function(data) {
-   *                     console.log('Event: ' + data.type);
-   *                   });
-   *                 </code><br><br>
-   *                 <p>All commands in Socket.IO client sends as JSON with params from that API.
-   *                 Commands marked as "emit" type. See the JS example:</p>
-   *                 <code>
-   *                   client.emit('eventName', {someParam: 'asd'})
-   *                 </code><br><br>
-   *                 <h2>Events:</h2>
-   *                 <code>{type: 'joined'}</code><br>
-   *                 <code>{type: 'newMessage', message: {...}}</code>
-   *                 </code>
+   * @apiDescription
+   *
+   * WebSocket API allows you to receive events from Chat Server in real time and send messages.
+   *
+   * ## Basics
+   *
+   * To begin a WebSocket session use native Socket.IO client for your platform.
+   * Once you have connected to the message server it will provide a stream of events.
+   *
+   * If you connect successfully the first event received will be a "authenticated":
+   *
+   *     {type: 'authenticated'}
+   *
+   * All events in Socket.IO client receives on 'event' event with a one param `data` with all data.
+   *
+   * See the JS example:
+   *
+   *     client.on('event', function(data) {
+   *       console.log('Event: ' + data.type);
+   *     });
+   *
+   * All commands in Socket.IO client sends as Object with params from that API.
+   * Commands marked as "emit" type. See the JS example:
+   *
+   *     client.emit('eventName', {someParam: 'asd'})
+   *
+   * ## Events:
+   *
+   * `{type: 'joined'}`
+   *
+   * `{type: 'newMessage', {message: {...}}`
+   *
+   *
+   * ## Emits:
+   *
+   * `client.emit('join', {chatId: chatId})`
+   *
+   * - __chatId__ {Integer} Chat ID
+   *
+   *
+   * `client.emit('markAsDelivered', {messageIds: messageIds})`
+   *
+   * - <b>messageIds</b> {String} Message IDs separated by quote
+   * </p>
    */
   server.io.sockets.on('connection', socketioJwt.authorize({
     secret: server.config.jwtSecret,
@@ -48,7 +69,6 @@ module.exports = function(server) {
       socket.emit('event', {type: 'authenticated'});
       socket.on('join', function(data) {
         new SocketMessageActions(server);
-
         console.log('joining chat ' + data.chatId);
         new ChatActions(server.db).canJoin(userId, data.chatId, function(success, error) {
           if (success === false) {
@@ -57,13 +77,12 @@ module.exports = function(server) {
               error: error
             });
           } else {
-            console.log('joined ' + data.chatId);
             socket.chatId = data.chatId;
             socket.join(data.chatId);
             socket.emit('event', {
               type: 'joined'
             });
-            // new MessageActions(server.db).getUnseen(userId, data.chatId, function(messages) {
+            // new MessageActions(server.db).getUndelivered(userId, data.chatId, function(messages) {
             //   server.io.in(data.chatId).emit('event', {
             //     type: 'messages',
             //     messages: messages
@@ -73,10 +92,23 @@ module.exports = function(server) {
         });
       });
 
-      socket.on('messages', function(messages) {
-        io.in(socket.chatId).emit('event', {
-          type: 'messages',
-          messages: messages
+      socket.on('markAsViewed', function(messageIds) {
+        new MessageActions(server.db).setStatuses(messageIds.split(','), userId, true);
+      });
+
+      socket.on('markAsDelivered', function(data) {
+        messageIds = messageIds.split(',');
+        server.db.collection('messages').update({
+          $in: {
+            _id: data.messageIds
+          }
+        }, {
+          delivered: true
+        }, function(err, r) {
+          socket.emit('event', {
+            type: 'delivered',
+            messageIds: data.messageIds
+          });
         });
       });
 
@@ -88,7 +120,6 @@ module.exports = function(server) {
           }
         });
         // при смене статуса
-
       });
     });
   });

@@ -66,6 +66,7 @@
       chatId = this.db.ObjectID(chatId);
       userId = this.db.ObjectID(userId);
       message = {
+        createTime: new Date().getTime(),
         userId: userId,
         chatId: chatId,
         message: message
@@ -95,10 +96,10 @@
     };
 
     MessageActions.prototype.getUnseen = function(ownUserId, chatId, onComplete) {
-      console.log(ownUserId + ' ---- ' + chatId);
       return this.db.collection('messageStatuses').find({
         ownUserId: this.db.ObjectID(ownUserId),
-        chatId: this.db.ObjectID(chatId)
+        chatId: this.db.ObjectID(chatId),
+        viewed: false
       }, {
         messageId: 1
       }).toArray((function(err, items) {

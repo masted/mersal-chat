@@ -21,18 +21,18 @@ class SocketMessageActions
       onlineUserIds[socket.userId] = 1
 
     new MessageActions(@server.db).getUserMessages(message, ((userMessages) ->
-      console.log userMessages
       # update status "delivered" for all online users
       onlineMessageStatusIds = []
       for userMessage of userMessages
         if onlineUserIds[userMessage.ownUserId]
           onlineMessageStatusIds.push(userMessage._id)
-      @server.db.collection('messageStatuses').update(
-        {_id: {$in: onlineMessageStatusIds}},
-        {delivered: true}
-      )
+
+#      @server.db.collection('messageStatuses').update(
+#        {_id: {$in: onlineMessageStatusIds}},
+#        {delivered: true}
+#      )
+
       # emit events
-      console.log onlineUserIds
       for onlineUserId of onlineUserIds
         socket.emit 'event',
           type: 'newMessage'
