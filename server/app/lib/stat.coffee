@@ -12,7 +12,7 @@ module.exports =
             cpu: process.cpuUsage().user
             dbSize: dbStat.dataSize
             uploadsSize: uploadsSize
-    , 60000
+    , 60000*10
 
   titles:
     memory: 'Memory'
