@@ -20,7 +20,11 @@ module.exports =
     dbSize: 'Database Size'
     uploadSize: 'Uploads folder size'
 
-  adminResultHandler: (server, res) ->
+  adminResultHandler: (server, req, res) ->
+    if !req.query.password
+      res.status(404).send({error: 'no password'})
+    if req.query.password != server.config.adminPassword
+      res.status(404).send({error: 'wrong password'})
     server.db.collection('stat').find({
       $query: {},
       $orderby: {
@@ -33,6 +37,7 @@ module.exports =
       grids = []
       for key of @titles
         grids.push @formatGridData(key, records)
+      res.header 'Access-Control-Allow-Origin', '*'
       res.send {grids: grids}
     ).bind(@))
 

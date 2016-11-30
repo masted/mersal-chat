@@ -4,4 +4,4 @@ module.exports = (server) ->
     res.render 'admin/stat'
 
   server.app.get '/admin/stat/data', (req, res) ->
-    require('../../stat').adminResultHandler(server, res);
+    require('../../stat').adminResultHandler(server, req, res);

@@ -36,7 +36,8 @@
       adminApp.engine('html', require('ejs').renderFile);
       adminApp.get('/', (function(req, res) {
         return res.render('index.html', {
-          apiUri: this.config.host + ':' + this.config.port
+          apiUri: this.config.host + ':' + this.config.port,
+          adminPassword: this.config.adminPassword
         });
       }).bind(this));
       adminHttp = require('http').Server(adminApp);

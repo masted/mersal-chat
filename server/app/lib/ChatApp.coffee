@@ -27,6 +27,7 @@ class ChatApp
     adminApp.get('/', ((req, res) ->
       res.render 'index.html',
         apiUri: @config.host + ':' + @config.port
+        adminPassword: @config.adminPassword
     ).bind(@))
     adminHttp = require('http').Server(adminApp)
     adminHttp.listen @config.adminPort, (->

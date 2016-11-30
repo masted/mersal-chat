@@ -5,7 +5,7 @@
       return res.render('admin/stat');
     });
     return server.app.get('/admin/stat/data', function(req, res) {
-      return require('../../stat').adminResultHandler(server, res);
+      return require('../../stat').adminResultHandler(server, req, res);
     });
   };
 

@@ -69,7 +69,7 @@ $(function() {
   };
 
   aja()
-    .url('http://localhost:1337/' + apiUri + '/admin/stat/data')
+    .url('http://' + apiUri + '/admin/stat/data?password=' + adminPassword)
     .on('success', function(d) {
       var menuHtml = '';
       for (var i = 0; i < d.grids.length; i++) {
