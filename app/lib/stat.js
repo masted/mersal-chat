@@ -25,8 +25,17 @@
       uploadSize: 'Uploads folder size'
     },
     adminResultHandler: function(server, res) {
-      return server.db.collection('stat').find().limit(20).toArray((function(err, records) {
+      return server.db.collection('stat').find({
+        $query: {},
+        $orderby: {
+          time: -1
+        }
+      }).limit(20).toArray((function(err, records) {
         var grids, key;
+        if (!records) {
+          console.log('no stat');
+          return;
+        }
         grids = [];
         for (key in this.titles) {
           grids.push(this.formatGridData(key, records));

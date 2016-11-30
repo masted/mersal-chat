@@ -48,7 +48,6 @@ module.exports = function(server) {
     server.db.collection('users').find(query, {
       login: 1,
       phone: 1,
-      password: 1,
       status: 1
     }).toArray(function(err, users) {
       res.json(users);

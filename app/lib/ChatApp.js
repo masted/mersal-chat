@@ -41,7 +41,7 @@
 
     ChatApp.prototype.connectMongo = function(onConnect) {
       var mongoClient, mongodb;
-      this.mongoUrl = 'mongodb://localhost:27017/chat';
+      this.mongoUrl = 'mongodb://localhost:27017/' + this.config.dbName;
       mongodb = require('mongodb');
       mongoClient = mongodb.MongoClient;
       return mongoClient.connect(this.mongoUrl, (function(err, db) {
@@ -67,7 +67,7 @@
         },
         secret: "session secret",
         store: new MongoStore({
-          db: 'chat',
+          db: this.config.dbName,
           host: '127.0.0.1',
           port: 27017,
           collection: 'session',

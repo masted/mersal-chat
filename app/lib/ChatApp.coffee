@@ -24,7 +24,7 @@ class ChatApp
     ).bind(@))
     @initSession()
   connectMongo: (onConnect) ->
-    @mongoUrl = 'mongodb://localhost:27017/chat'
+    @mongoUrl = 'mongodb://localhost:27017/' + @config.dbName
     mongodb = require 'mongodb'
     mongoClient = mongodb.MongoClient
     mongoClient.connect @mongoUrl, ((err, db) ->
@@ -43,7 +43,7 @@ class ChatApp
       cookie: {maxAge: 1000 * 60 * 2}
       secret: "session secret"
       store: new MongoStore
-        db: 'chat'
+        db: @config.dbName
         host: '127.0.0.1'
         port: 27017
         collection: 'session'

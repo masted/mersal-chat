@@ -21,7 +21,15 @@ module.exports =
     uploadSize: 'Uploads folder size'
 
   adminResultHandler: (server, res) ->
-    server.db.collection('stat').find().limit(20).toArray(((err, records)->
+    server.db.collection('stat').find({
+      $query: {},
+      $orderby: {
+        time: -1
+      }
+    }).limit(20).toArray(((err, records)->
+      if !records
+        console.log 'no stat'
+        return
       grids = []
       for key of @titles
         grids.push @formatGridData(key, records)
