@@ -14,7 +14,7 @@
     };
 
     ChatApp.prototype.initApp = function() {
-      var adminApp, adminHttp, bodyParser, express, path;
+      var adminApp, adminBasePath, adminHttp, bodyParser, express, path;
       express = require('express');
       this.app = express();
       bodyParser = require('body-parser');
@@ -29,7 +29,16 @@
       }).bind(this));
       this.http = require('http').Server(this.app);
       adminApp = express();
-      adminApp.use(express["static"](path.normalize(this.config.appFolder + '/../../admin')));
+      adminBasePath = path.normalize(this.config.appFolder + '/../../admin');
+      adminApp.use(express["static"](adminBasePath + '/public'));
+      adminApp.set('view engine', 'ejs');
+      adminApp.set('views', adminBasePath + '/views');
+      adminApp.engine('html', require('ejs').renderFile);
+      adminApp.get('/', (function(req, res) {
+        return res.render('index.html', {
+          apiUri: this.config.host + ':' + this.config.port
+        });
+      }).bind(this));
       adminHttp = require('http').Server(adminApp);
       return adminHttp.listen(this.config.adminPort, (function() {
         return console.log('admin listening on *:' + this.config.adminPort);

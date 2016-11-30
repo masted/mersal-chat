@@ -69,7 +69,7 @@ $(function() {
   };
 
   aja()
-    .url('http://localhost:1337/chat.311.su:8081/admin/stat/data')
+    .url('http://localhost:1337/' + apiUri + '/admin/stat/data')
     .on('success', function(d) {
       var menuHtml = '';
       for (var i = 0; i < d.grids.length; i++) {
@@ -89,7 +89,6 @@ $(function() {
           return submenuItemHtml(k, grid.title);
         })(i);
       }
-      //$('#statistics-submenu').html(menuHtml);
     })
     .go();
 

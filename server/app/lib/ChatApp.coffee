@@ -17,17 +17,21 @@ class ChatApp
       res.sendFile(@config.appFolder + '/index.html')
     ).bind(@)
     @http = require('http').Server(@app)
-
-
-
+    # admin
     adminApp = express()
-    adminApp.use(express.static(path.normalize(@config.appFolder + '/../../admin')))
+    adminBasePath = path.normalize(@config.appFolder + '/../../admin')
+    adminApp.use(express.static(adminBasePath + '/public'))
+    adminApp.set('view engine', 'ejs');
+    adminApp.set('views', adminBasePath + '/views');
+    adminApp.engine('html', require('ejs').renderFile);
+    adminApp.get('/', ((req, res) ->
+      res.render 'index.html',
+        apiUri: @config.host + ':' + @config.port
+    ).bind(@))
     adminHttp = require('http').Server(adminApp)
     adminHttp.listen @config.adminPort, (->
       console.log 'admin listening on *:' + @config.adminPort
     ).bind(@)
-
-
   initMongo: ->
     @connectMongo(((db)->
       Server = require('./Server')
