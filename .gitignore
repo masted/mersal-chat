@@ -1,7 +1,1 @@
 .idea
-app/socketio-jwt-master
-doc
-app/uploads/*
-node_modules
-app/config.js
-apidoc.json
