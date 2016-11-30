@@ -32,29 +32,6 @@ module.exports = function(server) {
   });
 
   /**
-   * @api {get} /user/list Getting users list
-   * @apiName List
-   * @apiGroup User
-   *
-   * @apiParam {String} status Status ('online', 'offline'; optional)
-   *
-   * @apiSampleRequest /user/list
-   */
-  server.app.get('/api/v1/user/list', function(req, res) {
-    var query = {};
-    if (req.query.status && (req.query.status == 'online' || req.query.status == 'offline')) {
-      query.status = req.query.status;
-    }
-    server.db.collection('users').find(query, {
-      login: 1,
-      phone: 1,
-      status: 1
-    }).toArray(function(err, users) {
-      res.json(users);
-    });
-  });
-
-  /**
    * @api {get} /user/create Create user
    * @apiName Create
    * @apiGroup User
