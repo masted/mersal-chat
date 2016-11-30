@@ -1,6 +1,7 @@
 app/socketio-jwt-master
 doc
-app/uploads/*
+app/public/uploads/user/*
+app/public/uploads/message/*
 node_modules
 app/config.js
 apidoc.json

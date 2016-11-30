@@ -12,7 +12,6 @@ class Server
     require('./routes/admin/users')(@)
     require('./routes/admin/contacts')(@)
     require('./routes/admin/stat')(@)
-    require('./routes/debug')(@)
     require('./routes/doc')(@)
     require('./stat').startCollecting(@)
     require('./dev')(@)

@@ -56,7 +56,7 @@ module.exports = function(server) {
         return;
       }
       server.db.collection('messages').find({
-        $query:  {
+        $query: {
           chatId: server.db.ObjectID(req.query.chatId)
         },
         $orderby: {
@@ -65,6 +65,49 @@ module.exports = function(server) {
       }).toArray(function(err, messages) {
         res.json(messages);
       });
+    });
+  });
+
+  function makeid() {
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    for (var i = 0; i < 20; i++)
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
+    return text;
+  }
+
+  /**
+   * @api {post} /message/upload Upload file
+   * @apiName Upload photo/video
+   * @apiGroup Message
+   *
+   * @apiParam {String} token JWT token
+   * @apiParam {File} file File (File via multipart/form-data)
+   *
+   * @apiSuccess {String} success Filename. Accessible by url HOST/u/{userId}/filename. {userId} - ID of User sends message
+   */
+  var formidable = require('formidable');
+  var fs = require('fs');
+  var path = require('path');
+  server.app.post('/api/v1/message/upload', function(req, res) {
+    server.tokenReq(req, res, function(res, user) {
+      var fileName = makeid();
+      var form = new formidable.IncomingForm();
+      form.uploadDir = path.join(server.config.appFolder, '/public/uploads/message/' + user._id);
+      if (!fs.existsSync(form.uploadDir)) {
+        fs.mkdirSync(form.uploadDir);
+      }
+      form.on('file', function(field, file) {
+        console.log('new file: ' + path.join(form.uploadDir, fileName));
+        fs.rename(file.path, path.join(form.uploadDir, fileName));
+      });
+      form.on('error', function(err) {
+        console.log('An error has occured: \n' + err);
+      });
+      form.on('end', function() {
+        res.end(fileName);
+      });
+      form.parse(req);
     });
   });
 

@@ -22,7 +22,7 @@ $('#upload-input').on('change', function(){
     }
 
     $.ajax({
-      url: '/user/upload',
+      url: uploadUrl,
       type: 'POST',
       data: formData,
       processData: false,

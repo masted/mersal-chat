@@ -135,9 +135,9 @@ module.exports = function(server) {
   var formidable = require('formidable');
   var fs = require('fs');
   server.app.post('/api/v1/user/upload', function(req, res) {
-    tokenReq(req, res, function(res, user) {
+    server.tokenReq(req, res, function(res, user) {
       var form = new formidable.IncomingForm();
-      form.uploadDir = path.join(config.appFolder, '/uploads');
+      form.uploadDir = path.join(config.appFolder, '/public/uploads/user');
       form.on('file', function(field, file) {
         fs.rename(file.path, path.join(form.uploadDir, file.name));
       });
