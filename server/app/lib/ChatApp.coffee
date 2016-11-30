@@ -17,6 +17,17 @@ class ChatApp
       res.sendFile(@config.appFolder + '/index.html')
     ).bind(@)
     @http = require('http').Server(@app)
+
+
+
+    adminApp = express()
+    adminApp.use(express.static(path.normalize(@config.appFolder + '/../../admin')))
+    adminHttp = require('http').Server(adminApp)
+    adminHttp.listen @config.adminPort, (->
+      console.log 'admin listening on *:' + @config.adminPort
+    ).bind(@)
+
+
   initMongo: ->
     @connectMongo(((db)->
       Server = require('./Server')

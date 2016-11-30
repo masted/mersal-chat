@@ -14,7 +14,7 @@
     };
 
     ChatApp.prototype.initApp = function() {
-      var bodyParser, express, path;
+      var adminApp, adminHttp, bodyParser, express, path;
       express = require('express');
       this.app = express();
       bodyParser = require('body-parser');
@@ -27,7 +27,13 @@
       this.app.get('/', (function(req, res) {
         return res.sendFile(this.config.appFolder + '/index.html');
       }).bind(this));
-      return this.http = require('http').Server(this.app);
+      this.http = require('http').Server(this.app);
+      adminApp = express();
+      adminApp.use(express["static"](path.normalize(this.config.appFolder + '/../../admin')));
+      adminHttp = require('http').Server(adminApp);
+      return adminHttp.listen(this.config.adminPort, (function() {
+        return console.log('admin listening on *:' + this.config.adminPort);
+      }).bind(this));
     };
 
     ChatApp.prototype.initMongo = function() {
