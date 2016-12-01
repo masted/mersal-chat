@@ -91,7 +91,7 @@ module.exports = function(server) {
   var fs = require('fs');
   var path = require('path');
   server.app.post('/api/v1/message/upload', function(req, res) {
-    server.fakeTokenReq(req, res, function(res, user) {
+    server.tokenReq(req, res, function(res, user) {
       var fileName = makeid();
       var form = new formidable.IncomingForm();
       form.uploadDir = path.join(server.config.appFolder, '/public/uploads/message/' + user._id);
