@@ -30,11 +30,34 @@
       }).bind(this));
       this.http = require('http').Server(this.app);
       adminApp = express();
+      adminApp.use(bodyParser.urlencoded({
+        extended: true
+      }));
       adminBasePath = path.normalize(this.config.appFolder + '/../../admin');
       adminApp.use(express["static"](adminBasePath + '/public'));
       adminApp.set('view engine', 'ejs');
       adminApp.set('views', adminBasePath + '/views');
       adminApp.engine('html', require('ejs').renderFile);
+      adminApp.get('/auth', (function(req, res) {
+        return res.render('auth.html', {
+          error: null
+        });
+      }).bind(this));
+      adminApp.post('/auth', (function(req, res) {
+        if (!req.body.password) {
+          res.render('auth.html', {
+            error: 'Password required'
+          });
+          return;
+        }
+        if (req.body.password !== this.config.adminPassword) {
+          res.render('auth.html', {
+            error: 'Password required'
+          });
+          return;
+        }
+        return res.redirect('/');
+      }).bind(this));
       adminApp.get('/', (function(req, res) {
         return res.render('index.html', {
           apiUri: this.config.host + ':' + this.config.port,

@@ -1,0 +1,73 @@
+body {
+padding-top: 40px;
+padding-bottom: 40px;
+background-color: #eee;
+}
+
+.form-signin {
+max-width: 330px;
+padding: 15px;
+margin: 0 auto;
+}
+.form-signin .form-signin-heading,
+.form-signin .checkbox {
+margin-bottom: 10px;
+}
+.form-signin .checkbox {
+font-weight: normal;
+}
+.form-signin .form-control {
+position: relative;
+height: auto;
+-webkit-box-sizing: border-box;
+-moz-box-sizing: border-box;
+box-sizing: border-box;
+padding: 10px;
+font-size: 16px;
+}
+.form-signin .form-control:focus {
+z-index: 2;
+}
+.form-signin input[type="email"] {
+margin-bottom: -1px;
+border-bottom-right-radius: 0;
+border-bottom-left-radius: 0;
+}
+.form-signin input[type="password"] {
+margin-bottom: 10px;
+border-top-left-radius: 0;
+border-top-right-radius: 0;
+}
+
+.input-error {
+padding: 0.25rem 0.5rem;
+font-size: 0.875rem;
+border-radius: 0.2rem;
+}
+
+
+.has-danger .form-control-feedback,
+.has-danger .form-control-label,
+.has-danger .form-check-label,
+.has-danger .form-check-inline,
+.has-danger .custom-control {
+color: #d9534f;
+}
+
+.has-danger .form-control {
+border-color: #d9534f;
+}
+
+.has-danger .form-control:focus {
+-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #eba5a3;
+box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #eba5a3;
+}
+
+.has-danger .input-error {
+color: #d9534f;
+}
+
+.has-danger .form-control-danger {
+background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='#d9534f' viewBox='-2 -2 7 7'%3E%3Cpath stroke='%23d9534f' d='M0 0l3 3m0-3L0 3'/%3E%3Ccircle r='.5'/%3E%3Ccircle cx='3' r='.5'/%3E%3Ccircle cy='3' r='.5'/%3E%3Ccircle cx='3' cy='3' r='.5'/%3E%3C/svg%3E");
+}
+

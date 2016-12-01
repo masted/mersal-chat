@@ -20,11 +20,28 @@ class ChatApp
     @http = require('http').Server(@app)
     # admin
     adminApp = express()
+    adminApp.use bodyParser.urlencoded
+      extended: true
     adminBasePath = path.normalize(@config.appFolder + '/../../admin')
     adminApp.use(express.static(adminBasePath + '/public'))
     adminApp.set('view engine', 'ejs');
     adminApp.set('views', adminBasePath + '/views');
     adminApp.engine('html', require('ejs').renderFile);
+    adminApp.get('/auth', ((req, res) ->
+      res.render 'auth.html',
+        error: null
+    ).bind(@))
+    adminApp.post('/auth', ((req, res) ->
+      if !req.body.password
+        res.render 'auth.html',
+          error: 'Password required'
+        return
+      if req.body.password != @config.adminPassword
+        res.render 'auth.html',
+          error: 'Password required'
+        return
+      res.redirect '/'
+    ).bind(@))
     adminApp.get('/', ((req, res) ->
       res.render 'index.html',
         apiUri: @config.host + ':' + @config.port

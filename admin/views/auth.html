@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="CoreUI - Open Source Bootstrap Admin Template">
+    <meta name="author" content="Łukasz Holeczek">
+    <meta name="keyword"
+          content="Bootstrap,Admin,Template,Open,Source,AngularJS,Angular,Angular2,jQuery,CSS,HTML,RWD,Dashboard">
+    <link rel="shortcut icon" href="img/favicon.png">
+
+    <title>Mersal Statistics</title>
+
+    <!-- Icons -->
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/simple-line-icons.css" rel="stylesheet">
+
+    <!-- Main styles for this application -->
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/auth.css" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="container">
+    <form class="form-signin<% if (error) { %> has-danger<% } %>" method="post">
+        <h2 class="form-signin-heading">Control Panel</h2>
+        <label for="inputPassword" class="sr-only">Password</label>
+        <% if (error) { %>
+        <div class="input-error"><%= error %></div>
+        <% } %>
+        <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
+    </form>
+</div>
+
+</body>
+</html>
