@@ -12,6 +12,7 @@ class ChatApp
     @app.use bodyParser.urlencoded
       extended: true
     @app.set 'view engine', 'jade'
+    @app.set 'views', path.normalize @config.appFolder + '/../views'
     @app.use express.static path.join @config.appFolder, 'public'
     @app.get '/', ((req, res) ->
       res.sendFile(@config.appFolder + '/index.html')

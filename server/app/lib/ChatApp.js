@@ -23,6 +23,7 @@
         extended: true
       }));
       this.app.set('view engine', 'jade');
+      this.app.set('views', path.normalize(this.config.appFolder + '/../views'));
       this.app.use(express["static"](path.join(this.config.appFolder, 'public')));
       this.app.get('/', (function(req, res) {
         return res.sendFile(this.config.appFolder + '/index.html');
