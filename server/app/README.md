@@ -2,11 +2,12 @@
 
 ##Generating docs
 
+    cd server
     apidoc -i app/lib/routes/api
     
 ##Running tests
     
-    cd app/lib
+    cd server/app/lib
     ../../node_modules/mocha/bin/mocha
     
 ##Charts
