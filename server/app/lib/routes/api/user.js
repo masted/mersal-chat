@@ -132,7 +132,7 @@ module.exports = function(server) {
    * @apiParam {String} token JWT token
    * @apiParam {File} image Image (File via multipart/form-data)
    *
-   * @apiSuccess {String} filename. Accessible by url HOST/uploads/user/{filename}
+   * @apiSuccess {String} filename File accessible by url HOST/uploads/user/{filename}
    */
   var formidable = require('formidable');
   var fs = require('fs');

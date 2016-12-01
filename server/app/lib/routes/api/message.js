@@ -85,7 +85,7 @@ module.exports = function(server) {
    * @apiParam {String} token JWT token
    * @apiParam {File} file File (File via multipart/form-data)
    *
-   * @apiSuccess {String} filename. Accessible by url HOST/uploads/message/{userId}/{filename}. {userId} - ID of User sends message
+   * @apiSuccess {String} filename File accessible by url HOST/uploads/message/{userId}/{filename}. {userId} - ID of User sends message
    */
   var formidable = require('formidable');
   var fs = require('fs');
