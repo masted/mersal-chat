@@ -131,21 +131,25 @@ module.exports = function(server) {
    *
    * @apiParam {String} token JWT token
    * @apiParam {File} image Image (File via multipart/form-data)
+   *
+   * @apiSuccess {String} filename. Accessible by url HOST/uploads/user/{filename}
    */
   var formidable = require('formidable');
   var fs = require('fs');
+  var path = require('path');
   server.app.post('/api/v1/user/upload', function(req, res) {
-    server.tokenReq(req, res, function(res, user) {
+    server.fakeTokenReq(req, res, function(res, user) {
+      var fileName = user._id;
       var form = new formidable.IncomingForm();
-      form.uploadDir = path.join(config.appFolder, '/public/uploads/user');
+      form.uploadDir = path.join(server.config.appFolder, '/public/uploads/user');
       form.on('file', function(field, file) {
-        fs.rename(file.path, path.join(form.uploadDir, file.name));
+        fs.rename(file.path, path.join(form.uploadDir, fileName));
       });
       form.on('error', function(err) {
         console.log('An error has occured: \n' + err);
       });
       form.on('end', function() {
-        res.end('success');
+        res.end(fileName);
       });
       form.parse(req);
     });

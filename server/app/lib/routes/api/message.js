@@ -85,13 +85,13 @@ module.exports = function(server) {
    * @apiParam {String} token JWT token
    * @apiParam {File} file File (File via multipart/form-data)
    *
-   * @apiSuccess {String} success Filename. Accessible by url HOST/u/{userId}/filename. {userId} - ID of User sends message
+   * @apiSuccess {String} filename. Accessible by url HOST/uploads/message/{userId}/{filename}. {userId} - ID of User sends message
    */
   var formidable = require('formidable');
   var fs = require('fs');
   var path = require('path');
   server.app.post('/api/v1/message/upload', function(req, res) {
-    server.tokenReq(req, res, function(res, user) {
+    server.fakeTokenReq(req, res, function(res, user) {
       var fileName = makeid();
       var form = new formidable.IncomingForm();
       form.uploadDir = path.join(server.config.appFolder, '/public/uploads/message/' + user._id);
