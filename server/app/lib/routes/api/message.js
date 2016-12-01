@@ -79,6 +79,7 @@ module.exports = function(server) {
   /**
    * @api {post} /message/upload Upload file
    * @apiName Upload photo/video
+   * @apiDescription <a href="http://chat.311.su:8080/test/upload/message.html">Web example</a>
    * @apiGroup Message
    *
    * @apiParam {String} token JWT token
