@@ -11,7 +11,7 @@ $(function() {
     return result;
   }
 
-  var protoData = {
+  var chartProtoData = {
     datasets: [{
       backgroundColor: convertHex($.brandInfo, 10),
       borderColor: $.brandInfo,
@@ -60,7 +60,7 @@ $(function() {
   html += htmlItem(3);
   html += htmlItem(4);
 
-  $('#chartsContainer').html(html);
+  $('#cardsContainer').html(html);
 
   var submenuItemHtml = function(n, title) {
     return '<li class="nav-item">\
@@ -68,41 +68,111 @@ $(function() {
     </li>';
   };
 
+  var userChartProtoData = {
+    datasets: [
+      {
+        backgroundColor: $.brandPrimary,
+        borderColor: 'rgba(255,255,255,.55)'
+      }
+    ]
+  };
+  var buildUserChart = function(d, i, color) {
+    var k = i + 1;
+    var data = JSON.parse(JSON.stringify(userChartProtoData));
+    var chart = d.userCharts[i];
+    data.labels = chart.lables;
+    data.datasets[0].data = chart.data;
+    data.datasets[0].backgroundColor = color;
+    var ctx = $('#card-chart' + k);
+    $('#userChartTitle' + k).html(chart.title);
+    $('#userChartLastCount' + k).html(chart.data[chart.data.length - 1]);
+    new Chart(ctx, {
+      type: 'line',
+      data: data,
+      options: {
+        maintainAspectRatio: false,
+        legend: {
+          display: false
+        },
+        scales: {
+          xAxes: [{
+            gridLines: {
+              color: 'transparent',
+              zeroLineColor: 'transparent'
+            },
+            ticks: {
+              fontSize: 2,
+              fontColor: 'transparent',
+            }
+
+          }],
+          yAxes: [{
+            display: false,
+            ticks: {
+              display: false,
+              min: Math.min.apply(Math, data.datasets[0].data) - 5,
+              max: Math.max.apply(Math, data.datasets[0].data) + 5,
+            }
+          }],
+        },
+        elements: {
+          line: {
+            borderWidth: 1
+          },
+          point: {
+            radius: 4,
+            hitRadius: 10,
+            hoverRadius: 4,
+          },
+        }
+      }
+    });
+  };
+
   aja()
     .url('http://' + apiUri + '/admin/stat/data?password=' + adminPassword)
     .on('success', function(d) {
       var menuHtml = '';
-      d.grids[0].data = d.grids[0].data.map(function(v) {
+      d.charts[0].data = d.charts[0].data.map(function(v) {
         return (v/1048576);
       });
-      d.grids[1].data = d.grids[1].data.map(function(v) {
+      d.charts[1].data = d.charts[1].data.map(function(v) {
         return v/10000;
       });
-      d.grids[2].data = d.grids[2].data.map(function(v) {
+      d.charts[2].data = d.charts[2].data.map(function(v) {
         return (v/1048576);
       });
-      d.grids[3].data = d.grids[3].data.map(function(v) {
+      d.charts[3].data = d.charts[3].data.map(function(v) {
         return (v/1048576);
       });
-      for (var i = 0; i < d.grids.length; i++) {
+      for (var i = 0; i < d.charts.length; i++) {
         menuHtml += (function(n) {
           var k = n + 1;
-          var data = JSON.parse(JSON.stringify(protoData));
-          var grid = d.grids[n];
-          data.labels = grid.lables;
-          data.datasets[0].data = grid.data;
-          $('#main-chart-title-' + k).html(grid.title);
+          var data = JSON.parse(JSON.stringify(chartProtoData));
+          var chart = d.charts[n];
+          data.labels = chart.lables;
+          data.datasets[0].data = chart.data;
+          $('#main-chart-title-' + k).html(chart.title);
           var ctx = $('#main-chart-' + k);
           new Chart(ctx, {
             type: 'line',
             data: data,
             options: options
           });
-          return submenuItemHtml(k, grid.title);
+          return submenuItemHtml(k, chart.title);
         })(i);
       }
+      buildUserChart(d, 0, $.brandInfo);
+      buildUserChart(d, 1, 'rgba(255,255,255,.3)');
     })
     .go();
+
+
+
+
+
+
+
 
 });
 

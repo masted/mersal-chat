@@ -12,33 +12,55 @@ module.exports =
             cpu: process.cpuUsage().user
             dbSize: dbStat.dataSize
             uploadsSize: uploadsSize
-    , 60000*10
+    , 60000 * 10
+    setInterval ->
+      server.db.collection('users').count {
+        status: 'online'
+      }, (err, onlineCount) ->
+        server.db.collection('users').count (err, usersCount) ->
+          server.db.collection('usersStat').insert
+            time: new Date().getTime()
+            onlineCount: onlineCount
+            usersCount: usersCount
+    , 60000 * 60 * 24
 
   titles:
     memory: 'Memory'
     cpu: 'CPU'
     dbSize: 'Database Size'
     uploadSize: 'Uploads folder size'
+  userTitles:
+    onlineCount: 'Online Users'
+    usersCount: 'Registered Users'
 
   adminResultHandler: (server, req, res) ->
     if !req.query.password
       res.status(404).send({error: 'no password'})
     if req.query.password != server.config.adminPassword
       res.status(404).send({error: 'wrong password'})
-    server.db.collection('stat').find({
-      $query: {},
-      $orderby: {
-        time: -1
-      }
+    server.db.collection('stat').find().sort({
+      time: -1
     }).limit(20).toArray(((err, records)->
-      if !records
-        console.log 'no stat'
-        return
-      grids = []
-      for key of @titles
-        grids.push @formatGridData(key, records)
-      res.header 'Access-Control-Allow-Origin', '*'
-      res.send {grids: grids}
+      server.db.collection('usersStat').find().sort({
+        time: -1
+      }).limit(7).toArray(((err, userRecords)->
+        if !records && !userRecords
+          console.log 'no stat'
+          return
+        records = records.reverse()
+        userRecords = userRecords.reverse()
+        charts = []
+        for key of @titles
+          charts.push @formatChartData(key, records, @titles)
+        userCharts = []
+        for key of @userTitles
+          userCharts.push @formatChartData(key, userRecords, @userTitles)
+        res.header 'Access-Control-Allow-Origin', '*'
+        res.send {
+          charts: charts,
+          userCharts: userCharts
+        }
+      ).bind(@))
     ).bind(@))
 
   tts: (timestamp) ->
@@ -48,9 +70,9 @@ module.exports =
     formattedTime = hours + ':' + minutes.substr(-2)
     return formattedTime
 
-  formatGridData: (key, records) ->
+  formatChartData: (key, records, titles) ->
     json =
-      title: @titles[key]
+      title: titles[key]
       lables: []
       data: []
     i = 0

@@ -4,7 +4,7 @@
     startCollecting: function(server) {
       var getSize;
       getSize = require('get-folder-size');
-      return setInterval(function() {
+      setInterval(function() {
         return getSize(server.config.appFolder + '/public/uploads', function(err, uploadsSize) {
           return server.db.stats(function(err, dbStat) {
             return server.db.collection('stat').insert({
@@ -17,12 +17,29 @@
           });
         });
       }, 60000 * 10);
+      return setInterval(function() {
+        return server.db.collection('users').count({
+          status: 'online'
+        }, function(err, onlineCount) {
+          return server.db.collection('users').count(function(err, usersCount) {
+            return server.db.collection('usersStat').insert({
+              time: new Date().getTime(),
+              onlineCount: onlineCount,
+              usersCount: usersCount
+            });
+          });
+        });
+      }, 60000 * 60 * 24);
     },
     titles: {
       memory: 'Memory',
       cpu: 'CPU',
       dbSize: 'Database Size',
       uploadSize: 'Uploads folder size'
+    },
+    userTitles: {
+      onlineCount: 'Online Users',
+      usersCount: 'Registered Users'
     },
     adminResultHandler: function(server, req, res) {
       if (!req.query.password) {
@@ -35,25 +52,33 @@
           error: 'wrong password'
         });
       }
-      return server.db.collection('stat').find({
-        $query: {},
-        $orderby: {
-          time: -1
-        }
+      return server.db.collection('stat').find().sort({
+        time: -1
       }).limit(20).toArray((function(err, records) {
-        var grids, key;
-        if (!records) {
-          console.log('no stat');
-          return;
-        }
-        grids = [];
-        for (key in this.titles) {
-          grids.push(this.formatGridData(key, records));
-        }
-        res.header('Access-Control-Allow-Origin', '*');
-        return res.send({
-          grids: grids
-        });
+        return server.db.collection('usersStat').find().sort({
+          time: -1
+        }).limit(7).toArray((function(err, userRecords) {
+          var charts, key, userCharts;
+          if (!records && !userRecords) {
+            console.log('no stat');
+            return;
+          }
+          records = records.reverse();
+          userRecords = userRecords.reverse();
+          charts = [];
+          for (key in this.titles) {
+            charts.push(this.formatChartData(key, records, this.titles));
+          }
+          userCharts = [];
+          for (key in this.userTitles) {
+            userCharts.push(this.formatChartData(key, userRecords, this.userTitles));
+          }
+          res.header('Access-Control-Allow-Origin', '*');
+          return res.send({
+            charts: charts,
+            userCharts: userCharts
+          });
+        }).bind(this));
       }).bind(this));
     },
     tts: function(timestamp) {
@@ -64,10 +89,10 @@
       formattedTime = hours + ':' + minutes.substr(-2);
       return formattedTime;
     },
-    formatGridData: function(key, records) {
+    formatChartData: function(key, records, titles) {
       var i, j, json, len, v;
       json = {
-        title: this.titles[key],
+        title: titles[key],
         lables: [],
         data: []
       };
