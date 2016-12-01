@@ -72,6 +72,18 @@ $(function() {
     .url('http://' + apiUri + '/admin/stat/data?password=' + adminPassword)
     .on('success', function(d) {
       var menuHtml = '';
+      d.grids[0].data = d.grids[0].data.map(function(v) {
+        return (v/1048576);
+      });
+      d.grids[1].data = d.grids[1].data.map(function(v) {
+        return v/10000;
+      });
+      d.grids[2].data = d.grids[2].data.map(function(v) {
+        return (v/1048576);
+      });
+      d.grids[3].data = d.grids[3].data.map(function(v) {
+        return (v/1048576);
+      });
       for (var i = 0; i < d.grids.length; i++) {
         menuHtml += (function(n) {
           var k = n + 1;
