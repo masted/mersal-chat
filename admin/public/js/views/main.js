@@ -38,8 +38,8 @@ $(function() {
 
   var htmlItem = function(n) {
     return '\
-      <a name="chart-' + n + '"></a>\
       <div class="card">\
+        <a name="chart-' + n + '"></a>\
         <div class="card-block">\
           <div class="row">\
             <div class="col-xs-5">\
