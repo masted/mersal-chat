@@ -23,12 +23,11 @@ class Server
     )
 
   tokenReq: (req, res, resCallback) ->
-    @addApiCors(res)
     @jwt.verify(req.query.token, @config.jwtSecret, (err, decoded) ->
       if !err
         resCallback res, decoded
       else
-        res.send err
+        res.status(404).json({error: err.message})
     )
   fakeTokenReq: (req, res, resCallback) ->
     user =

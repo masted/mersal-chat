@@ -37,12 +37,13 @@
     }
 
     Server.prototype.tokenReq = function(req, res, resCallback) {
-      this.addApiCors(res);
       return this.jwt.verify(req.query.token, this.config.jwtSecret, function(err, decoded) {
         if (!err) {
           return resCallback(res, decoded);
         } else {
-          return res.send(err);
+          return res.status(404).json({
+            error: err.message
+          });
         }
       });
     };

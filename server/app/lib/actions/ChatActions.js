@@ -115,7 +115,7 @@
         _id: chatId
       }, (function(err, r) {
         if (r === null) {
-          return callback(false, 'chat does not exists');
+          return callback(false, 'chat ' + chatId + 'does not exists');
         } else {
           return this.db.collection('chatUsers').findOne({
             chatId: chatId,

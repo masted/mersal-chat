@@ -15,7 +15,7 @@
     }
 
     SocketMessageActions.prototype.newMessageEvent = function(message) {
-      var clients, onlineUserIds, socket, socketId;
+      var clients, onlineUserSockets, socket, socketId;
       clients = this.server.io.sockets.adapter.rooms[message.chatId];
       if (!clients) {
         return;
@@ -23,24 +23,22 @@
       if (clients.sockets.length === 0) {
         return;
       }
-      onlineUserIds = {};
+      onlineUserSockets = {};
       for (socketId in clients.sockets) {
         socket = this.server.io.sockets.connected[socketId];
-        onlineUserIds[socket.userId] = 1;
+        onlineUserSockets[socket.userId] = socket;
       }
-      console.log(clients.sockets);
-      console.log(onlineUserIds);
       return new MessageActions(this.server.db).getUserMessages(message, (function(userMessages) {
         var onlineMessageStatusIds, onlineUserId, results, userMessage;
         onlineMessageStatusIds = [];
         for (userMessage in userMessages) {
-          if (onlineUserIds[userMessage.ownUserId]) {
+          if (onlineUserSockets[userMessage.ownUserId]) {
             onlineMessageStatusIds.push(userMessage._id);
           }
         }
         results = [];
-        for (onlineUserId in onlineUserIds) {
-          results.push(socket.emit('event', {
+        for (onlineUserId in onlineUserSockets) {
+          results.push(onlineUserSockets[onlineUserId].emit('event', {
             type: 'newMessage',
             message: userMessages[onlineUserId]
           }));

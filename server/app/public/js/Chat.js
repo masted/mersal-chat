@@ -54,14 +54,24 @@
         url: this.config.baseUrl + '/api/v1/login',
         onComplete: (function(data) {
           data = JSON.parse(data);
+          if (data.error) {
+            throw new Error(data.error);
+          }
           return new Request({
-            url: this.config.baseUrl + '/api/v1/chat/getOrCreateByTwoUser',
+            url: this.config.baseUrl + '/api/v1/chat/getOrCreateByTwoUsers',
             onComplete: (function(chat) {
+              if (!chat) {
+                return;
+              }
               chat = JSON.parse(chat);
+              if (chat.error) {
+                throw new Error(chat.error);
+              }
               this.data = chat;
               this.startSocket(data.token, chat.chatId);
             }).bind(this)
           }).get({
+            token: data.token,
             fromUserId: data._id,
             toUserId: this.toUserId
           });

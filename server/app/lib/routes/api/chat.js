@@ -53,7 +53,7 @@ module.exports = function(server) {
         return;
       }
       if (req.query.fromUserId == req.query.toUserId) {
-        res.status(404).send({error: 'cat not create chat to yourself'});
+        res.status(404).send({error: 'can not create chat to yourself'});
         return;
       }
       new ChatActions(server.db).getOrCreateByTwoUsers(req.query.fromUserId, req.query.toUserId, function(data) {

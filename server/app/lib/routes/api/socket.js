@@ -75,6 +75,13 @@ module.exports = function(server) {
     }, function(/*err, result*/) {
       socket.emit('event', {type: 'authenticated'});
       socket.on('join', function(data) {
+        if (!data.chatId) {
+          socket.emit('event', {
+            type: 'joinError',
+            error: 'chaId not presents in data: ' + JSON.stringify(data)
+          });
+          return;
+        }
         console.log('joining chat ' + data.chatId);
         new ChatActions(server.db).canJoin(userId, data.chatId, function(success, error) {
           if (success === false) {

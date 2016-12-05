@@ -37,15 +37,22 @@ class Chat
       url: @config.baseUrl + '/api/v1/login'
       onComplete: ((data) ->
         data = JSON.parse(data)
+        if data.error
+          throw new Error(data.error)
         new Request(
-          url: @config.baseUrl + '/api/v1/chat/getOrCreateByTwoUser'
+          url: @config.baseUrl + '/api/v1/chat/getOrCreateByTwoUsers'
           onComplete: ((chat) ->
+            if !chat
+              return
             chat = JSON.parse(chat)
+            if chat.error
+              throw new Error(chat.error)
             @data = chat
             @startSocket data.token, chat.chatId
             return
           ).bind(@)
         ).get(
+          token: data.token
           fromUserId: data._id
           toUserId: @toUserId
         )).bind(@)

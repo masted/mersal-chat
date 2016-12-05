@@ -97,7 +97,7 @@ class ChatActions
       _id: chatId
     }, ((err, r) ->
       if r == null
-        callback(false, 'chat does not exists')
+        callback(false, 'chat ' + chatId + 'does not exists')
       else
         @db.collection('chatUsers').findOne({
           chatId: chatId,
