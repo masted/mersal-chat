@@ -15,6 +15,13 @@ class Server
     require('./routes/doc')(@)
     require('./stat').startCollecting(@)
     require('./dev')(@)
+    methodOverride = require('method-override')
+    @app.use(methodOverride())
+    @app.use((err, req, res, next) ->
+      console.error(err.stack)
+      res.status(404).json({error: err.message})
+    )
+
   tokenReq: (req, res, resCallback) ->
     @addApiCors(res)
     @jwt.verify(req.query.token, @config.jwtSecret, (err, decoded) ->

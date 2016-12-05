@@ -6,6 +6,7 @@
 
   Server = (function() {
     function Server(config, app, db, io, jwt) {
+      var methodOverride;
       this.config = config;
       this.app = app;
       this.db = db;
@@ -25,6 +26,14 @@
       require('./routes/doc')(this);
       require('./stat').startCollecting(this);
       require('./dev')(this);
+      methodOverride = require('method-override');
+      this.app.use(methodOverride());
+      this.app.use(function(err, req, res, next) {
+        console.error(err.stack);
+        return res.status(404).json({
+          error: err.message
+        });
+      });
     }
 
     Server.prototype.tokenReq = function(req, res, resCallback) {
