@@ -9,6 +9,7 @@
   "license": "MIT",
   "dependencies": {
     "body-parser": "^1.15.2",
+    "cors": "^2.8.1",
     "ejs": "^2.5.3",
     "express": "^4.13.4",
     "express-session": "^1.14.2",
