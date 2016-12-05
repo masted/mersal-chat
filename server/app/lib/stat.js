@@ -73,7 +73,6 @@
           for (key in this.userTitles) {
             userCharts.push(this.formatChartData(key, userRecords, this.userTitles));
           }
-          res.header('Access-Control-Allow-Origin', '*');
           return res.send({
             charts: charts,
             userCharts: userCharts

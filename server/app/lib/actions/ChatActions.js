@@ -52,9 +52,11 @@
       return 'chat-' + userId1 + '-' + userId2;
     };
 
-    ChatActions.prototype.getOrCreateByTwoUser = function(fromUserId, toUserId, onComplete) {
+    ChatActions.prototype.getOrCreateByTwoUsers = function(fromUserId, toUserId, onComplete) {
       var name;
       name = this.chatNameTwoUsers(fromUserId, toUserId);
+      fromUserId = this.db.ObjectID(fromUserId);
+      toUserId = this.db.ObjectID(toUserId);
       return this.db.collection('chat').findOne({
         name: name
       }, (function(err, chat) {
@@ -66,21 +68,44 @@
             console.log('chat created ' + chat._id + ', inserting users');
             return this.db.collection('chatUsers').insertMany([
               {
-                userId: this.db.ObjectID(fromUserId),
+                userId: fromUserId,
                 chatId: chat._id
               }, {
-                userId: this.db.ObjectID(toUserId),
+                userId: toUserId,
                 chatId: chat._id
               }
             ], function(err, r) {
-              return onComplete(chat._id);
+              return this.extendByUsers([fromUserId, toUserId], chat, onComplete);
             });
           }).bind(this));
         } else {
-          console.log('chat exists ' + chat._id);
-          return onComplete(chat._id);
+          return this.extendByUsers([fromUserId, toUserId], chat, onComplete);
         }
       }).bind(this));
+    };
+
+    ChatActions.prototype.extendByUsers = function(userIds, chat, onComplete) {
+      return this.db.collection('users').find({
+        _id: {
+          $in: userIds
+        }
+      }, {
+        _id: 1,
+        login: 1,
+        phone: 1
+      }).toArray(function(err, _users) {
+        var j, len, user, users;
+        console.log('chat exists ' + chat._id);
+        users = {};
+        for (j = 0, len = _users.length; j < len; j++) {
+          user = _users[j];
+          users[user._id] = user;
+        }
+        return onComplete({
+          users: users,
+          chatId: chat._id
+        });
+      });
     };
 
     ChatActions.prototype.canJoin = function(userId, chatId, callback) {

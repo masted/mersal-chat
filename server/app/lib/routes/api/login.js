@@ -25,6 +25,14 @@ module.exports = function(server) {
    *   {"error": "no user"}
    */
   server.app.get('/api/v1/login', function(req, res) {
+    if (!req.query.password) {
+      res.status(404).json({error: 'password required'});
+      return;
+    }
+    if (!req.query.login) {
+      res.status(404).json({error: 'login required'});
+      return;
+    }
     server.db.collection('users').findOne({
       login: req.query.login,
       password: req.query.password

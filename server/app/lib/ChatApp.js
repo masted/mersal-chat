@@ -8,66 +8,30 @@
     }
 
     ChatApp.prototype.start = function() {
+      this.express = require('express');
+      this.path = require('path');
+      this.bodyParser = require('body-parser');
       this.initApp();
       this.initMongo();
-      return this.startHttp();
+      this.startHttp();
+      return require('./cAdminApp')(this);
     };
 
     ChatApp.prototype.initApp = function() {
-      var adminApp, adminBasePath, adminHttp, bodyParser, express, path;
-      express = require('express');
-      this.app = express();
-      bodyParser = require('body-parser');
-      path = require('path');
-      this.app.use(bodyParser.urlencoded({
+      var cors;
+      this.app = this.express();
+      this.app.use(this.bodyParser.urlencoded({
         extended: true
       }));
+      cors = require('cors');
+      this.app.use(cors());
       this.app.set('view engine', 'jade');
-      this.app.set('views', path.normalize(this.config.appFolder + '/../views'));
-      this.app.use(express["static"](path.join(this.config.appFolder, 'public')));
+      this.app.set('views', this.path.normalize(this.config.appFolder + '/../views'));
+      this.app.use(this.express["static"](this.path.join(this.config.appFolder, 'public')));
       this.app.get('/', (function(req, res) {
         return res.sendFile(this.config.appFolder + '/index.html');
       }).bind(this));
-      this.http = require('http').Server(this.app);
-      adminApp = express();
-      adminApp.use(bodyParser.urlencoded({
-        extended: true
-      }));
-      adminBasePath = path.normalize(this.config.appFolder + '/../../admin');
-      adminApp.use(express["static"](adminBasePath + '/public'));
-      adminApp.set('view engine', 'ejs');
-      adminApp.set('views', adminBasePath + '/views');
-      adminApp.engine('html', require('ejs').renderFile);
-      adminApp.get('/auth', (function(req, res) {
-        return res.render('auth.html', {
-          error: null
-        });
-      }).bind(this));
-      adminApp.post('/auth', (function(req, res) {
-        if (!req.body.password) {
-          res.render('auth.html', {
-            error: 'Password required'
-          });
-          return;
-        }
-        if (req.body.password !== this.config.adminPassword) {
-          res.render('auth.html', {
-            error: 'Password required'
-          });
-          return;
-        }
-        return res.redirect('/');
-      }).bind(this));
-      adminApp.get('/', (function(req, res) {
-        return res.render('index.html', {
-          apiUri: this.config.host + ':' + this.config.port,
-          adminPassword: this.config.adminPassword
-        });
-      }).bind(this));
-      adminHttp = require('http').Server(adminApp);
-      return adminHttp.listen(this.config.adminPort, (function() {
-        return console.log('admin listening on *:' + this.config.adminPort);
-      }).bind(this));
+      return this.http = require('http').Server(this.app);
     };
 
     ChatApp.prototype.initMongo = function() {

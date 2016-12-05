@@ -41,8 +41,10 @@ class ChatActions
       userId2 = fromUserId
     return 'chat-' + userId1 + '-' + userId2
 
-  getOrCreateByTwoUser: (fromUserId, toUserId, onComplete) ->
+  getOrCreateByTwoUsers: (fromUserId, toUserId, onComplete) ->
     name = @chatNameTwoUsers(fromUserId, toUserId);
+    fromUserId = @db.ObjectID(fromUserId)
+    toUserId = @db.ObjectID(toUserId)
     @db.collection('chat').findOne({
       name: name
     }, ((err, chat) ->
@@ -52,21 +54,40 @@ class ChatActions
           console.log 'chat created ' + chat._id + ', inserting users'
           @db.collection('chatUsers').insertMany([
             {
-              userId: @db.ObjectID(fromUserId),
+              userId: fromUserId,
               chatId: chat._id
             },
             {
-              userId: @db.ObjectID(toUserId),
+              userId: toUserId,
               chatId: chat._id
             }
           ], (err, r) ->
-            onComplete chat._id
+            @extendByUsers([fromUserId, toUserId], chat, onComplete)
           )
         ).bind(@)
       else
-        console.log 'chat exists ' + chat._id
-        onComplete chat._id
+        @extendByUsers([fromUserId, toUserId], chat, onComplete)
       ).bind(@)
+    )
+
+  extendByUsers: (userIds, chat, onComplete) ->
+    @db.collection('users').find({
+      _id: {
+        $in: userIds
+      }
+    }, {
+      _id: 1,
+      login: 1,
+      phone: 1
+    }).toArray((err, _users) ->
+      console.log 'chat exists ' + chat._id
+      users = {}
+      for user in _users
+        users[user._id] = user
+      onComplete(
+        users: users
+        chatId: chat._id
+      )
     )
 
   canJoin: (userId, chatId, callback) ->

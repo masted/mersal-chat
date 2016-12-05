@@ -4,6 +4,9 @@ module.exports = function(server) {
   var ChatActions = require('../../actions/ChatActions');
   var MessageActions = require('../../actions/MessageActions');
 
+  // some init
+  new SocketMessageActions(server);
+
   /**
    * @api {ws} /socket.io Overview
    * @apiGroup Socket
@@ -72,7 +75,6 @@ module.exports = function(server) {
     }, function(/*err, result*/) {
       socket.emit('event', {type: 'authenticated'});
       socket.on('join', function(data) {
-        new SocketMessageActions(server);
         console.log('joining chat ' + data.chatId);
         new ChatActions(server.db).canJoin(userId, data.chatId, function(success, error) {
           if (success === false) {
@@ -100,18 +102,18 @@ module.exports = function(server) {
         new MessageActions(server.db).setStatuses(messageIds.split(','), userId, true);
       });
 
-      socket.on('markAsDelivered', function(data) {
+      socket.on('markAsDelivered', function(messageIds) {
         messageIds = messageIds.split(',');
         server.db.collection('messages').update({
           $in: {
-            _id: data.messageIds
+            _id: messageIds
           }
         }, {
           delivered: true
         }, function(err, r) {
           socket.emit('event', {
             type: 'delivered',
-            messageIds: data.messageIds
+            messageIds: messageIds
           });
         });
       });

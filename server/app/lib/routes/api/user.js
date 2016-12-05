@@ -16,7 +16,7 @@ module.exports = function(server) {
    * @apiSampleRequest /user/info
    */
   server.app.get('/api/v1/user/info', function(req, res) {
-    console.log('get info by ' + req.query.phone);
+    server.addApiCors(res);
     server.db.collection('users').findOne({
       phone: req.query.phone
     }, {
@@ -49,6 +49,7 @@ module.exports = function(server) {
    * @apiSampleRequest /user/create
    */
   server.app.get('/api/v1/user/create', function(req, res) {
+    server.addApiCors(res);
     if (!req.query.phone) {
       res.status(404).json({error: 'phone is required'});
       return;
@@ -113,7 +114,7 @@ module.exports = function(server) {
         }
       }
     };
-    tokenReq(req, res, function(res, user) {
+    server.tokenReq(req, res, function(res, user) {
       var data = req.query;
       delete data.token;
       clean(data);
@@ -136,14 +137,13 @@ module.exports = function(server) {
    */
   var formidable = require('formidable');
   var fs = require('fs');
-  var path = require('path');
   server.app.post('/api/v1/user/upload', function(req, res) {
     server.tokenReq(req, res, function(res, user) {
       var fileName = user._id;
       var form = new formidable.IncomingForm();
-      form.uploadDir = path.join(server.config.appFolder, '/public/uploads/user');
+      form.uploadDir = server.path.join(server.config.appFolder, '/public/uploads/user');
       form.on('file', function(field, file) {
-        fs.rename(file.path, path.join(form.uploadDir, fileName));
+        fs.rename(file.path, server.path.join(form.uploadDir, fileName));
       });
       form.on('error', function(err) {
         console.log('An error has occured: \n' + err);

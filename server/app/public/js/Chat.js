@@ -5,10 +5,15 @@
   Chat = (function() {
     Chat.prototype.messages = [];
 
-    function Chat(userInfo, toUserId) {
+    Chat.prototype.config = {
+      baseUrl: ''
+    };
+
+    function Chat(userInfo, toUserId, config) {
       this.userInfo = userInfo;
       this.toUserId = toUserId;
       MicroEvent.mixin(this);
+      Object.assign(this.config, config);
     }
 
     Chat.prototype.restart = function() {
@@ -20,7 +25,12 @@
       var socket;
       this.token = token;
       this.chatId = chatId;
-      this.socket = socket = io.connect();
+      if (this.config.baseUrl) {
+        socket = io.connect(this.config.baseUrl);
+      } else {
+        socket = io.connect();
+      }
+      this.socket = socket;
       socket.on('connect', (function() {
         return socket.emit('authenticate', {
           token: token
@@ -32,6 +42,7 @@
           chatId: chatId
         });
       }).bind(this)).on('event', (function(data) {
+        console.log(data);
         return this.trigger(data.type, data);
       }).bind(this)).on('unauthorized', function(msg) {
         return console.log('unauthorized: ' + JSON.stringify(msg.data));
@@ -39,12 +50,15 @@
     };
 
     Chat.prototype.start = function() {
-      return new Request.JSON({
-        url: '/api/v1/login',
+      return new Request({
+        url: this.config.baseUrl + '/api/v1/login',
         onComplete: (function(data) {
-          return new Request.JSON({
-            url: '/api/v1/chat/getOrCreateByTwoUser',
+          data = JSON.parse(data);
+          return new Request({
+            url: this.config.baseUrl + '/api/v1/chat/getOrCreateByTwoUser',
             onComplete: (function(chat) {
+              chat = JSON.parse(chat);
+              this.data = chat;
               this.startSocket(data.token, chat.chatId);
             }).bind(this)
           }).get({
@@ -56,8 +70,11 @@
     };
 
     Chat.prototype.sendMessage = function(message) {
+      if (!this.chatId) {
+        throw new Error('Chat has not started');
+      }
       return new Request({
-        url: '/api/v1/message/send'
+        url: this.config.baseUrl + '/api/v1/message/send'
       }).get({
         token: this.token,
         chatId: this.chatId,

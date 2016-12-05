@@ -1,56 +1,28 @@
 class ChatApp
   constructor: (@config) ->
   start: ->
+    @express = require 'express'
+    @path = require 'path'
+    @bodyParser = require 'body-parser'
     @initApp()
     @initMongo()
     @startHttp()
+    require('./cAdminApp')(@)
   initApp: ->
-    express = require('express')
-    @app = express()
-    bodyParser = require('body-parser')
-    path = require 'path'
-    @app.use bodyParser.urlencoded
+    @app = @express()
+    @app.use @bodyParser.urlencoded
       extended: true
+
+    cors = require 'cors'
+    @app.use(cors())
+
     @app.set 'view engine', 'jade'
-    @app.set 'views', path.normalize @config.appFolder + '/../views'
-    @app.use express.static path.join @config.appFolder, 'public'
+    @app.set 'views', @path.normalize @config.appFolder + '/../views'
+    @app.use @express.static @path.join @config.appFolder, 'public'
     @app.get '/', ((req, res) ->
       res.sendFile(@config.appFolder + '/index.html')
     ).bind(@)
     @http = require('http').Server(@app)
-    # admin
-    adminApp = express()
-    adminApp.use bodyParser.urlencoded
-      extended: true
-    adminBasePath = path.normalize(@config.appFolder + '/../../admin')
-    adminApp.use(express.static(adminBasePath + '/public'))
-    adminApp.set('view engine', 'ejs');
-    adminApp.set('views', adminBasePath + '/views');
-    adminApp.engine('html', require('ejs').renderFile);
-    adminApp.get('/auth', ((req, res) ->
-      res.render 'auth.html',
-        error: null
-    ).bind(@))
-    adminApp.post('/auth', ((req, res) ->
-      if !req.body.password
-        res.render 'auth.html',
-          error: 'Password required'
-        return
-      if req.body.password != @config.adminPassword
-        res.render 'auth.html',
-          error: 'Password required'
-        return
-      res.redirect '/'
-    ).bind(@))
-    adminApp.get('/', ((req, res) ->
-      res.render 'index.html',
-        apiUri: @config.host + ':' + @config.port
-        adminPassword: @config.adminPassword
-    ).bind(@))
-    adminHttp = require('http').Server(adminApp)
-    adminHttp.listen @config.adminPort, (->
-      console.log 'admin listening on *:' + @config.adminPort
-    ).bind(@)
   initMongo: ->
     @connectMongo(((db)->
       Server = require('./Server')

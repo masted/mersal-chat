@@ -1,14 +1,22 @@
 class Chat
   messages: []
-  constructor: (@userInfo, @toUserId) ->
+  config: {
+    baseUrl: ''
+  }
+  constructor: (@userInfo, @toUserId, config) ->
     MicroEvent.mixin @
+    Object.assign @config, config
   restart: () ->
     @socket.disconnect()
     @socket.connect();
   startSocket: (token, chatId) ->
     @token = token
     @chatId = chatId
-    @socket = socket = io.connect()
+    if @config.baseUrl
+      socket = io.connect(@config.baseUrl)
+    else
+      socket = io.connect()
+    @socket = socket
     socket.on 'connect', (->
       socket.emit 'authenticate',
         token: token
@@ -19,18 +27,21 @@ class Chat
         chatId: chatId
     ).bind(@)
     .on 'event', ((data) ->
-      #console.log data
+      console.log data
       @.trigger data.type, data
     ).bind(@)
     .on 'unauthorized', (msg) ->
       console.log 'unauthorized: ' + JSON.stringify(msg.data)
   start: () ->
-    new Request.JSON(
-      url: '/api/v1/login'
+    new Request(
+      url: @config.baseUrl + '/api/v1/login'
       onComplete: ((data) ->
-        new Request.JSON(
-          url: '/api/v1/chat/getOrCreateByTwoUser'
+        data = JSON.parse(data)
+        new Request(
+          url: @config.baseUrl + '/api/v1/chat/getOrCreateByTwoUser'
           onComplete: ((chat) ->
+            chat = JSON.parse(chat)
+            @data = chat
             @startSocket data.token, chat.chatId
             return
           ).bind(@)
@@ -38,10 +49,14 @@ class Chat
           fromUserId: data._id
           toUserId: @toUserId
         )).bind(@)
-    ).get(@.userInfo)
+    ).get(@userInfo)
+
   sendMessage: (message) ->
+    if !@chatId
+      throw new Error('Chat has not started')
+
     new Request(
-      url: '/api/v1/message/send'
+      url: @config.baseUrl + '/api/v1/message/send'
     ).get(
       token: @token
       chatId: @chatId

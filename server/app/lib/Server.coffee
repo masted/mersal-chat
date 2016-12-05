@@ -16,6 +16,7 @@ class Server
     require('./stat').startCollecting(@)
     require('./dev')(@)
   tokenReq: (req, res, resCallback) ->
+    @addApiCors(res)
     @jwt.verify(req.query.token, @config.jwtSecret, (err, decoded) ->
       if !err
         resCallback res, decoded
@@ -49,5 +50,7 @@ class Server
       userId1 = toUserId
       userId2 = fromUserId
     return 'chat-' + userId1 + '-' + userId2
+  addApiCors: (res) ->
+    res.header 'Access-Control-Allow-Origin', '*'
 
 module.exports = Server

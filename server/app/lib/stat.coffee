@@ -55,7 +55,7 @@ module.exports =
         userCharts = []
         for key of @userTitles
           userCharts.push @formatChartData(key, userRecords, @userTitles)
-        res.header 'Access-Control-Allow-Origin', '*'
+        #res.header 'Access-Control-Allow-Origin', '*'
         res.send {
           charts: charts,
           userCharts: userCharts

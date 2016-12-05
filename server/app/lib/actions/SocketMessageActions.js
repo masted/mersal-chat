@@ -7,6 +7,10 @@
   SocketMessageActions = (function() {
     function SocketMessageActions(server) {
       this.server = server;
+      if (this.called) {
+        throw new Error('FUCK');
+      }
+      this.called = true;
       this.server.event.on('newMessage', this.newMessageEvent.bind(this));
     }
 
@@ -24,6 +28,8 @@
         socket = this.server.io.sockets.connected[socketId];
         onlineUserIds[socket.userId] = 1;
       }
+      console.log(clients.sockets);
+      console.log(onlineUserIds);
       return new MessageActions(this.server.db).getUserMessages(message, (function(userMessages) {
         var onlineMessageStatusIds, onlineUserId, results, userMessage;
         onlineMessageStatusIds = [];
