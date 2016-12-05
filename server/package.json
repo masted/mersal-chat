@@ -17,6 +17,7 @@
     "get-folder-size": "^1.0.0",
     "jade": "^1.11.0",
     "jsonwebtoken": "^7.1.9",
+    "method-override": "^2.3.7",
     "mocha": "^3.2.0",
     "mongodb": "^2.2.12",
     "socket.io": "^1.4.6",
