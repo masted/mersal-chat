@@ -18,6 +18,8 @@ class Server
     methodOverride = require('method-override')
     @app.use(methodOverride())
     @app.use((err, req, res, next) ->
+      # TODO: save errors to log file
+      # TODO: restart server on crash
       console.error(err.stack)
       res.status(404).json({error: err.message})
     )

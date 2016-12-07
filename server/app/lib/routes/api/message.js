@@ -58,11 +58,10 @@ module.exports = function(server) {
       server.db.collection('messages').find({
         $query: {
           chatId: server.db.ObjectID(req.query.chatId)
-        },
-        $orderby: {
-          createTime: -1
         }
-      }).toArray(function(err, messages) {
+      }).sort({
+        $natural: -1
+      }).limit(2).toArray(function(err, messages) {
         res.json(messages);
       });
     });

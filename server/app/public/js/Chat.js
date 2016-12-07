@@ -79,12 +79,13 @@
       }).get(this.userInfo);
     };
 
-    Chat.prototype.sendMessage = function(message) {
+    Chat.prototype.sendMessage = function(message, onComplete) {
       if (!this.chatId) {
         throw new Error('Chat has not started');
       }
       return new Request({
-        url: this.config.baseUrl + '/api/v1/message/send'
+        url: this.config.baseUrl + '/api/v1/message/send',
+        onComplete: onComplete
       }).get({
         token: this.token,
         chatId: this.chatId,

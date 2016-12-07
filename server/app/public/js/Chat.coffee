@@ -39,6 +39,7 @@ class Chat
         data = JSON.parse(data)
         if data.error
           throw new Error(data.error)
+        # TODO: make request class with automate json parse and error handling
         new Request(
           url: @config.baseUrl + '/api/v1/chat/getOrCreateByTwoUsers'
           onComplete: ((chat) ->
@@ -58,12 +59,12 @@ class Chat
         )).bind(@)
     ).get(@userInfo)
 
-  sendMessage: (message) ->
+  sendMessage: (message, onComplete) ->
     if !@chatId
       throw new Error('Chat has not started')
-
     new Request(
-      url: @config.baseUrl + '/api/v1/message/send'
+      url: @config.baseUrl + '/api/v1/message/send',
+      onComplete: onComplete
     ).get(
       token: @token
       chatId: @chatId
