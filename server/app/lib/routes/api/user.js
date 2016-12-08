@@ -84,7 +84,7 @@ module.exports = function(server) {
           login: req.query.login,
           password: req.query.password
         });
-        res.send('success');
+        res.json({success: 1});
       });
     });
   });
@@ -119,7 +119,7 @@ module.exports = function(server) {
       delete data.token;
       clean(data);
       server.db.collection('users').update({_id: server.db.ObjectID(user._id)}, {$set: data}, function(err, count) {
-        if (count) res.send('success'); else res.json({error: 'user not found'});
+        if (count) res.json({success: 1}); else res.json({error: 'user not found'});
       });
     });
   });

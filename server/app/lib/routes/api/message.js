@@ -16,7 +16,7 @@ module.exports = function(server) {
     server.tokenReq(req, res, function(res, user) {
       new MessageActions(server.db).send(user._id, req.query.chatId, req.query.message, function(message) {
         server.event.emit('newMessage', message);
-        res.send('success');
+        res.json({success: 1});
       });
     });
   });
@@ -36,7 +36,7 @@ module.exports = function(server) {
         return;
       }
       new MessageActions(server.db).setStatuses(req.query._ids.split(','), user._id, true, function() {
-        res.send('success');
+        res.json({success: 1});
       });
     });
   });
