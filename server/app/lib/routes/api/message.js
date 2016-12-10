@@ -29,7 +29,7 @@ module.exports = function(server) {
 
   /**
    * @api {get} /message/userSend Send a message to user
-   * @apiName SendMessage
+   * @apiName UserSendMessage
    * @apiGroup Message
    *
    * @apiParam {String} token JWT token
