@@ -75,6 +75,20 @@ class MessageActions
       ).bind(@))
     ).bind(@))
 
+  userSend: (userId, toUserId, chatId, message, onComplete) ->
+    userId = @db.ObjectID(userId)
+    toUserId = @db.ObjectID(toUserId)
+    chatId = @db.ObjectID(chatId)
+    message =
+      createTime: new Date().getTime(),
+      userId: userId,
+      toUserId: toUserId,
+      chatId: chatId,
+      message: message
+    @db.collection('messages').insertOne(message, ((err, r) ->
+      onComplete(message)
+    ))
+
   getUnseen: (ownUserId, chatId, onComplete) ->
     @db.collection('messageStatuses').find({
       ownUserId: @db.ObjectID(ownUserId),

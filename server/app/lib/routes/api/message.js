@@ -2,7 +2,7 @@ module.exports = function(server) {
   var MessageActions = require('../../actions/MessageActions');
 
   /**
-   * @api {get} /message/send Send a message
+   * @api {get} /message/send Send a message in chat
    * @apiName SendMessage
    * @apiGroup Message
    *
@@ -10,12 +10,44 @@ module.exports = function(server) {
    * @apiParam {Number} chatId Chat ID
    * @apiParam {String} message Message text
    *
-   * @apiSuccess {String} success The string "success" on success
+   * @apiSuccess {String} json
+   *
+   * @apiSuccessExample Success-Response:
+   *   HTTP/1.1 200 OK
+   *   {
+   *     "success": 1
+   *   }
    */
   server.app.get('/api/v1/message/send', function(req, res) {
     server.tokenReq(req, res, function(res, user) {
       new MessageActions(server.db).send(user._id, req.query.chatId, req.query.message, function(message) {
         server.event.emit('newMessage', message);
+        res.json({success: 1});
+      });
+    });
+  });
+
+  /**
+   * @api {get} /message/userSend Send a message to user
+   * @apiName SendMessage
+   * @apiGroup Message
+   *
+   * @apiParam {String} token JWT token
+   * @apiParam {Number} userId User ID
+   * @apiParam {String} message Message text
+   *
+   * @apiSuccess {String} json
+   *
+   * @apiSuccessExample Success-Response:
+   *   HTTP/1.1 200 OK
+   *   {
+   *     "success": 1
+   *   }
+   */
+  server.app.get('/api/v1/message/userSend', function(req, res) {
+    server.tokenReq(req, res, function(res, user) {
+      new MessageActions(server.db).userSend(user._id, req.query.toUserId, req.query.chatId, req.query.message, function(message) {
+        server.event.emit('newUserMessage', message);
         res.json({success: 1});
       });
     });

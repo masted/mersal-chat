@@ -95,6 +95,22 @@
       }).bind(this));
     };
 
+    MessageActions.prototype.userSend = function(userId, toUserId, chatId, message, onComplete) {
+      userId = this.db.ObjectID(userId);
+      toUserId = this.db.ObjectID(toUserId);
+      chatId = this.db.ObjectID(chatId);
+      message = {
+        createTime: new Date().getTime(),
+        userId: userId,
+        toUserId: toUserId,
+        chatId: chatId,
+        message: message
+      };
+      return this.db.collection('messages').insertOne(message, (function(err, r) {
+        return onComplete(message);
+      }));
+    };
+
     MessageActions.prototype.getUnseen = function(ownUserId, chatId, onComplete) {
       return this.db.collection('messageStatuses').find({
         ownUserId: this.db.ObjectID(ownUserId),

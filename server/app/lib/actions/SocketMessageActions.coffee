@@ -7,6 +7,16 @@ class SocketMessageActions
       throw new Error('FUCK')
     @called = true
     @server.event.on 'newMessage', @newMessageEvent.bind(@) # chat server event
+    @server.event.on 'newUserMessage', @newUserMessageEvent.bind(@) # chat server event
+
+  newUserMessageEvent: (message) ->
+    console.log message
+    clients = @server.io.sockets.clients()
+    for socketId of clients.connected
+      if message.toUserId + '' == clients.connected[socketId].userId
+        clients.connected[socketId].emit 'event',
+          type: 'newUserMessage'
+          message: message
 
   newMessageEvent: (message) ->
     clients = @server.io.sockets.adapter.rooms[message.chatId]

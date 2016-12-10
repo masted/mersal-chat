@@ -12,7 +12,26 @@
       }
       this.called = true;
       this.server.event.on('newMessage', this.newMessageEvent.bind(this));
+      this.server.event.on('newUserMessage', this.newUserMessageEvent.bind(this));
     }
+
+    SocketMessageActions.prototype.newUserMessageEvent = function(message) {
+      var clients, results, socketId;
+      console.log(message);
+      clients = this.server.io.sockets.clients();
+      results = [];
+      for (socketId in clients.connected) {
+        if (message.toUserId + '' === clients.connected[socketId].userId) {
+          results.push(clients.connected[socketId].emit('event', {
+            type: 'newUserMessage',
+            message: message
+          }));
+        } else {
+          results.push(void 0);
+        }
+      }
+      return results;
+    };
 
     SocketMessageActions.prototype.newMessageEvent = function(message) {
       var clients, onlineUserSockets, socket, socketId;
