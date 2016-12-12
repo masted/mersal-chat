@@ -47,7 +47,7 @@ module.exports = function(server) {
   server.app.get('/api/v1/message/userSend', function(req, res) {
     server.tokenReq(req, res, function(res, user) {
       new MessageActions(server.db).userSend(user._id, req.query.toUserId, req.query.chatId, req.query.message, function(message) {
-        server.event.emit('newUserMessage', message);
+        server.event.emit('newUserMessages', [message]);
         res.json({success: 1});
       });
     });
@@ -82,15 +82,15 @@ module.exports = function(server) {
    * @apiParam {String} chatId Chat ID
    */
   server.app.get('/api/v1/message/list', function(req, res) {
-    server.fakeTokenReq(req, res, function(res, user) {
+    server.tokenReq(req, res, function(res, user) {
       if (!req.query.chatId) {
-        res.status(404).send({error: 'chatId not defined'})
+        res.status(404).send({error: 'chatId not defined'});
         return;
       }
       server.db.collection('messages').find({
-        $query: {
+        //$query: {
           chatId: server.db.ObjectID(req.query.chatId)
-        }
+        //}
       }).sort({
         $natural: -1
       }).limit(2).toArray(function(err, messages) {

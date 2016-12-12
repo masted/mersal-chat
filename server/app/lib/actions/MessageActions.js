@@ -107,13 +107,17 @@
         message: message
       };
       return this.db.collection('messages').insertOne(message, (function(err, r) {
-        return onComplete(message);
-      }));
+        return this.saveStatuses([message], userId, true, (function() {
+          return this.saveStatuses([message], toUserId, false, function() {
+            return onComplete(message);
+          });
+        }).bind(this));
+      }).bind(this));
     };
 
-    MessageActions.prototype.getUnseen = function(toUserId, onComplete) {
+    MessageActions.prototype.getUnseen = function(ownUserId, onComplete) {
       return this.db.collection('messageStatuses').find({
-        toUserId: this.db.ObjectID(toUserId),
+        ownUserId: this.db.ObjectID(ownUserId),
         viewed: false
       }, {
         messageId: 1
@@ -127,7 +131,6 @@
         messageIds = items.map(function(item) {
           return item.messageId;
         });
-        console.log('get unseen by ' + messageIds);
         return this.db.collection('messages').find({
           _id: {
             $in: messageIds

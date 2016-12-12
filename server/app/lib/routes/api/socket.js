@@ -43,9 +43,13 @@ module.exports = function(server) {
    *
    * `{type: 'joined'}`
    *
-   *  New message has come:
+   *  New message has appears in chat:
    *
    * `{type: 'newMessage', {message: {...}}`
+   *
+   * New messages outside of any chat has come to user
+   *
+   * `{type: 'newUserMessages', {messages: [...]}`
    *
    *
    * ## Emits:

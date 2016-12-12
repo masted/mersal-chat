@@ -86,12 +86,16 @@ class MessageActions
       chatId: chatId,
       message: message
     @db.collection('messages').insertOne(message, ((err, r) ->
-      onComplete(message)
-    ))
+      @saveStatuses([message], userId, true, (-> # sender viewed
+        @saveStatuses([message], toUserId, false, -> # recipient not yet
+          onComplete(message)
+        )
+      ).bind(@))
+    ).bind(@))
 
-  getUnseen: (toUserId, onComplete) ->
+  getUnseen: (ownUserId, onComplete) ->
     @db.collection('messageStatuses').find({
-      toUserId: @db.ObjectID(toUserId),
+      ownUserId: @db.ObjectID(ownUserId),
       viewed: false
     }, {
       messageId: 1
@@ -101,7 +105,6 @@ class MessageActions
         onComplete([])
         return
       messageIds = items.map (item) -> item.messageId
-      console.log 'get unseen by ' + messageIds
       @db.collection('messages').find({
         _id: {
           $in: messageIds
