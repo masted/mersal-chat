@@ -1,0 +1,6 @@
+git fetch origin
+git reset --hard origin/master
+cd server
+apidoc -i app/lib/routes/api
+cd app
+pm2 restart index --update-env
