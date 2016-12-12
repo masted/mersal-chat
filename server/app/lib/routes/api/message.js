@@ -20,6 +20,14 @@ module.exports = function(server) {
    */
   server.app.get('/api/v1/message/send', function(req, res) {
     server.tokenReq(req, res, function(res, user) {
+      if (!req.query.chatId) {
+        res.status(404).send({error: 'chatId not defined'})
+        return;
+      }
+      if (!req.query.message) {
+        res.status(404).send({error: 'message not defined'})
+        return;
+      }
       new MessageActions(server.db).send(user._id, req.query.chatId, req.query.message, function(message) {
         server.event.emit('newMessage', message);
         res.json({success: 1});
@@ -46,6 +54,18 @@ module.exports = function(server) {
    */
   server.app.get('/api/v1/message/userSend', function(req, res) {
     server.tokenReq(req, res, function(res, user) {
+      if (!req.query.toUserId) {
+        res.status(404).send({error: 'toUserId not defined'})
+        return;
+      }
+      if (!req.query.chatId) {
+        res.status(404).send({error: 'chatId not defined'})
+        return;
+      }
+      if (!req.query.message) {
+        res.status(404).send({error: 'message not defined'})
+        return;
+      }
       new MessageActions(server.db).userSend(user._id, req.query.toUserId, req.query.chatId, req.query.message, function(message) {
         server.event.emit('newUserMessages', [message]);
         res.json({success: 1});
@@ -89,7 +109,7 @@ module.exports = function(server) {
       }
       server.db.collection('messages').find({
         //$query: {
-          chatId: server.db.ObjectID(req.query.chatId)
+        chatId: server.db.ObjectID(req.query.chatId)
         //}
       }).sort({
         $natural: -1
