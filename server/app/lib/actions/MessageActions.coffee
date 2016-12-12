@@ -89,10 +89,9 @@ class MessageActions
       onComplete(message)
     ))
 
-  getUnseen: (ownUserId, chatId, onComplete) ->
+  getUnseen: (toUserId, onComplete) ->
     @db.collection('messageStatuses').find({
-      ownUserId: @db.ObjectID(ownUserId),
-      chatId: @db.ObjectID(chatId),
+      toUserId: @db.ObjectID(toUserId),
       viewed: false
     }, {
       messageId: 1

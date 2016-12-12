@@ -64,6 +64,7 @@ module.exports = function(server) {
     secret: server.config.jwtSecret,
     timeout: 15000 // 15 seconds to send the authentication message
   })).on('authenticated', function(socket) {
+    var messageActions = new MessageActions(server.db);
     var userId = socket.decoded_token._id;
     socket.userId = userId;
     console.log('authenticated userId=' + userId);
@@ -74,6 +75,15 @@ module.exports = function(server) {
       }
     }, function(/*err, result*/) {
       socket.emit('event', {type: 'authenticated'});
+      // getting unseen messages for user
+      messageActions.getUnseen(userId, function(messages) {
+        if (messages.length == 0) return;
+        socket.emit('event', {
+          type: 'newUserMessages',
+          messages: messages
+        });
+      });
+
       socket.on('join', function(data) {
         if (!data.chatId) {
           socket.emit('event', {
@@ -95,18 +105,12 @@ module.exports = function(server) {
             socket.emit('event', {
               type: 'joined'
             });
-            // new MessageActions(server.db).getUndelivered(userId, data.chatId, function(messages) {
-            //   server.io.in(data.chatId).emit('event', {
-            //     type: 'messages',
-            //     messages: messages
-            //   });
-            // });
           }
         });
       });
 
       socket.on('markAsViewed', function(messageIds) {
-        new MessageActions(server.db).setStatuses(messageIds.split(','), userId, true);
+        messageActions.setStatuses(messageIds.split(','), userId, true);
       });
 
       socket.on('markAsDelivered', function(messageIds) {

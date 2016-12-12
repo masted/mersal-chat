@@ -111,10 +111,9 @@
       }));
     };
 
-    MessageActions.prototype.getUnseen = function(ownUserId, chatId, onComplete) {
+    MessageActions.prototype.getUnseen = function(toUserId, onComplete) {
       return this.db.collection('messageStatuses').find({
-        ownUserId: this.db.ObjectID(ownUserId),
-        chatId: this.db.ObjectID(chatId),
+        toUserId: this.db.ObjectID(toUserId),
         viewed: false
       }, {
         messageId: 1

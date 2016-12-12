@@ -8,7 +8,7 @@
     function SocketMessageActions(server) {
       this.server = server;
       if (this.called) {
-        throw new Error('FUCK');
+        throw new Error('SocketMessageActions is singletone');
       }
       this.called = true;
       this.server.event.on('newMessage', this.newMessageEvent.bind(this));

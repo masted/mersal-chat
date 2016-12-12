@@ -4,7 +4,7 @@ class SocketMessageActions
 
   constructor: (@server) ->
     if @called
-      throw new Error('FUCK')
+      throw new Error('SocketMessageActions is singletone')
     @called = true
     @server.event.on 'newMessage', @newMessageEvent.bind(@) # chat server event
     @server.event.on 'newUserMessage', @newUserMessageEvent.bind(@) # chat server event
