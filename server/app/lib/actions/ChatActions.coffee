@@ -61,9 +61,9 @@ class ChatActions
               userId: toUserId,
               chatId: chat._id
             }
-          ], (err, r) ->
+          ], ((err, r) ->
             @extendByUsers([fromUserId, toUserId], chat, onComplete)
-          )
+          ).bind(@))
         ).bind(@)
       else
         @extendByUsers([fromUserId, toUserId], chat, onComplete)

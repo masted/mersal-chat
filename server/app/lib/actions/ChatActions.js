@@ -74,9 +74,9 @@
                 userId: toUserId,
                 chatId: chat._id
               }
-            ], function(err, r) {
+            ], (function(err, r) {
               return this.extendByUsers([fromUserId, toUserId], chat, onComplete);
-            });
+            }).bind(this));
           }).bind(this));
         } else {
           return this.extendByUsers([fromUserId, toUserId], chat, onComplete);
