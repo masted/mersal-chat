@@ -42,6 +42,7 @@ module.exports = function(server) {
    *
    * @apiParam {String} token JWT token
    * @apiParam {Number} userId User ID
+   * @apiParam {Number} chatId Chat ID
    * @apiParam {String} message Message text
    *
    * @apiSuccess {String} json
@@ -54,19 +55,19 @@ module.exports = function(server) {
    */
   server.app.get('/api/v1/message/userSend', function(req, res) {
     server.tokenReq(req, res, function(res, user) {
-      if (!req.query.toUserId) {
-        res.status(404).send({error: 'toUserId not defined'})
+      if (!req.query.userId) {
+        res.status(404).send({error: 'userId not defined'});
         return;
       }
       if (!req.query.chatId) {
-        res.status(404).send({error: 'chatId not defined'})
+        res.status(404).send({error: 'chatId not defined'});
         return;
       }
       if (!req.query.message) {
-        res.status(404).send({error: 'message not defined'})
+        res.status(404).send({error: 'message not defined'});
         return;
       }
-      new MessageActions(server.db).userSend(user._id, req.query.toUserId, req.query.chatId, req.query.message, function(message) {
+      new MessageActions(server.db).userSend(user._id, req.query.userId, req.query.chatId, req.query.message, function(message) {
         server.event.emit('newUserMessages', [message]);
         res.json({success: 1});
       });
