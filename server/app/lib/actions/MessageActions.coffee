@@ -87,9 +87,20 @@ class MessageActions
       message: message
     @db.collection('messages').insertOne(message, ((err, r) ->
       @saveStatuses([message], userId, true, (-> # sender viewed
-        @saveStatuses([message], toUserId, false, -> # recipient not yet
-          onComplete(message)
-        )
+        @saveStatuses([message], toUserId, false, (-> # recipient not yet
+          @db.collection('chatUsers').updateOne({
+            chatId: message.chatId,
+            userId: toUserId
+          }, {
+            chatId: message.chatId,
+            userId: toUserId
+          }, {
+            upsert: true
+          }, ->
+            console.log 'add user ' + toUserId + ' to ' + chatId
+            onComplete(message)
+          )
+        ).bind(@))
       ).bind(@))
     ).bind(@))
 

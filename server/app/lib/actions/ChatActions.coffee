@@ -70,6 +70,21 @@ class ChatActions
       ).bind(@)
     )
 
+  get: (chatId, onComplete) ->
+    chatId = @db.ObjectID(chatId)
+    @db.collection('chat').findOne({
+        _id: chatId
+      }, ((err, chat) ->
+        if (chat == null)
+          onComplete(false)
+        else
+          onComplete(
+            users: []
+            chatId: chat._id
+          )
+      ).bind(@)
+    )
+
   extendByUsers: (userIds, chat, onComplete) ->
     @db.collection('users').find({
       _id: {
