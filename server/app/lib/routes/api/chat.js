@@ -22,7 +22,7 @@ module.exports = function(server) {
 
   /**
    * @api {get} /chat/getOrCreateByTwoUsers Get or create
-   * @apiDescription Get chat ID by two user IDs or creates it
+   * @apiDescription Get chat by two user IDs or creates it
    * @apiGroup Chat
    *
    * @apiParam {String} token JWT token
@@ -53,4 +53,34 @@ module.exports = function(server) {
       });
     });
   });
+
+  /**
+   * @api {get} /chat/get Get chat
+   * @apiDescription Get chat by id
+   * @apiGroup Chat
+   *
+   * @apiParam {String} token JWT token
+   * @apiParam {Integer} chatId Chat ID
+   *
+   * @apiSuccess {String} json JSON with chat ID
+   *
+   * @apiSuccessExample Success-Response:
+   *   HTTP/1.1 200 OK
+   *   {
+   *     "chatId": "..."
+   *     "users": [users in chat]
+   *   }
+   */
+  server.app.get('/api/v1/chat/get', function(req, res) {
+    server.tokenReq(req, res, function(res, user) {
+      if (!req.query.chatId) {
+        res.status(404).send({error: 'chatId not defined'});
+        return;
+      }
+      new ChatActions(server.db).get(req.query.chatId, function(data) {
+        res.json(data);
+      });
+    });
+  });
+
 };
