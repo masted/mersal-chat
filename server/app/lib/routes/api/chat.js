@@ -26,8 +26,7 @@ module.exports = function(server) {
    * @apiGroup Chat
    *
    * @apiParam {String} token JWT token
-   * @apiParam {Integer} fromUserId User ID 1
-   * @apiParam {Integer} toUserId User ID 2
+   * @apiParam {Integer} userId User ID 2
    *
    * @apiSuccess {String} json JSON with chat ID
    *
@@ -40,23 +39,16 @@ module.exports = function(server) {
    */
   server.app.get('/api/v1/chat/getOrCreateByTwoUsers', function(req, res) {
     server.tokenReq(req, res, function(res, user) {
-      if (server.db.ObjectID(req.query.fromUserId) != user._id) {
-        res.status(404).send({error: 'user token is not belongs to fromUserId'});
+      var fromUserId = user._id
+      if (!req.query.userId) {
+        res.status(404).send({error: 'userId not defined'});
         return;
       }
-      if (!req.query.fromUserId) {
-        res.status(404).send({error: 'fromUserId not defined'});
-        return;
-      }
-      if (!req.query.toUserId) {
-        res.status(404).send({error: 'toUserId not defined'});
-        return;
-      }
-      if (req.query.fromUserId == req.query.toUserId) {
+      if (fromUserId == req.query.userId) {
         res.status(404).send({error: 'can not create chat to yourself'});
         return;
       }
-      new ChatActions(server.db).getOrCreateByTwoUsers(req.query.fromUserId, req.query.toUserId, function(data) {
+      new ChatActions(server.db).getOrCreateByTwoUsers(fromUserId, req.query.userId, function(data) {
         res.json(data);
       });
     });

@@ -113,7 +113,7 @@ module.exports = function(server) {
         //}
       }).sort({
         $natural: -1
-      }).limit(2).toArray(function(err, messages) {
+      }).toArray(function(err, messages) {
         res.json(messages);
       });
     });

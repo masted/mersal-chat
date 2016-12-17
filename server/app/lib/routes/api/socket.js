@@ -107,7 +107,8 @@ module.exports = function(server) {
             socket.chatId = data.chatId;
             socket.join(data.chatId);
             socket.emit('event', {
-              type: 'joined'
+              type: 'joined',
+              chatId: data.chatId
             });
           }
         });

@@ -20,7 +20,7 @@ module.exports = function(server) {
     server.db.collection('users').findOne({
       phone: req.query.phone
     }, {
-      _id: 0
+      //_id: 0
     }, function(err, user) {
       if (!user) {
         res.status(404).send({error: 'no user'});
