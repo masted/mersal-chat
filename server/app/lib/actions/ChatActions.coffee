@@ -95,7 +95,7 @@ class ChatActions
       login: 1,
       phone: 1
     }).toArray((err, _users) ->
-      console.log 'chat exists ' + chat._id
+      #console.log 'chat exists ' + chat._id
       users = {}
       for user in _users
         users[user._id] = user

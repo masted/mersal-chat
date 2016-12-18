@@ -97,7 +97,7 @@ class MessageActions
           }, {
             upsert: true
           }, ->
-            console.log 'add user ' + toUserId + ' to ' + chatId
+            console.log 'add user ' + toUserId + ' to chat ' + chatId
             onComplete(message)
           )
         ).bind(@))

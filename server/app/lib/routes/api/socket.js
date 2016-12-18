@@ -3,6 +3,7 @@ module.exports = function(server) {
   var SocketMessageActions = require('../../actions/SocketMessageActions');
   var ChatActions = require('../../actions/ChatActions');
   var MessageActions = require('../../actions/MessageActions');
+  var SocketChatEventEmitter = require('../../SocketChatEventEmitter');
 
   // some init
   new SocketMessageActions(server);
@@ -19,7 +20,7 @@ module.exports = function(server) {
    *
    * To begin a WebSocket session use native Socket.IO client for your platform.
    * Once you have connected to the message server it will provide a stream of events.
-   *
+   *`
    * If you connect successfully the first event received will be a "authenticated":
    *
    *     {type: 'authenticated'}
@@ -79,6 +80,7 @@ module.exports = function(server) {
       }
     }, function(/*err, result*/) {
       socket.emit('event', {type: 'authenticated'});
+
       // getting unseen messages for user
       messageActions.getUnseen(userId, function(messages) {
         if (messages.length == 0) return;
@@ -114,21 +116,43 @@ module.exports = function(server) {
         });
       });
 
-      socket.on('markAsViewed', function(messageIds) {
-        messageActions.setStatuses(messageIds.split(','), userId, true);
+      socket.on('markAsViewed', function(data) {
+        messageActions.setStatuses(data.messageIds.split(','), userId, true);
       });
 
-      socket.on('markAsDelivered', function(messageIds) {
+      socket.on('markAsDelivered', function(data) {
+        if (!data.chatId) {
+          socket.emit('event', {
+            type: 'error',
+            context: 'markAsDelivered',
+            error: 'chatId param is required'
+          });
+          return;
+        }
+        var messageIds = data.messageIds.trim();
+        if (!messageIds) {
+          socket.emit('event', {
+            type: 'error',
+            context: 'markAsDelivered',
+            error: 'Empty messageIds param'
+          });
+          return;
+        }
         messageIds = messageIds.split(',');
-        server.db.collection('messages').update({
-          $in: {
-            _id: messageIds
+        for (var i = 0; i < messageIds.length; i++) {
+          messageIds[i] = server.db.ObjectID(messageIds[i]);
+        }
+        console.log(['mark as delivered', messageIds]);
+        server.db.collection('messages').updateMany({
+          _id: {
+            $in: messageIds
           }
         }, {
-          delivered: true
+          $set: {
+            delivered: true
+          }
         }, function(err, r) {
-          socket.emit('event', {
-            type: 'delivered',
+          new SocketChatEventEmitter(server, data.chatId).emit('delivered', {
             messageIds: messageIds
           });
         });

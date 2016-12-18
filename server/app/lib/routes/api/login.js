@@ -47,7 +47,7 @@ module.exports = function(server) {
       }
       profile.device = req.query.device;
       profile.deviceToken = req.query.deviceToken;
-      console.log(profile);
+      console.log('Login ' + profile.login);
       var token = server.jwt.sign(profile, server.config.jwtSecret, {expiresIn: 60 * 60 * 24 * 7});
       res.json({
         token: token,

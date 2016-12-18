@@ -118,7 +118,7 @@
             }, {
               upsert: true
             }, function() {
-              console.log('add user ' + toUserId + ' to ' + chatId);
+              console.log('add user ' + toUserId + ' to chat ' + chatId);
               return onComplete(message);
             });
           }).bind(this));

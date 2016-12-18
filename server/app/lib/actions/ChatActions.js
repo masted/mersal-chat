@@ -111,7 +111,6 @@
         phone: 1
       }).toArray(function(err, _users) {
         var j, len, user, users;
-        console.log('chat exists ' + chat._id);
         users = {};
         for (j = 0, len = _users.length; j < len; j++) {
           user = _users[j];

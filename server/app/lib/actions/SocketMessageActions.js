@@ -11,20 +11,59 @@
         throw new Error('SocketMessageActions is singletone');
       }
       this.called = true;
-      this.server.event.on('newMessage', this.newMessageEvent.bind(this));
       this.server.event.on('newUserMessage', this.newUserMessageEvent.bind(this));
     }
 
+    SocketMessageActions.prototype.isUserInChat = function(userId, chatId) {
+      var clients, socket, socketId;
+      clients = this.getChatOnlineClients(chatId);
+      if (clients === false) {
+        return false;
+      }
+      for (socketId in clients.sockets) {
+        socket = this.server.io.sockets.connected[socketId];
+        if (socket.userId === userId) {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    SocketMessageActions.prototype.getChatOnlineClients = function(chatId) {
+      var chatClients;
+      chatClients = this.server.io.sockets.adapter.rooms[chatId];
+      if (!chatClients) {
+        return false;
+      }
+      if (chatClients.sockets.length === 0) {
+        return false;
+      }
+      return chatClients;
+    };
+
     SocketMessageActions.prototype.newUserMessageEvent = function(message) {
+      if (!message.toUserId) {
+        throw new Error('massage must have toUserId');
+      }
+      message.toUserId = message.toUserId + '';
+      if (this.isUserInChat(message.toUserId) === false) {
+        this._newUserMessageEvent(message);
+      }
+      return this._newChatMessageEvent(message);
+    };
+
+    SocketMessageActions.prototype._newUserMessageEvent = function(message) {
       var clients, results, socketId;
       console.log(message);
       clients = this.server.io.sockets.clients();
+      console.log('newUserMessage TRY TO SEND');
       results = [];
       for (socketId in clients.connected) {
-        if (message.toUserId + '' === clients.connected[socketId].userId) {
+        if (message.toUserId === clients.connected[socketId].userId) {
+          console.log('newUserMessage SENT');
           results.push(clients.connected[socketId].emit('event', {
-            type: 'newUserMessage',
-            message: message
+            type: 'newUserMessages',
+            messages: [message]
           }));
         } else {
           results.push(void 0);
@@ -33,13 +72,10 @@
       return results;
     };
 
-    SocketMessageActions.prototype.newMessageEvent = function(message) {
+    SocketMessageActions.prototype._newChatMessageEvent = function(message) {
       var clients, onlineUserSockets, socket, socketId;
-      clients = this.server.io.sockets.adapter.rooms[message.chatId];
-      if (!clients) {
-        return;
-      }
-      if (clients.sockets.length === 0) {
+      clients = this.getChatOnlineClients(message.chatId);
+      if (clients === false) {
         return;
       }
       onlineUserSockets = {};

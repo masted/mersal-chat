@@ -5,7 +5,8 @@ module.exports = function(server) {
    * @apiName GetUserInfo
    * @apiGroup User
    *
-   * @apiParam {Number} phone User phone
+   * @apiParam {Number} phone User phone (OR id)
+   * @apiParam {Number} id User ID (OR phone)
    *
    * @apiSuccess {String} user JSON with user info
    *
@@ -17,18 +18,32 @@ module.exports = function(server) {
    */
   server.app.get('/api/v1/user/info', function(req, res) {
     server.addApiCors(res);
-    server.db.collection('users').findOne({
-      phone: req.query.phone
-    }, {
-      //_id: 0
-    }, function(err, user) {
+    if (!req.query.phone && !req.query.id) {
+      res.status(404).send({error: 'use phone or id get param'});
+      return;
+    }
+    var done = function(err, user) {
       if (!user) {
         res.status(404).send({error: 'no user'});
         return;
       }
-      console.log(user);
       res.send(user);
-    });
+    };
+    // ...
+    var includeFields = {
+      _id: 1,
+      login: 1,
+      phone: 1
+    };
+    if (req.query.id) {
+      server.db.collection('users').findOne({
+        _id: server.db.ObjectID(req.query.id)
+      }, includeFields, done);
+    } else {
+      server.db.collection('users').findOne({
+        phone: req.query.phone
+      }, includeFields, done);
+    }
   });
 
   /**

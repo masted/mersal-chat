@@ -68,7 +68,7 @@ module.exports = function(server) {
         return;
       }
       new MessageActions(server.db).userSend(user._id, req.query.userId, req.query.chatId, req.query.message, function(message) {
-        server.event.emit('newUserMessages', [message]);
+        server.event.emit('newUserMessage', message);
         res.json({success: 1});
       });
     });

@@ -1,0 +1,30 @@
+
+  /**
+   * @api {get} /message/markAsDelivered Mark as delivered
+   * @apiName MarkAsDelivered
+   * @apiGroup Message
+   *
+   * @apiParam {String} token JWT token
+   * @apiParam {String} _ids Object IDs separated by quote ",". ID is the "_id" param of Mongo Document
+   */
+  server.app.get('/api/v1/message/markAsDelivered', function(req, res) {
+    server.tokenReq(req, res, function(res, user) {
+      if (!req.query._ids) {
+        res.status(404).send({error: '_ids not defined'})
+        return;
+      }
+      var ids = req.query._ids.split(',');
+      ids = ids.map(function(id) {
+        return server.db.ObjectID(id)
+      });
+      console.log(['mark delivered', ids]);
+      server.db.collection('messages').update({
+        $ids: ids
+      }, {
+        delivered: 1
+      }, function(err, r) {
+        console.log(r);
+        //res.json({success: 1});
+      })
+    });
+  });
