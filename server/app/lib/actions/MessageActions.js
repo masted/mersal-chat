@@ -167,7 +167,6 @@
         for (i = 0, len = statuses.length; i < len; i++) {
           status = statuses[i];
           userMessage = Object.assign({}, message);
-          userMessage._id = status._id;
           userMessage.ownUserId = status.ownUserId;
           userMessage.viewed = status.viewed;
           userMessage.delivered = status.delivered;

@@ -133,12 +133,13 @@ class MessageActions
     )
 
   # get messages for all users that must receive it
+  # todo move statuses to messages
   getUserMessages: (message, onComplete) ->
     @getStatuses(message._id, (statuses) ->
       userMessages = {}
       for status in statuses
         userMessage = Object.assign({}, message)
-        userMessage._id = status._id
+        #userMessage._id = status._id
         userMessage.ownUserId = status.ownUserId
         userMessage.viewed = status.viewed
         userMessage.delivered = status.delivered

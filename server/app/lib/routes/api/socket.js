@@ -152,9 +152,11 @@ module.exports = function(server) {
             delivered: true
           }
         }, function(err, r) {
-          new SocketChatEventEmitter(server, data.chatId).emit('delivered', {
-            messageIds: messageIds
-          });
+          setTimeout(function() {
+            new SocketChatEventEmitter(server, data.chatId).emit('delivered', {
+              messageIds: messageIds
+            });
+          }, 1000);
         });
       });
 
