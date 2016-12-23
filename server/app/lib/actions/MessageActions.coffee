@@ -18,8 +18,7 @@ class MessageActions
         messageId: message._id,
         chatId: message.chatId,
         ownUserId: ownUserId,
-        viewed: viewed,
-        delivered: false
+        deleted: false
       }, {
         upsert: true
       }, (err, r) ->
@@ -84,7 +83,9 @@ class MessageActions
       userId: userId,
       toUserId: toUserId,
       chatId: chatId,
-      message: message
+      message: message,
+      viewed: false,
+      delivered: false
     @db.collection('messages').insertOne(message, ((err, r) ->
       @saveStatuses([message], userId, true, (-> # sender viewed
         @saveStatuses([message], toUserId, false, (-> # recipient not yet
@@ -93,7 +94,7 @@ class MessageActions
             userId: toUserId
           }, {
             chatId: message.chatId,
-            userId: toUserId
+            userId: toUserId,
           }, {
             upsert: true
           }, ->

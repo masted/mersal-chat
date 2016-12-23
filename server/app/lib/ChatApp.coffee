@@ -1,14 +1,15 @@
 class ChatApp
   constructor: (@config) ->
   start: ->
-    @express = require 'express'
-    @path = require 'path'
-    @bodyParser = require 'body-parser'
     @initApp()
     @initMongo()
     @startHttp()
     require('./cAdminApp')(@)
   initApp: ->
+    @express = require 'express'
+    @path = require 'path'
+    @bodyParser = require 'body-parser'
+
     @app = @express()
     @app.use @bodyParser.urlencoded
       extended: true
@@ -23,10 +24,12 @@ class ChatApp
       res.sendFile(@config.appFolder + '/index.html')
     ).bind(@)
     @http = require('http').Server(@app)
-  initMongo: ->
+  initMongo: (onInit) ->
     @connectMongo(((db)->
       Server = require('./Server')
-      new Server(@config, @app, db, require('socket.io')(@http), require('jsonwebtoken'))
+      server = new Server(@config, @app, db, require('socket.io')(@http), require('jsonwebtoken'))
+      if onInit
+        onInit(server)
     ).bind(@))
     @initSession()
   connectMongo: (onConnect) ->

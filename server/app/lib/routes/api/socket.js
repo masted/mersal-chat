@@ -1,4 +1,4 @@
-module.exports = function(server) {
+module.exports = function (server) {
   var socketioJwt = require('socketio-jwt');
   var SocketMessageActions = require('../../actions/SocketMessageActions');
   var ChatActions = require('../../actions/ChatActions');
@@ -68,21 +68,23 @@ module.exports = function(server) {
   server.io.sockets.on('connection', socketioJwt.authorize({
     secret: server.config.jwtSecret,
     timeout: 15000 // 15 seconds to send the authentication message
-  })).on('authenticated', function(socket) {
+  })).on('authenticated', function (socket) {
     var messageActions = new MessageActions(server.db);
     var userId = socket.decoded_token._id;
+    var _userId = server.db.ObjectID(userId);
     socket.userId = userId;
+
     console.log('authenticated userId=' + userId);
     // update status
     server.db.collection('users').update({_id: server.db.ObjectID(userId)}, {
       $set: {
         status: 'online'
       }
-    }, function(/*err, result*/) {
+    }, function (/*err, result*/) {
       socket.emit('event', {type: 'authenticated'});
 
       // getting unseen messages for user
-      messageActions.getUnseen(userId, function(messages) {
+      messageActions.getUnseen(userId, function (messages) {
         if (messages.length == 0) return;
         socket.emit('event', {
           type: 'newUserMessages',
@@ -90,7 +92,7 @@ module.exports = function(server) {
         });
       });
 
-      socket.on('join', function(data) {
+      socket.on('join', function (data) {
         if (!data.chatId) {
           socket.emit('event', {
             type: 'joinError',
@@ -99,7 +101,7 @@ module.exports = function(server) {
           return;
         }
         console.log('joining chat ' + data.chatId);
-        new ChatActions(server.db).canJoin(userId, data.chatId, function(success, error) {
+        new ChatActions(server.db).canJoin(userId, data.chatId, function (success, error) {
           if (success === false) {
             socket.emit('event', {
               type: 'joinError',
@@ -116,15 +118,17 @@ module.exports = function(server) {
         });
       });
 
-      socket.on('markAsViewed', function(data) {
-        messageActions.setStatuses(data.messageIds.split(','), userId, true);
-      });
+      var ucFirst = function (str) {
+        var f = str.charAt(0).toUpperCase();
+        return f + str.substr(1, str.length - 1);
+      };
 
-      socket.on('markAsDelivered', function(data) {
+      var markAs = function (keyword, data) {
+        var context = 'markAs' + ucFirst(keyword);
         if (!data.chatId) {
           socket.emit('event', {
             type: 'error',
-            context: 'markAsDelivered',
+            context: context,
             error: 'chatId param is required'
           });
           return;
@@ -133,7 +137,7 @@ module.exports = function(server) {
         if (!messageIds) {
           socket.emit('event', {
             type: 'error',
-            context: 'markAsDelivered',
+            context: context,
             error: 'Empty messageIds param'
           });
           return;
@@ -142,25 +146,48 @@ module.exports = function(server) {
         for (var i = 0; i < messageIds.length; i++) {
           messageIds[i] = server.db.ObjectID(messageIds[i]);
         }
-        console.log(['mark as delivered', messageIds]);
-        server.db.collection('messages').updateMany({
+        var set = {};
+        set[keyword] = true;
+
+        server.db.collection('messages').find({
           _id: {
             $in: messageIds
           }
-        }, {
-          $set: {
-            delivered: true
+        }).toArray(function (err, messages) {
+          for (var i = 0; i < messages.length; i++) {
+            if (messages[i].userId.toString() == userId) {
+              socket.emit('event', {
+                type: 'error',
+                context: context,
+                error: 'it not allowed to mark as ' + keyword + ' your ouw message'
+              });
+              return;
+            }
           }
-        }, function(err, r) {
-          setTimeout(function() {
-            new SocketChatEventEmitter(server, data.chatId).emit('delivered', {
+          // MARK!
+          server.db.collection('messages').updateMany({
+            _id: {
+              $in: messageIds
+            }
+          }, {
+            $set: set
+          }, function (err, r) {
+            new SocketChatEventEmitter(server, data.chatId).emit(keyword, {
               messageIds: messageIds
             });
-          }, 1000);
+          });
         });
+      };
+
+      socket.on('markAsViewed', function (data) {
+        markAs('viewed', data);
       });
 
-      socket.on('disconnect', function() {
+      socket.on('markAsDelivered', function (data) {
+        markAs('delivered', data);
+      });
+
+      socket.on('disconnect', function () {
         console.log('disconnect');
         server.db.collection('users').update({_id: server.db.ObjectID(socket.decoded_token._id)}, {
           $set: {

@@ -1,5 +1,6 @@
 module.exports = function(server) {
   var MessageActions = require('../../actions/MessageActions');
+  var ChatActions = require('../../actions/ChatActions');
 
   /**
    * @api {get} /message/send Send a message in chat
@@ -109,13 +110,34 @@ module.exports = function(server) {
         return;
       }
       server.db.collection('messages').find({
-        //$query: {
         chatId: server.db.ObjectID(req.query.chatId)
-        //}
       }).sort({
         $natural: -1
       }).toArray(function(err, messages) {
         res.json(messages);
+      });
+    });
+  });
+
+  server.app.get('/api/v1/message/getUnseen', function(req, res) {
+    server.tokenReq(req, res, function(res, user) {
+      if (!req.query.chatId) {
+        res.status(404).send({error: 'chatId not defined'});
+        return;
+      }
+      (new ChatActions(server.db)).canJoin(user._id, req.query.chatId, function(canJoin) {
+        if (!canJoin) {
+          res.status(404).send({error: 'user has no access to that chat'});
+        } else {
+          server.db.collection('messages').find({
+            chatId: server.db.ObjectID(req.query.chatId),
+            viewed: false
+          }).sort({
+            $natural: -1
+          }).toArray(function(err, messages) {
+            res.json(messages);
+          });
+        }
       });
     });
   });
