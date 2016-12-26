@@ -12,6 +12,10 @@ module.exports = function(server) {
    *
    */
   server.app.get('/api/v1/contacts/update', function(req, res) {
+    if (!req.query.phones) {
+      res.status(404).json({error: 'phones is required'});
+      return;
+    }
     server.tokenReq(req, res, function(res, user) {
       var phones = req.query.phones.split(',');
       var records = [];
@@ -34,6 +38,26 @@ module.exports = function(server) {
           res.json(users);
           //console.log(users)
         })
+      });
+    });
+  });
+
+  /**
+   * @api {get} /contacts/update Get contacts from incoming messages
+   * @apiName GetFromMessages
+   * @apiGroup Contacts
+   *
+   * @apiParam {String} token JWT token
+   *
+   * @apiSuccess {String} json Contacts
+   */
+  server.app.get('/api/v1/contacts/getFromMessages', function(req, res) {
+    server.tokenReq(req, res, function(res, user) {
+      server.db.collection('messages').distinct('userId', {
+        toUserId: server.db.ObjectID(user._id)
+      }, function(err, r) {
+        console.log(r);
+        res.json(r);
       });
     });
   });

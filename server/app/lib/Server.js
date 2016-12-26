@@ -13,7 +13,7 @@
       this.io = io;
       this.jwt = jwt;
       this.event = new EventEmitter();
-      require('./routes/api/login')(this);
+      require('./routes/api/login/byPhone')(this);
       require('./routes/api/user')(this);
       require('./routes/api/contacts')(this);
       require('./routes/api/message')(this);
