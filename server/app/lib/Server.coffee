@@ -2,7 +2,7 @@ EventEmitter = require("events").EventEmitter;
 class Server
   constructor: (@config, @app, @db, @io, @jwt) ->
     @event = new EventEmitter();
-    require('./routes/api/login')(@)
+    require('./routes/api/login/byPhone')(@)
     require('./routes/api/user')(@)
     require('./routes/api/contacts')(@)
     require('./routes/api/message')(@)
