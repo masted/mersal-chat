@@ -9,7 +9,9 @@ module.exports = function(server) {
   }
 
   var smscSendCmd = function(res, cmd, arg) {
-    var url = 'http://smsc.ru/sys/' + cmd + '.php?login=masted&psw=08dbc75a4098fa9e3daa50258af12df6&fmt=1&charset=utf-8&' + arg;
+    var url = 'http://smsc.ru/sys/' + cmd + '.php?' + //
+      'login=' + server.config.smscLogin + //
+      '&psw=' + server.config.smscPassword + '&fmt=1&charset=utf-8&' + arg;
     var request = require('sync-request');
     var _res = request('GET', url);
     var result = _res.getBody().toString();
@@ -19,10 +21,11 @@ module.exports = function(server) {
     }
     var params = result.split(',');
     if (params[1] < 0) {
+      console.log('SMSC RESULT: ' + result);
       res.status(404).json({error: 'SMSC: sending error'});
       return;
     }
-    res.json({ success: 1 });
+    res.json({success: 1});
   };
 
   var sendSms = function(res, phone, message) {
@@ -59,7 +62,7 @@ module.exports = function(server) {
             phone: req.query.phone
           }, {
             upsert: true
-          }, function(err, user) {
+          }, function() {
             sendSms(res, phoneCode.phone, phoneCode.code);
           });
         });
