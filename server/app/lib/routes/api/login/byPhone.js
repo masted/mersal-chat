@@ -47,28 +47,25 @@ module.exports = function(server) {
       res.status(404).json({error: 'phone is required'});
       return;
     }
-    server.db.collection('phoneCodes').findOne({
+    var code = genCode();
+    server.db.collection('phoneCodes').remove({
       phone: req.query.phone
-    }, function(err, phoneCode) {
-      if (!phoneCode) {
-        var code = genCode();
-        server.db.collection('phoneCodes').insertOne({
-          phone: req.query.phone,
-          code: code
-        }, function(err, phoneCode) {
-          server.db.collection('users').updateOne({
-            phone: req.query.phone
-          }, {
-            phone: req.query.phone
-          }, {
-            upsert: true
-          }, function() {
-            sendSms(res, phoneCode.phone, phoneCode.code);
-          });
+    }, function() {
+      var phoneCode = {
+        phone: req.query.phone,
+        code: code
+      };
+      server.db.collection('phoneCodes').insertOne(phoneCode, function(err, r) {
+        server.db.collection('users').updateOne({
+          phone: req.query.phone
+        }, {
+          phone: req.query.phone
+        }, {
+          upsert: true
+        }, function() {
+          sendSms(res, phoneCode.phone, phoneCode.code);
         });
-      } else {
-        sendSms(res, phoneCode.phone, phoneCode.code);
-      }
+      });
     });
   });
 
