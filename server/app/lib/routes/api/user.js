@@ -129,5 +129,11 @@ module.exports = function(server) {
     });
   });
 
+  server.app.get('/api/v1/user/updateDeviceToken', function(req, res) {
+    server.tokenReq(req, res, function(res, user) {
+      res.send({success: 1});
+    });
+  });
+
 
 };
