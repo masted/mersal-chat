@@ -112,6 +112,15 @@ module.exports = function(server) {
     });
   });
 
+  /**
+   * @api {get} /user/chats User chats
+   * @apiName Get user chats
+   * @apiGroup User
+   *
+   * @apiParam {String} token JWT token
+   *
+   * @apiSuccess {String} JSON with chats list
+   */
   server.app.get('/api/v1/user/chats', function(req, res) {
     server.tokenReq(req, res, function(res, user) {
       console.log(user);
@@ -123,17 +132,34 @@ module.exports = function(server) {
     });
   });
 
+  /**
+   * @api {get} /user/check Check user token
+   * @apiName Check user token
+   * @apiGroup User
+   *
+   * @apiParam {String} token JWT token
+   *
+   * @apiSuccess {String} {success: 1} on success and {error: ""} on error
+   */
   server.app.get('/api/v1/user/check', function(req, res) {
     server.tokenReq(req, res, function(res, user) {
       res.send({success: 1});
     });
   });
 
+  /**
+   * @api {get} /user/check Updates device token
+   * @apiName Updates device token
+   * @apiGroup User
+   *
+   * @apiParam {String} token JWT token
+   *
+   * @apiSuccess {String} {success: 1} on success and {error: ""} on error
+   */
   server.app.get('/api/v1/user/updateDeviceToken', function(req, res) {
     server.tokenReq(req, res, function(res, user) {
       res.send({success: 1});
     });
   });
-
 
 };

@@ -79,7 +79,6 @@ module.exports = function(server) {
    * @apiParam {String} phone User phone
    * @apiParam {String} code SMS code
    * @apiParam {String} device ios/android
-   * @apiParam {String} deviceToken (optional) Device Token for APN
    *
    * @apiSuccess {String} token Token that you will use in Socket.IO connection
    *
