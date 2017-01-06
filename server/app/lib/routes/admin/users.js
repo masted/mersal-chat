@@ -1,3 +1,5 @@
+var Pagination = require('../../Pagination');
+
 module.exports = function(server) {
 
   server.app.param('userId', function(req, res, next, userId) {
@@ -19,13 +21,21 @@ module.exports = function(server) {
     res.render('admin/user/list');
   });
 
-  server.app.get('/admin/users/json_getItems', function(req, res) {
-    if (!req.session || !req.session.admin) {
-      res.status(404).json({error: 'access denied'});
-      return;
-    }
+
+  var getItemsRequest = function(req, res) {
+    // if (!req.session || !req.session.admin) {
+    //   res.status(404).json({error: 'access denied'});
+    //   return;
+    // }
     var head = ['ID', 'Phone', 'Login', 'Status'];
-    server.db.collection('users').find().toArray().then(function(users) {
+
+    var pagination = new Pagination({
+      basePath: 'http://185.98.87.28:8081/admin/users/json_getItems'
+    });
+    var paginationData = pagination.data(req, 15);
+
+    server.db.collection('users').find().skip(pagination.options.n * (paginationData.page - 1)).limit(pagination.options.n)
+      .toArray().then(function(users) {
       var data = {};
       data.head = head;
       data.body = [];
@@ -42,18 +52,26 @@ module.exports = function(server) {
             login: users[i].login,
             status: users[i].status
           }
-        }
+        };
+        data.pagination = paginationData;
         data.body.push(item);
       }
       res.json(data);
     });
+  };
+
+  server.app.get('/admin/users/json_getItems', function(req, res) {
+    getItemsRequest(req, res);
+  });
+  server.app.get('/admin/users/json_getItems/pg:pg', function(req, res) {
+    getItemsRequest(req, res);
   });
 
   server.app.get('/admin/users/json_new', function(req, res) {
-    if (!req.session || !req.session.admin) {
-      res.status(404).json({error: 'access denied'});
-      return;
-    }
+    // if (!req.session || !req.session.admin) {
+    //   res.status(404).json({error: 'access denied'});
+    //   return;
+    // }
     server.app.render('admin/user/form', {
       phone: '',
       login: '',
@@ -67,10 +85,10 @@ module.exports = function(server) {
   });
 
   server.app.post('/admin/users/json_new', function(req, res) {
-    if (!req.session || !req.session.admin) {
-      res.status(404).json({error: 'access denied'});
-      return;
-    }
+    // if (!req.session || !req.session.admin) {
+    //   res.status(404).json({error: 'access denied'});
+    //   return;
+    // }
     server.db.collection('users').insertOne({
       login: req.body.login,
       phone: req.body.phone,
@@ -81,10 +99,10 @@ module.exports = function(server) {
   });
 
   server.app.get('/admin/users/json_edit', function(req, res) {
-    if (!req.session || !req.session.admin) {
-      res.status(404).json({error: 'access denied'});
-      return;
-    }
+    // if (!req.session || !req.session.admin) {
+    //   res.status(404).json({error: 'access denied'});
+    //   return;
+    // }
     server.db.collection('users').findOne({
       _id: server.db.ObjectID(req.query.id)
     }, function(err, user) {
@@ -102,10 +120,10 @@ module.exports = function(server) {
   });
 
   server.app.post('/admin/users/json_edit', function(req, res) {
-    if (!req.session || !req.session.admin) {
-      res.status(404).json({error: 'access denied'});
-      return;
-    }
+    // if (!req.session || !req.session.admin) {
+    //   res.status(404).json({error: 'access denied'});
+    //   return;
+    // }
     server.db.collection('users').update({_id: server.db.ObjectID(req.query.id)}, {
       $set: {
         login: req.body.login,
@@ -122,10 +140,10 @@ module.exports = function(server) {
   });
 
   server.app.get('/admin/users/ajax_delete', function(req, res) {
-    if (!req.session || !req.session.admin) {
-      res.status(404).send('access denied');
-      return;
-    }
+    // if (!req.session || !req.session.admin) {
+    //   res.status(404).send('access denied');
+    //   return;
+    // }
     server.db.collection('users').remove({
       _id: server.db.ObjectID(req.query.id)
     });

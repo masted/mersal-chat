@@ -53,6 +53,24 @@ module.exports = function(server) {
       });
     });
   });
+  //
+  server.app.get('/api/v1/chat/getOrCreateByTwoUsers', function(req, res) {
+    server.tokenReq(req, res, function(res, user) {
+      var fromUserId = user._id
+      if (!req.query.userId) {
+        res.status(404).send({error: 'userId not defined'});
+        return;
+      }
+      if (fromUserId == req.query.userId) {
+        res.status(404).send({error: 'can not create chat to yourself'});
+        return;
+      }
+      new ChatActions(server.db).getOrCreateByTwoUsers(fromUserId, req.query.userId, function(data) {
+        res.json(data);
+      });
+    });
+  });
+
 
   /**
    * @api {get} /chat/get Get chat

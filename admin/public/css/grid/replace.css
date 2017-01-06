@@ -1,0 +1,21 @@
+.itemsTable th, .itemsTable td {
+padding: 7px 5px;
+}
+.itemsTable th, .itemsTable td, .itemsTableMenu {
+border-color: #cfd8dc;
+}
+.itemsTable th {
+border-width: 2px;
+font-size: 12px;
+font-weight: bold;
+}
+.itemsTableMenu {
+padding: 0 0 7px 0;
+}
+.itemsTable td.tools {
+padding-left: 0;
+}
+.itemsTable td.tools button {
+width: 30px;
+height: 27px;
+}

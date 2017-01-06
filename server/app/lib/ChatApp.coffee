@@ -13,10 +13,8 @@ class ChatApp
     @app = @express()
     @app.use @bodyParser.urlencoded
       extended: true
-
     cors = require 'cors'
     @app.use(cors())
-
     @app.set 'view engine', 'jade'
     @app.set 'views', @path.normalize @config.appFolder + '/../views'
     @app.use @express.static @path.join @config.appFolder, 'public'

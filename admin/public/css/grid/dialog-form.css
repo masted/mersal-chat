@@ -1,0 +1,16 @@
+.apeform p.label {
+margin-bottom: 0px;
+margin-top: 10px;
+}
+.fieldFullWidth input[type=text],
+.fieldFullWidth input[type=password] {
+width: 100%;
+border: 1px solid #cfd8dc;
+}
+
+.apeform .validation-failed {
+border-color: #f86c6b !important;
+}
+.validation-advice {
+color: #f86c6b;
+}

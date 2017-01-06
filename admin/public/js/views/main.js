@@ -128,7 +128,6 @@ $(function() {
       }
     });
   };
-
   aja()
     .url('http://' + apiUri + '/admin/stat/data?password=' + adminPassword)
     .on('success', function(d) {

@@ -112,4 +112,16 @@ module.exports = function(server) {
     });
   });
 
+  server.app.get('/api/v1/user/chats', function(req, res) {
+    server.tokenReq(req, res, function(res, user) {
+      console.log(user);
+      server.db.collection('chatUsers').find({
+       userId: server.db.ObjectID(user._id)
+      }).toArray(function(err, items) {
+        res.send({chats: items});
+      });
+    });
+  });
+
+
 };

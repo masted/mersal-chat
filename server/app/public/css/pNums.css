@@ -1,0 +1,33 @@
+.itemsTableMenu .pNums.pNumsTop {
+padding-top: 0px;
+border-bottom: 1px solid #F1EDED;
+margin-bottom: 5px;
+}
+.itemsTableMenu .pNums.pNumsBottom {
+border-bottom: 1px solid #F1EDED;
+}
+.itemsTableMenu .pNums a,
+.itemsTableMenu .pNums b {
+display: inline-block;
+margin-right: 0px !important; /* conflict with ".iconsSet a" margin */
+border: 1px solid #CCCCCC;
+border-radius: 15px 15px 0 0;
+border-bottom: none;
+}
+.itemsTableMenu .pNums a,
+.itemsTableMenu .pNums b,
+.itemsTableMenu .pNums .total {
+padding: 2px 10px 6px 10px;
+}
+.itemsTableMenu .pNums a:hover,
+.itemsTableMenu .pNums b {
+color: #555;
+border-color: #555;
+}
+.itemsTableMenu .pNums b {
+background-color: #FFF9DF;
+}
+.itemsTableMenu .pNums .total,
+.itemsTableMenu .pNums .bookmarks {
+float: left;
+}

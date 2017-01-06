@@ -1,0 +1,118 @@
+/* SortTable */
+
+.itemsTable {
+margin-bottom: 5px; /* для совместимости с отступами в шаблоне "admin/pages/items/tile" */
+}
+.itemsTable li {
+padding: 0px;
+margin: 0px;
+}
+.itemsTable .t_tagsTreeMultiselect li,
+.itemsTable .t_tagsTreeSelect li{
+white-space: nowrap;
+}
+.itemsTable tr.move td {
+border-color: #EFC400;
+background-color: #FFF9DF;
+}
+.itemsTable th, .itemsTable td {
+text-align: left;
+vertical-align: top;
+border-bottom: 1px solid #CCCCCC;
+padding: 3px 15px 3px 0px;
+}
+.itemsTable table td {
+border: none;
+}
+.itemsTable th, .itemsTableMenu {
+/*background-color: #F1F0DF;*/
+}
+.itemsTable th {
+font-weight: normal;
+font-size: 10px;
+}
+.itemsTableMenu {
+border-bottom: 1px solid #ccc;
+padding: 5px 12px;
+position: relative;
+}
+.itemsTableMenu a {
+display: inline-block;
+float: none;
+}
+.itemsTable td.tools {
+padding-left: 5px;
+}
+.itemsTable .iconBtn {
+margin-bottom: 0px;
+}
+.itemsTable .loader {
+background-image: none;
+}
+.itemsTable .loading .loader {
+background-image: url(/i/img/black/loader.gif);
+}
+.itemsTable .dragBox {
+height: 16px;
+/*float: none;*/
+margin-right: 7px;
+margin-top: 1px;
+}
+.itemsTable .move .dragBox {
+border-color: #555555;
+}
+
+/*======== pagination =========*/
+.itemsTable.valign td {
+vertical-align: top;
+padding-top: 5px;
+padding-bottom: 5px;
+}
+
+
+/*---------------resizeble---------------*/
+
+.itemsTable table td {
+padding: 0px;
+}
+.itemsTable.resizeble table {
+margin: 3px 0px;
+}
+
+.itemsTable.resizeble {
+width: auto;
+}
+.itemsTable.resizeble .wr {
+overflow-x: hidden;
+white-space: nowrap;
+padding-top: 4px;
+max-height: 30px;
+}
+.itemsTable.resizeble .wr .cont {
+padding: 2px 10px;
+}
+.itemsTable.resizeble th {
+position: relative;
+}
+.itemsTable.resizeble > thead > tr > th,
+.itemsTable.resizeble > tbody > tr > td {
+border-right: 1px solid #E8E8E8;
+padding: 0px;
+}
+.itemsTable.resizeble > thead > tr > th {
+padding-bottom: 4px;
+}
+.itemsTable.resizeble .handler {
+margin-top: 1px;
+width: 10px;
+height: 100%;
+background: #fff url(/i/img/handler/vHandler2.png) top center;
+position: absolute;
+left: -5px;
+top: -1px;
+cursor: col-resize;
+opacity: 0.3;
+}
+.itemsTable.resizeble .handler:hover {
+opacity: 1;
+}

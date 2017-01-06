@@ -36,7 +36,6 @@
 * Load JS files and CSS files asynchronously in ajax mode
 */
 	function loadJS(jsFiles, pageScript) {
-
 		var i;
 		for(i = 0; i<jsFiles.length;i++){
 

@@ -1,0 +1,65 @@
+<link href="/css/grid/itemsTable.css" rel="stylesheet">
+<link href="/css/grid/replace.css" rel="stylesheet">
+<link href="/css/grid/dialog.css" rel="stylesheet">
+<link href="/css/grid/dialog-form.css" rel="stylesheet">
+<link href="/css/grid/pagination.css" rel="stylesheet">
+
+<script src="/js/cache/grid.js"></script>
+
+<div class="animated fadeIn">
+  <div class="row">
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-block">
+          <div id="table"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  setTimeout(function() {
+    new Ngn.Grid({
+      basePath: 'http://185.98.87.28:8081/admin/users',
+      menu: [
+        {
+          title: '&nbsp;&nbsp;' + Ngn.Locale.get('Core.create'),
+          cls: 'btn btn-primary',
+          action: Ngn.GridBtnAction.New,
+          icon: 'plus'
+        }
+      ],
+      toolActions: {
+        edit: Ngn.Grid.toolActions.edit
+      },
+      formatters: {
+        status: function(status) {
+          return '<span class="tag tag-' + (status == 'online' ? 'success' : 'danger') + '">' + //
+            status + '</span>';
+        }
+      }
+    }).reload();
+  }, 500);
+
+Ngn.Grid.defaultDialogOpts = {
+  draggable: false,
+  reduceHeight: true,
+  width: 300,
+  //dialogClass: "dialog fieldFullWidth",
+  title: true,
+//  okText: 'Save changes',
+  buttonExtraClass: function(name) {
+    if (name == 'ok') {
+      return 'btn-primary';
+    } else if (name == 'cancel') {
+      return 'btn-secondary';
+    }
+    return false;
+  }
+};
+
+
+
+
+</script>

@@ -1457,7 +1457,7 @@ local.setDocument = function(document){
 	var testRoot = document.body || document.getElementsByTagName('body')[0] || root;
 	testRoot.appendChild(testNode);
 
-	// on non-HTML documents innerHTML and getElementsById doesnt work properly
+	// on non-HTML documents innerHTML and getElementsById don't work properly
 	try {
 		testNode.innerHTML = '<a id="'+id+'"></a>';
 		features.isHTMLDocument = !!document.getElementById(id);
@@ -1496,7 +1496,7 @@ local.setDocument = function(document){
 				cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
 			} catch (e){};
 
-			// Opera 9.6 getElementsByClassName doesnt detects the class if its not the first one
+			// Opera 9.6 getElementsByClassName doesn't detects the class if its not the first one
 			try {
 				testNode.innerHTML = '<a class="a"></a><a class="f b a"></a>';
 				brokenSecondClassNameGEBCN = (testNode.getElementsByClassName('a').length != 2);
@@ -1513,13 +1513,13 @@ local.setDocument = function(document){
 				features.starSelectsClosedQSA = (selected && !!selected.length && selected[0].nodeName.charAt(0) == '/');
 			} catch (e){}
 
-			// Safari 3.2 querySelectorAll doesnt work with mixedcase on quirksmode
+			// Safari 3.2 querySelectorAll doesn't work with mixedcase on quirksmode
 			try {
 				testNode.innerHTML = '<a class="MiX"></a>';
 				features.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiX').length;
 			} catch (e){}
 
-			// Webkit and Opera dont return selected options on querySelectorAll
+			// Webkit and Opera don't return selected options on querySelectorAll
 			try {
 				testNode.innerHTML = '<select><option selected="selected">a</option></select>';
 				features.brokenCheckedQSA = (testNode.querySelectorAll(':checked').length == 0);
@@ -4284,7 +4284,7 @@ function getCompatElement(element){
 })();
 
 //aliases
-Element.alias({position: 'setPosition'}); //compatability
+Element.alias({position: 'setPosition'}); //compatibility
 
 [Window, Document, Element].invoke('implement', {
 
@@ -5419,6 +5419,115 @@ Element.implement({
 /*
 ---
 
+name: Fx.Transitions
+
+description: Contains a set of advanced transitions to be used with any of the Fx Classes.
+
+license: MIT-style license.
+
+credits:
+  - Easing Equations by Robert Penner, <http://www.robertpenner.com/easing/>, modified and optimized to be used with MooTools.
+
+requires: Fx
+
+provides: Fx.Transitions
+
+...
+*/
+
+Fx.implement({
+
+	getTransition: function(){
+		var trans = this.options.transition || Fx.Transitions.Sine.easeInOut;
+		if (typeof trans == 'string'){
+			var data = trans.split(':');
+			trans = Fx.Transitions;
+			trans = trans[data[0]] || trans[data[0].capitalize()];
+			if (data[1]) trans = trans['ease' + data[1].capitalize() + (data[2] ? data[2].capitalize() : '')];
+		}
+		return trans;
+	}
+
+});
+
+Fx.Transition = function(transition, params){
+	params = Array.convert(params);
+	var easeIn = function(pos){
+		return transition(pos, params);
+	};
+	return Object.append(easeIn, {
+		easeIn: easeIn,
+		easeOut: function(pos){
+			return 1 - transition(1 - pos, params);
+		},
+		easeInOut: function(pos){
+			return (pos <= 0.5 ? transition(2 * pos, params) : (2 - transition(2 * (1 - pos), params))) / 2;
+		}
+	});
+};
+
+Fx.Transitions = {
+
+	linear: function(zero){
+		return zero;
+	}
+
+};
+
+
+
+Fx.Transitions.extend = function(transitions){
+	for (var transition in transitions) Fx.Transitions[transition] = new Fx.Transition(transitions[transition]);
+};
+
+Fx.Transitions.extend({
+
+	Pow: function(p, x){
+		return Math.pow(p, x && x[0] || 6);
+	},
+
+	Expo: function(p){
+		return Math.pow(2, 8 * (p - 1));
+	},
+
+	Circ: function(p){
+		return 1 - Math.sin(Math.acos(p));
+	},
+
+	Sine: function(p){
+		return 1 - Math.cos(p * Math.PI / 2);
+	},
+
+	Back: function(p, x){
+		x = x && x[0] || 1.618;
+		return Math.pow(p, 2) * ((x + 1) * p - x);
+	},
+
+	Bounce: function(p){
+		var value;
+		for (var a = 0, b = 1; 1; a += b, b /= 2){
+			if (p >= (7 - 4 * a) / 11){
+				value = b * b - Math.pow((11 - 6 * a - 11 * p) / 4, 2);
+				break;
+			}
+		}
+		return value;
+	},
+
+	Elastic: function(p, x){
+		return Math.pow(2, 10 * --p) * Math.cos(20 * p * Math.PI * (x && x[0] || 1) / 3);
+	}
+
+});
+
+['Quad', 'Cubic', 'Quart', 'Quint'].each(function(transition, i){
+	Fx.Transitions[transition] = new Fx.Transition(function(p){
+		return Math.pow(p, i + 2);
+	});
+});
+/*
+---
+
 name: Fx.Tween
 
 description: Formerly Fx.Style, effect to transition any CSS property for an element.
@@ -5541,115 +5650,6 @@ Element.implement({
 		return this;
 	}
 
-});
-/*
----
-
-name: Fx.Transitions
-
-description: Contains a set of advanced transitions to be used with any of the Fx Classes.
-
-license: MIT-style license.
-
-credits:
-  - Easing Equations by Robert Penner, <http://www.robertpenner.com/easing/>, modified and optimized to be used with MooTools.
-
-requires: Fx
-
-provides: Fx.Transitions
-
-...
-*/
-
-Fx.implement({
-
-	getTransition: function(){
-		var trans = this.options.transition || Fx.Transitions.Sine.easeInOut;
-		if (typeof trans == 'string'){
-			var data = trans.split(':');
-			trans = Fx.Transitions;
-			trans = trans[data[0]] || trans[data[0].capitalize()];
-			if (data[1]) trans = trans['ease' + data[1].capitalize() + (data[2] ? data[2].capitalize() : '')];
-		}
-		return trans;
-	}
-
-});
-
-Fx.Transition = function(transition, params){
-	params = Array.convert(params);
-	var easeIn = function(pos){
-		return transition(pos, params);
-	};
-	return Object.append(easeIn, {
-		easeIn: easeIn,
-		easeOut: function(pos){
-			return 1 - transition(1 - pos, params);
-		},
-		easeInOut: function(pos){
-			return (pos <= 0.5 ? transition(2 * pos, params) : (2 - transition(2 * (1 - pos), params))) / 2;
-		}
-	});
-};
-
-Fx.Transitions = {
-
-	linear: function(zero){
-		return zero;
-	}
-
-};
-
-
-
-Fx.Transitions.extend = function(transitions){
-	for (var transition in transitions) Fx.Transitions[transition] = new Fx.Transition(transitions[transition]);
-};
-
-Fx.Transitions.extend({
-
-	Pow: function(p, x){
-		return Math.pow(p, x && x[0] || 6);
-	},
-
-	Expo: function(p){
-		return Math.pow(2, 8 * (p - 1));
-	},
-
-	Circ: function(p){
-		return 1 - Math.sin(Math.acos(p));
-	},
-
-	Sine: function(p){
-		return 1 - Math.cos(p * Math.PI / 2);
-	},
-
-	Back: function(p, x){
-		x = x && x[0] || 1.618;
-		return Math.pow(p, 2) * ((x + 1) * p - x);
-	},
-
-	Bounce: function(p){
-		var value;
-		for (var a = 0, b = 1; 1; a += b, b /= 2){
-			if (p >= (7 - 4 * a) / 11){
-				value = b * b - Math.pow((11 - 6 * a - 11 * p) / 4, 2);
-				break;
-			}
-		}
-		return value;
-	},
-
-	Elastic: function(p, x){
-		return Math.pow(2, 10 * --p) * Math.cos(20 * p * Math.PI * (x && x[0] || 1) / 3);
-	}
-
-});
-
-['Quad', 'Cubic', 'Quart', 'Quint'].each(function(transition, i){
-	Fx.Transitions[transition] = new Fx.Transition(function(p){
-		return Math.pow(p, i + 2);
-	});
 });
 /*
 ---
@@ -6296,1731 +6296,6 @@ Cookie.dispose = function(key, options){
 /*
 ---
 
-script: Fx.Scroll.js
-
-name: Fx.Scroll
-
-description: Effect to smoothly scroll any element, including the window.
-
-license: MIT-style license
-
-authors:
-  - Valerio Proietti
-
-requires:
-  - Core/Fx
-  - Core/Element.Event
-  - Core/Element.Dimensions
-  - MooTools.More
-
-provides: [Fx.Scroll]
-
-...
-*/
-
-(function(){
-
-Fx.Scroll = new Class({
-
-	Extends: Fx,
-
-	options: {
-		offset: {x: 0, y: 0},
-		wheelStops: true
-	},
-
-	initialize: function(element, options){
-		this.element = this.subject = document.id(element);
-		this.parent(options);
-
-		if (typeOf(this.element) != 'element') this.element = document.id(this.element.getDocument().body);
-
-		if (this.options.wheelStops){
-			var stopper = this.element,
-				cancel = this.cancel.pass(false, this);
-			this.addEvent('start', function(){
-				stopper.addEvent('mousewheel', cancel);
-			}, true);
-			this.addEvent('complete', function(){
-				stopper.removeEvent('mousewheel', cancel);
-			}, true);
-		}
-	},
-
-	set: function(){
-		var now = Array.flatten(arguments);
-		this.element.scrollTo(now[0], now[1]);
-		return this;
-	},
-
-	compute: function(from, to, delta){
-		return [0, 1].map(function(i){
-			return Fx.compute(from[i], to[i], delta);
-		});
-	},
-
-	start: function(x, y){
-		if (!this.check(x, y)) return this;
-		var scroll = this.element.getScroll();
-		return this.parent([scroll.x, scroll.y], [x, y]);
-	},
-
-	calculateScroll: function(x, y){
-		var element = this.element,
-			scrollSize = element.getScrollSize(),
-			scroll = element.getScroll(),
-			size = element.getSize(),
-			offset = this.options.offset,
-			values = {x: x, y: y};
-
-		for (var z in values){
-			if (!values[z] && values[z] !== 0) values[z] = scroll[z];
-			if (typeOf(values[z]) != 'number') values[z] = scrollSize[z] - size[z];
-			values[z] += offset[z];
-		}
-
-		return [values.x, values.y];
-	},
-
-	toTop: function(){
-		return this.start.apply(this, this.calculateScroll(false, 0));
-	},
-
-	toLeft: function(){
-		return this.start.apply(this, this.calculateScroll(0, false));
-	},
-
-	toRight: function(){
-		return this.start.apply(this, this.calculateScroll('right', false));
-	},
-
-	toBottom: function(){
-		return this.start.apply(this, this.calculateScroll(false, 'bottom'));
-	},
-
-	toElement: function(el, axes){
-		axes = axes ? Array.convert(axes) : ['x', 'y'];
-		var scroll = isBody(this.element) ? {x: 0, y: 0} : this.element.getScroll();
-		var position = Object.map(document.id(el).getPosition(this.element), function(value, axis){
-			return axes.contains(axis) ? value + scroll[axis] : false;
-		});
-		return this.start.apply(this, this.calculateScroll(position.x, position.y));
-	},
-
-	toElementEdge: function(el, axes, offset){
-		axes = axes ? Array.convert(axes) : ['x', 'y'];
-		el = document.id(el);
-		var to = {},
-			position = el.getPosition(this.element),
-			size = el.getSize(),
-			scroll = this.element.getScroll(),
-			containerSize = this.element.getSize(),
-			edge = {
-				x: position.x + size.x,
-				y: position.y + size.y
-			};
-
-		['x', 'y'].each(function(axis){
-			if (axes.contains(axis)){
-				if (edge[axis] > scroll[axis] + containerSize[axis]) to[axis] = edge[axis] - containerSize[axis];
-				if (position[axis] < scroll[axis]) to[axis] = position[axis];
-			}
-			if (to[axis] == null) to[axis] = scroll[axis];
-			if (offset && offset[axis]) to[axis] = to[axis] + offset[axis];
-		}, this);
-
-		if (to.x != scroll.x || to.y != scroll.y) this.start(to.x, to.y);
-		return this;
-	},
-
-	toElementCenter: function(el, axes, offset){
-		axes = axes ? Array.convert(axes) : ['x', 'y'];
-		el = document.id(el);
-		var to = {},
-			position = el.getPosition(this.element),
-			size = el.getSize(),
-			scroll = this.element.getScroll(),
-			containerSize = this.element.getSize();
-
-		['x', 'y'].each(function(axis){
-			if (axes.contains(axis)){
-				to[axis] = position[axis] - (containerSize[axis] - size[axis]) / 2;
-			}
-			if (to[axis] == null) to[axis] = scroll[axis];
-			if (offset && offset[axis]) to[axis] = to[axis] + offset[axis];
-		}, this);
-
-		if (to.x != scroll.x || to.y != scroll.y) this.start(to.x, to.y);
-		return this;
-	}
-
-});
-
-
-
-function isBody(element){
-	return (/^(?:body|html)$/i).test(element.tagName);
-}
-
-})();
-/*
----
-
-script: Fx.Slide.js
-
-name: Fx.Slide
-
-description: Effect to slide an element in and out of view.
-
-license: MIT-style license
-
-authors:
-  - Valerio Proietti
-
-requires:
-  - Core/Fx
-  - Core/Element.Style
-  - MooTools.More
-
-provides: [Fx.Slide]
-
-...
-*/
-
-Fx.Slide = new Class({
-
-	Extends: Fx,
-
-	options: {
-		mode: 'vertical',
-		wrapper: false,
-		hideOverflow: true,
-		resetHeight: false
-	},
-
-	initialize: function(element, options){
-		element = this.element = this.subject = document.id(element);
-		this.parent(options);
-		options = this.options;
-
-		var wrapper = element.retrieve('wrapper'),
-			styles = element.getStyles('margin', 'position', 'overflow');
-
-		if (options.hideOverflow) styles = Object.append(styles, {overflow: 'hidden'});
-		if (options.wrapper) wrapper = document.id(options.wrapper).setStyles(styles);
-
-		if (!wrapper) wrapper = new Element('div', {
-			styles: styles
-		}).wraps(element);
-
-		element.store('wrapper', wrapper).setStyle('margin', 0);
-		if (element.getStyle('overflow') == 'visible') element.setStyle('overflow', 'hidden');
-
-		this.now = [];
-		this.open = true;
-		this.wrapper = wrapper;
-
-		this.addEvent('complete', function(){
-			this.open = (wrapper['offset' + this.layout.capitalize()] != 0);
-			if (this.open && this.options.resetHeight) wrapper.setStyle('height', '');
-		}, true);
-	},
-
-	vertical: function(){
-		this.margin = 'margin-top';
-		this.layout = 'height';
-		this.offset = this.element.offsetHeight;
-	},
-
-	horizontal: function(){
-		this.margin = 'margin-left';
-		this.layout = 'width';
-		this.offset = this.element.offsetWidth;
-	},
-
-	set: function(now){
-		this.element.setStyle(this.margin, now[0]);
-		this.wrapper.setStyle(this.layout, now[1]);
-		return this;
-	},
-
-	compute: function(from, to, delta){
-		return [0, 1].map(function(i){
-			return Fx.compute(from[i], to[i], delta);
-		});
-	},
-
-	start: function(how, mode){
-		if (!this.check(how, mode)) return this;
-		this[mode || this.options.mode]();
-
-		var margin = this.element.getStyle(this.margin).toInt(),
-			layout = this.wrapper.getStyle(this.layout).toInt(),
-			caseIn = [[margin, layout], [0, this.offset]],
-			caseOut = [[margin, layout], [-this.offset, 0]],
-			start;
-
-		switch (how){
-			case 'in': start = caseIn; break;
-			case 'out': start = caseOut; break;
-			case 'toggle': start = (layout == 0) ? caseIn : caseOut;
-		}
-		return this.parent(start[0], start[1]);
-	},
-
-	slideIn: function(mode){
-		return this.start('in', mode);
-	},
-
-	slideOut: function(mode){
-		return this.start('out', mode);
-	},
-
-	hide: function(mode){
-		this[mode || this.options.mode]();
-		this.open = false;
-		return this.set([-this.offset, 0]);
-	},
-
-	show: function(mode){
-		this[mode || this.options.mode]();
-		this.open = true;
-		return this.set([0, this.offset]);
-	},
-
-	toggle: function(mode){
-		return this.start('toggle', mode);
-	}
-
-});
-
-Element.Properties.slide = {
-
-	set: function(options){
-		this.get('slide').cancel().setOptions(options);
-		return this;
-	},
-
-	get: function(){
-		var slide = this.retrieve('slide');
-		if (!slide){
-			slide = new Fx.Slide(this, {link: 'cancel'});
-			this.store('slide', slide);
-		}
-		return slide;
-	}
-
-};
-
-Element.implement({
-
-	slide: function(how, mode){
-		how = how || 'toggle';
-		var slide = this.get('slide'), toggle;
-		switch (how){
-			case 'hide': slide.hide(mode); break;
-			case 'show': slide.show(mode); break;
-			case 'toggle':
-				var flag = this.retrieve('slide:flag', slide.open);
-				slide[flag ? 'slideOut' : 'slideIn'](mode);
-				this.store('slide:flag', !flag);
-				toggle = true;
-				break;
-			default: slide.start(how, mode);
-		}
-		if (!toggle) this.eliminate('slide:flag');
-		return this;
-	}
-
-});
-/*
----
-
-script: Object.Extras.js
-
-name: Object.Extras
-
-description: Extra Object generics, like getFromPath which allows a path notation to child elements.
-
-license: MIT-style license
-
-authors:
-  - Aaron Newton
-
-requires:
-  - Core/Object
-  - MooTools.More
-
-provides: [Object.Extras]
-
-...
-*/
-
-(function(){
-
-var defined = function(value){
-	return value != null;
-};
-
-var hasOwnProperty = Object.prototype.hasOwnProperty;
-
-Object.extend({
-
-	getFromPath: function(source, parts){
-		if (typeof parts == 'string') parts = parts.split('.');
-		for (var i = 0, l = parts.length; i < l; i++){
-			if (hasOwnProperty.call(source, parts[i])) source = source[parts[i]];
-			else return null;
-		}
-		return source;
-	},
-
-	cleanValues: function(object, method){
-		method = method || defined;
-		for (var key in object) if (!method(object[key])){
-			delete object[key];
-		}
-		return object;
-	},
-
-	erase: function(object, key){
-		if (hasOwnProperty.call(object, key)) delete object[key];
-		return object;
-	},
-
-	run: function(object){
-		var args = Array.slice(arguments, 1);
-		for (var key in object) if (object[key].apply){
-			object[key].apply(object, args);
-		}
-		return object;
-	}
-
-});
-
-})();
-/*
----
-
-script: Locale.js
-
-name: Locale
-
-description: Provides methods for localization.
-
-license: MIT-style license
-
-authors:
-  - Aaron Newton
-  - Arian Stolwijk
-
-requires:
-  - Core/Events
-  - Object.Extras
-  - MooTools.More
-
-provides: [Locale, Lang]
-
-...
-*/
-
-(function(){
-
-var current = null,
-	locales = {},
-	inherits = {};
-
-var getSet = function(set){
-	if (instanceOf(set, Locale.Set)) return set;
-	else return locales[set];
-};
-
-var Locale = this.Locale = {
-
-	define: function(locale, set, key, value){
-		var name;
-		if (instanceOf(locale, Locale.Set)){
-			name = locale.name;
-			if (name) locales[name] = locale;
-		} else {
-			name = locale;
-			if (!locales[name]) locales[name] = new Locale.Set(name);
-			locale = locales[name];
-		}
-
-		if (set) locale.define(set, key, value);
-
-		
-
-		if (!current) current = locale;
-
-		return locale;
-	},
-
-	use: function(locale){
-		locale = getSet(locale);
-
-		if (locale){
-			current = locale;
-
-			this.fireEvent('change', locale);
-
-			
-		}
-
-		return this;
-	},
-
-	getCurrent: function(){
-		return current;
-	},
-
-	get: function(key, args){
-		return (current) ? current.get(key, args) : '';
-	},
-
-	inherit: function(locale, inherits, set){
-		locale = getSet(locale);
-
-		if (locale) locale.inherit(inherits, set);
-		return this;
-	},
-
-	list: function(){
-		return Object.keys(locales);
-	}
-
-};
-
-Object.append(Locale, new Events);
-
-Locale.Set = new Class({
-
-	sets: {},
-
-	inherits: {
-		locales: [],
-		sets: {}
-	},
-
-	initialize: function(name){
-		this.name = name || '';
-	},
-
-	define: function(set, key, value){
-		var defineData = this.sets[set];
-		if (!defineData) defineData = {};
-
-		if (key){
-			if (typeOf(key) == 'object') defineData = Object.merge(defineData, key);
-			else defineData[key] = value;
-		}
-		this.sets[set] = defineData;
-
-		return this;
-	},
-
-	get: function(key, args, _base){
-		var value = Object.getFromPath(this.sets, key);
-		if (value != null){
-			var type = typeOf(value);
-			if (type == 'function') value = value.apply(null, Array.convert(args));
-			else if (type == 'object') value = Object.clone(value);
-			return value;
-		}
-
-		// get value of inherited locales
-		var index = key.indexOf('.'),
-			set = index < 0 ? key : key.substr(0, index),
-			names = (this.inherits.sets[set] || []).combine(this.inherits.locales).include('en-US');
-		if (!_base) _base = [];
-
-		for (var i = 0, l = names.length; i < l; i++){
-			if (_base.contains(names[i])) continue;
-			_base.include(names[i]);
-
-			var locale = locales[names[i]];
-			if (!locale) continue;
-
-			value = locale.get(key, args, _base);
-			if (value != null) return value;
-		}
-
-		return '';
-	},
-
-	inherit: function(names, set){
-		names = Array.convert(names);
-
-		if (set && !this.inherits.sets[set]) this.inherits.sets[set] = [];
-
-		var l = names.length;
-		while (l--) (set ? this.inherits.sets[set] : this.inherits.locales).unshift(names[l]);
-
-		return this;
-	}
-
-});
-
-
-
-})();
-/*
----
-
-name: Locale.en-US.Date
-
-description: Date messages for US English.
-
-license: MIT-style license
-
-authors:
-  - Aaron Newton
-
-requires:
-  - Locale
-
-provides: [Locale.en-US.Date]
-
-...
-*/
-
-Locale.define('en-US', 'Date', {
-
-	months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-	months_abbr: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-	days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-	days_abbr: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-
-	// Culture's date order: MM/DD/YYYY
-	dateOrder: ['month', 'date', 'year'],
-	shortDate: '%m/%d/%Y',
-	shortTime: '%I:%M%p',
-	AM: 'AM',
-	PM: 'PM',
-	firstDayOfWeek: 0,
-
-	// Date.Extras
-	ordinal: function(dayOfMonth){
-		// 1st, 2nd, 3rd, etc.
-		return (dayOfMonth > 3 && dayOfMonth < 21) ? 'th' : ['th', 'st', 'nd', 'rd', 'th'][Math.min(dayOfMonth % 10, 4)];
-	},
-
-	lessThanMinuteAgo: 'less than a minute ago',
-	minuteAgo: 'about a minute ago',
-	minutesAgo: '{delta} minutes ago',
-	hourAgo: 'about an hour ago',
-	hoursAgo: 'about {delta} hours ago',
-	dayAgo: '1 day ago',
-	daysAgo: '{delta} days ago',
-	weekAgo: '1 week ago',
-	weeksAgo: '{delta} weeks ago',
-	monthAgo: '1 month ago',
-	monthsAgo: '{delta} months ago',
-	yearAgo: '1 year ago',
-	yearsAgo: '{delta} years ago',
-
-	lessThanMinuteUntil: 'less than a minute from now',
-	minuteUntil: 'about a minute from now',
-	minutesUntil: '{delta} minutes from now',
-	hourUntil: 'about an hour from now',
-	hoursUntil: 'about {delta} hours from now',
-	dayUntil: '1 day from now',
-	daysUntil: '{delta} days from now',
-	weekUntil: '1 week from now',
-	weeksUntil: '{delta} weeks from now',
-	monthUntil: '1 month from now',
-	monthsUntil: '{delta} months from now',
-	yearUntil: '1 year from now',
-	yearsUntil: '{delta} years from now'
-
-});
-/*
----
-
-script: Date.js
-
-name: Date
-
-description: Extends the Date native object to include methods useful in managing dates.
-
-license: MIT-style license
-
-authors:
-  - Aaron Newton
-  - Nicholas Barthelemy - https://svn.nbarthelemy.com/date-js/
-  - Harald Kirshner - mail [at] digitarald.de; http://digitarald.de
-  - Scott Kyle - scott [at] appden.com; http://appden.com
-
-requires:
-  - Core/Array
-  - Core/String
-  - Core/Number
-  - MooTools.More
-  - Locale
-  - Locale.en-US.Date
-
-provides: [Date]
-
-...
-*/
-
-(function(){
-
-var Date = this.Date;
-
-var DateMethods = Date.Methods = {
-	ms: 'Milliseconds',
-	year: 'FullYear',
-	min: 'Minutes',
-	mo: 'Month',
-	sec: 'Seconds',
-	hr: 'Hours'
-};
-
-[
-	'Date', 'Day', 'FullYear', 'Hours', 'Milliseconds', 'Minutes', 'Month', 'Seconds', 'Time', 'TimezoneOffset',
-	'Week', 'Timezone', 'GMTOffset', 'DayOfYear', 'LastMonth', 'LastDayOfMonth', 'UTCDate', 'UTCDay', 'UTCFullYear',
-	'AMPM', 'Ordinal', 'UTCHours', 'UTCMilliseconds', 'UTCMinutes', 'UTCMonth', 'UTCSeconds', 'UTCMilliseconds'
-].each(function(method){
-	Date.Methods[method.toLowerCase()] = method;
-});
-
-var pad = function(n, digits, string){
-	if (digits == 1) return n;
-	return n < Math.pow(10, digits - 1) ? (string || '0') + pad(n, digits - 1, string) : n;
-};
-
-Date.implement({
-
-	set: function(prop, value){
-		prop = prop.toLowerCase();
-		var method = DateMethods[prop] && 'set' + DateMethods[prop];
-		if (method && this[method]) this[method](value);
-		return this;
-	}.overloadSetter(),
-
-	get: function(prop){
-		prop = prop.toLowerCase();
-		var method = DateMethods[prop] && 'get' + DateMethods[prop];
-		if (method && this[method]) return this[method]();
-		return null;
-	}.overloadGetter(),
-
-	clone: function(){
-		return new Date(this.get('time'));
-	},
-
-	increment: function(interval, times){
-		interval = interval || 'day';
-		times = times != null ? times : 1;
-
-		switch (interval){
-			case 'year':
-				return this.increment('month', times * 12);
-			case 'month':
-				var d = this.get('date');
-				this.set('date', 1).set('mo', this.get('mo') + times);
-				return this.set('date', d.min(this.get('lastdayofmonth')));
-			case 'week':
-				return this.increment('day', times * 7);
-			case 'day':
-				return this.set('date', this.get('date') + times);
-		}
-
-		if (!Date.units[interval]) throw new Error(interval + ' is not a supported interval');
-
-		return this.set('time', this.get('time') + times * Date.units[interval]());
-	},
-
-	decrement: function(interval, times){
-		return this.increment(interval, -1 * (times != null ? times : 1));
-	},
-
-	isLeapYear: function(){
-		return Date.isLeapYear(this.get('year'));
-	},
-
-	clearTime: function(){
-		return this.set({hr: 0, min: 0, sec: 0, ms: 0});
-	},
-
-	diff: function(date, resolution){
-		if (typeOf(date) == 'string') date = Date.parse(date);
-
-		return ((date - this) / Date.units[resolution || 'day'](3, 3)).round(); // non-leap year, 30-day month
-	},
-
-	getLastDayOfMonth: function(){
-		return Date.daysInMonth(this.get('mo'), this.get('year'));
-	},
-
-	getDayOfYear: function(){
-		return (Date.UTC(this.get('year'), this.get('mo'), this.get('date') + 1)
-			- Date.UTC(this.get('year'), 0, 1)) / Date.units.day();
-	},
-
-	setDay: function(day, firstDayOfWeek){
-		if (firstDayOfWeek == null){
-			firstDayOfWeek = Date.getMsg('firstDayOfWeek');
-			if (firstDayOfWeek === '') firstDayOfWeek = 1;
-		}
-
-		day = (7 + Date.parseDay(day, true) - firstDayOfWeek) % 7;
-		var currentDay = (7 + this.get('day') - firstDayOfWeek) % 7;
-
-		return this.increment('day', day - currentDay);
-	},
-
-	getWeek: function(firstDayOfWeek){
-		if (firstDayOfWeek == null){
-			firstDayOfWeek = Date.getMsg('firstDayOfWeek');
-			if (firstDayOfWeek === '') firstDayOfWeek = 1;
-		}
-
-		var date = this,
-			dayOfWeek = (7 + date.get('day') - firstDayOfWeek) % 7,
-			dividend = 0,
-			firstDayOfYear;
-
-		if (firstDayOfWeek == 1){
-			// ISO-8601, week belongs to year that has the most days of the week (i.e. has the thursday of the week)
-			var month = date.get('month'),
-				startOfWeek = date.get('date') - dayOfWeek;
-
-			if (month == 11 && startOfWeek > 28) return 1; // Week 1 of next year
-
-			if (month == 0 && startOfWeek < -2){
-				// Use a date from last year to determine the week
-				date = new Date(date).decrement('day', dayOfWeek);
-				dayOfWeek = 0;
-			}
-
-			firstDayOfYear = new Date(date.get('year'), 0, 1).get('day') || 7;
-			if (firstDayOfYear > 4) dividend = -7; // First week of the year is not week 1
-		} else {
-			// In other cultures the first week of the year is always week 1 and the last week always 53 or 54.
-			// Days in the same week can have a different weeknumber if the week spreads across two years.
-			firstDayOfYear = new Date(date.get('year'), 0, 1).get('day');
-		}
-
-		dividend += date.get('dayofyear');
-		dividend += 6 - dayOfWeek; // Add days so we calculate the current date's week as a full week
-		dividend += (7 + firstDayOfYear - firstDayOfWeek) % 7; // Make up for first week of the year not being a full week
-
-		return (dividend / 7);
-	},
-
-	getOrdinal: function(day){
-		return Date.getMsg('ordinal', day || this.get('date'));
-	},
-
-	getTimezone: function(){
-		return this.toString()
-			.replace(/^.*? ([A-Z]{3}).[0-9]{4}.*$/, '$1')
-			.replace(/^.*?\(([A-Z])[a-z]+ ([A-Z])[a-z]+ ([A-Z])[a-z]+\)$/, '$1$2$3');
-	},
-
-	getGMTOffset: function(){
-		var off = this.get('timezoneOffset');
-		return ((off > 0) ? '-' : '+') + pad((off.abs() / 60).floor(), 2) + pad(off % 60, 2);
-	},
-
-	setAMPM: function(ampm){
-		ampm = ampm.toUpperCase();
-		var hr = this.get('hr');
-		if (hr > 11 && ampm == 'AM') return this.decrement('hour', 12);
-		else if (hr < 12 && ampm == 'PM') return this.increment('hour', 12);
-		return this;
-	},
-
-	getAMPM: function(){
-		return (this.get('hr') < 12) ? 'AM' : 'PM';
-	},
-
-	parse: function(str){
-		this.set('time', Date.parse(str));
-		return this;
-	},
-
-	isValid: function(date){
-		if (!date) date = this;
-		return typeOf(date) == 'date' && !isNaN(date.valueOf());
-	},
-
-	format: function(format){
-		if (!this.isValid()) return 'invalid date';
-
-		if (!format) format = '%x %X';
-		if (typeof format == 'string') format = formats[format.toLowerCase()] || format;
-		if (typeof format == 'function') return format(this);
-
-		var d = this;
-		return format.replace(/%([a-z%])/gi,
-			function($0, $1){
-				switch ($1){
-					case 'a': return Date.getMsg('days_abbr')[d.get('day')];
-					case 'A': return Date.getMsg('days')[d.get('day')];
-					case 'b': return Date.getMsg('months_abbr')[d.get('month')];
-					case 'B': return Date.getMsg('months')[d.get('month')];
-					case 'c': return d.format('%a %b %d %H:%M:%S %Y');
-					case 'd': return pad(d.get('date'), 2);
-					case 'e': return pad(d.get('date'), 2, ' ');
-					case 'H': return pad(d.get('hr'), 2);
-					case 'I': return pad((d.get('hr') % 12) || 12, 2);
-					case 'j': return pad(d.get('dayofyear'), 3);
-					case 'k': return pad(d.get('hr'), 2, ' ');
-					case 'l': return pad((d.get('hr') % 12) || 12, 2, ' ');
-					case 'L': return pad(d.get('ms'), 3);
-					case 'm': return pad((d.get('mo') + 1), 2);
-					case 'M': return pad(d.get('min'), 2);
-					case 'o': return d.get('ordinal');
-					case 'p': return Date.getMsg(d.get('ampm'));
-					case 's': return Math.round(d / 1000);
-					case 'S': return pad(d.get('seconds'), 2);
-					case 'T': return d.format('%H:%M:%S');
-					case 'U': return pad(d.get('week'), 2);
-					case 'w': return d.get('day');
-					case 'x': return d.format(Date.getMsg('shortDate'));
-					case 'X': return d.format(Date.getMsg('shortTime'));
-					case 'y': return d.get('year').toString().substr(2);
-					case 'Y': return d.get('year');
-					case 'z': return d.get('GMTOffset');
-					case 'Z': return d.get('Timezone');
-				}
-				return $1;
-			}
-		);
-	},
-
-	toISOString: function(){
-		return this.format('iso8601');
-	}
-
-}).alias({
-	toJSON: 'toISOString',
-	compare: 'diff',
-	strftime: 'format'
-});
-
-// The day and month abbreviations are standardized, so we cannot use simply %a and %b because they will get localized
-var rfcDayAbbr = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-	rfcMonthAbbr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-var formats = {
-	db: '%Y-%m-%d %H:%M:%S',
-	compact: '%Y%m%dT%H%M%S',
-	'short': '%d %b %H:%M',
-	'long': '%B %d, %Y %H:%M',
-	rfc822: function(date){
-		return rfcDayAbbr[date.get('day')] + date.format(', %d ') + rfcMonthAbbr[date.get('month')] + date.format(' %Y %H:%M:%S %Z');
-	},
-	rfc2822: function(date){
-		return rfcDayAbbr[date.get('day')] + date.format(', %d ') + rfcMonthAbbr[date.get('month')] + date.format(' %Y %H:%M:%S %z');
-	},
-	iso8601: function(date){
-		return (
-			date.getUTCFullYear() + '-' +
-			pad(date.getUTCMonth() + 1, 2) + '-' +
-			pad(date.getUTCDate(), 2) + 'T' +
-			pad(date.getUTCHours(), 2) + ':' +
-			pad(date.getUTCMinutes(), 2) + ':' +
-			pad(date.getUTCSeconds(), 2) + '.' +
-			pad(date.getUTCMilliseconds(), 3) + 'Z'
-		);
-	}
-};
-
-var parsePatterns = [],
-	nativeParse = Date.parse;
-
-var parseWord = function(type, word, num){
-	var ret = -1,
-		translated = Date.getMsg(type + 's');
-	switch (typeOf(word)){
-		case 'object':
-			ret = translated[word.get(type)];
-			break;
-		case 'number':
-			ret = translated[word];
-			if (!ret) throw new Error('Invalid ' + type + ' index: ' + word);
-			break;
-		case 'string':
-			var match = translated.filter(function(name){
-				return this.test(name);
-			}, new RegExp('^' + word, 'i'));
-			if (!match.length) throw new Error('Invalid ' + type + ' string');
-			if (match.length > 1) throw new Error('Ambiguous ' + type);
-			ret = match[0];
-	}
-
-	return (num) ? translated.indexOf(ret) : ret;
-};
-
-var startCentury = 1900,
-	startYear = 70;
-
-Date.extend({
-
-	getMsg: function(key, args){
-		return Locale.get('Date.' + key, args);
-	},
-
-	units: {
-		ms: Function.convert(1),
-		second: Function.convert(1000),
-		minute: Function.convert(60000),
-		hour: Function.convert(3600000),
-		day: Function.convert(86400000),
-		week: Function.convert(608400000),
-		month: function(month, year){
-			var d = new Date;
-			return Date.daysInMonth(month != null ? month : d.get('mo'), year != null ? year : d.get('year')) * 86400000;
-		},
-		year: function(year){
-			year = year || new Date().get('year');
-			return Date.isLeapYear(year) ? 31622400000 : 31536000000;
-		}
-	},
-
-	daysInMonth: function(month, year){
-		return [31, Date.isLeapYear(year) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month];
-	},
-
-	isLeapYear: function(year){
-		return ((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0);
-	},
-
-	parse: function(from){
-		var t = typeOf(from);
-		if (t == 'number') return new Date(from);
-		if (t != 'string') return from;
-		from = from.clean();
-		if (!from.length) return null;
-
-		var parsed;
-		parsePatterns.some(function(pattern){
-			var bits = pattern.re.exec(from);
-			return (bits) ? (parsed = pattern.handler(bits)) : false;
-		});
-
-		if (!(parsed && parsed.isValid())){
-			parsed = new Date(nativeParse(from));
-			if (!(parsed && parsed.isValid())) parsed = new Date(from.toInt());
-		}
-		return parsed;
-	},
-
-	parseDay: function(day, num){
-		return parseWord('day', day, num);
-	},
-
-	parseMonth: function(month, num){
-		return parseWord('month', month, num);
-	},
-
-	parseUTC: function(value){
-		var localDate = new Date(value);
-		var utcSeconds = Date.UTC(
-			localDate.get('year'),
-			localDate.get('mo'),
-			localDate.get('date'),
-			localDate.get('hr'),
-			localDate.get('min'),
-			localDate.get('sec'),
-			localDate.get('ms')
-		);
-		return new Date(utcSeconds);
-	},
-
-	orderIndex: function(unit){
-		return Date.getMsg('dateOrder').indexOf(unit) + 1;
-	},
-
-	defineFormat: function(name, format){
-		formats[name] = format;
-		return this;
-	},
-
-	
-
-	defineParser: function(pattern){
-		parsePatterns.push((pattern.re && pattern.handler) ? pattern : build(pattern));
-		return this;
-	},
-
-	defineParsers: function(){
-		Array.flatten(arguments).each(Date.defineParser);
-		return this;
-	},
-
-	define2DigitYearStart: function(year){
-		startYear = year % 100;
-		startCentury = year - startYear;
-		return this;
-	}
-
-}).extend({
-	defineFormats: Date.defineFormat.overloadSetter()
-});
-
-var regexOf = function(type){
-	return new RegExp('(?:' + Date.getMsg(type).map(function(name){
-		return name.substr(0, 3);
-	}).join('|') + ')[a-z]*');
-};
-
-var replacers = function(key){
-	switch (key){
-		case 'T':
-			return '%H:%M:%S';
-		case 'x': // iso8601 covers yyyy-mm-dd, so just check if month is first
-			return ((Date.orderIndex('month') == 1) ? '%m[-./]%d' : '%d[-./]%m') + '([-./]%y)?';
-		case 'X':
-			return '%H([.:]%M)?([.:]%S([.:]%s)?)? ?%p? ?%z?';
-	}
-	return null;
-};
-
-var keys = {
-	d: /[0-2]?[0-9]|3[01]/,
-	H: /[01]?[0-9]|2[0-3]/,
-	I: /0?[1-9]|1[0-2]/,
-	M: /[0-5]?\d/,
-	s: /\d+/,
-	o: /[a-z]*/,
-	p: /[ap]\.?m\.?/,
-	y: /\d{2}|\d{4}/,
-	Y: /\d{4}/,
-	z: /Z|[+-]\d{2}(?::?\d{2})?/
-};
-
-keys.m = keys.I;
-keys.S = keys.M;
-
-var currentLanguage;
-
-var recompile = function(language){
-	currentLanguage = language;
-
-	keys.a = keys.A = regexOf('days');
-	keys.b = keys.B = regexOf('months');
-
-	parsePatterns.each(function(pattern, i){
-		if (pattern.format) parsePatterns[i] = build(pattern.format);
-	});
-};
-
-var build = function(format){
-	if (!currentLanguage) return {format: format};
-
-	var parsed = [];
-	var re = (format.source || format) // allow format to be regex
-	.replace(/%([a-z])/gi,
-		function($0, $1){
-			return replacers($1) || $0;
-		}
-	).replace(/\((?!\?)/g, '(?:') // make all groups non-capturing
-	.replace(/ (?!\?|\*)/g, ',? ') // be forgiving with spaces and commas
-	.replace(/%([a-z%])/gi,
-		function($0, $1){
-			var p = keys[$1];
-			if (!p) return $1;
-			parsed.push($1);
-			return '(' + p.source + ')';
-		}
-	).replace(/\[a-z\]/gi, '[a-z\\u00c0-\\uffff;\&]'); // handle unicode words
-
-	return {
-		format: format,
-		re: new RegExp('^' + re + '$', 'i'),
-		handler: function(bits){
-			bits = bits.slice(1).associate(parsed);
-			var date = new Date().clearTime(),
-				year = bits.y || bits.Y;
-
-			if (year != null) handle.call(date, 'y', year); // need to start in the right year
-			if ('d' in bits) handle.call(date, 'd', 1);
-			if ('m' in bits || bits.b || bits.B) handle.call(date, 'm', 1);
-
-			for (var key in bits) handle.call(date, key, bits[key]);
-			return date;
-		}
-	};
-};
-
-var handle = function(key, value){
-	if (!value) return this;
-
-	switch (key){
-		case 'a': case 'A': return this.set('day', Date.parseDay(value, true));
-		case 'b': case 'B': return this.set('mo', Date.parseMonth(value, true));
-		case 'd': return this.set('date', value);
-		case 'H': case 'I': return this.set('hr', value);
-		case 'm': return this.set('mo', value - 1);
-		case 'M': return this.set('min', value);
-		case 'p': return this.set('ampm', value.replace(/\./g, ''));
-		case 'S': return this.set('sec', value);
-		case 's': return this.set('ms', ('0.' + value) * 1000);
-		case 'w': return this.set('day', value);
-		case 'Y': return this.set('year', value);
-		case 'y':
-			value = +value;
-			if (value < 100) value += startCentury + (value < startYear ? 100 : 0);
-			return this.set('year', value);
-		case 'z':
-			if (value == 'Z') value = '+00';
-			var offset = value.match(/([+-])(\d{2}):?(\d{2})?/);
-			offset = (offset[1] + '1') * (offset[2] * 60 + (+offset[3] || 0)) + this.getTimezoneOffset();
-			return this.set('time', this - offset * 60000);
-	}
-
-	return this;
-};
-
-Date.defineParsers(
-	'%Y([-./]%m([-./]%d((T| )%X)?)?)?', // "1999-12-31", "1999-12-31 11:59pm", "1999-12-31 23:59:59", ISO8601
-	'%Y%m%d(T%H(%M%S?)?)?', // "19991231", "19991231T1159", compact
-	'%x( %X)?', // "12/31", "12.31.99", "12-31-1999", "12/31/2008 11:59 PM"
-	'%d%o( %b( %Y)?)?( %X)?', // "31st", "31st December", "31 Dec 1999", "31 Dec 1999 11:59pm"
-	'%b( %d%o)?( %Y)?( %X)?', // Same as above with month and day switched
-	'%Y %b( %d%o( %X)?)?', // Same as above with year coming first
-	'%o %b %d %X %z %Y', // "Thu Oct 22 08:11:23 +0000 2009"
-	'%T', // %H:%M:%S
-	'%H:%M( ?%p)?' // "11:05pm", "11:05 am" and "11:05"
-);
-
-Locale.addEvent('change', function(language){
-	if (Locale.get('Date')) recompile(language);
-}).fireEvent('change', Locale.getCurrent());
-
-})();
-/*
----
-
-script: String.QueryString.js
-
-name: String.QueryString
-
-description: Methods for dealing with URI query strings.
-
-license: MIT-style license
-
-authors:
-  - Sebastian Markbåge
-  - Aaron Newton
-  - Lennart Pilon
-  - Valerio Proietti
-
-requires:
-  - Core/Array
-  - Core/String
-  - MooTools.More
-
-provides: [String.QueryString]
-
-...
-*/
-
-(function(){
-
-/**
- * decodeURIComponent doesn't do the correct thing with query parameter keys or
- * values. Specifically, it leaves '+' as '+' when it should be converting them
- * to spaces as that's the specification. When browsers submit HTML forms via
- * GET, the values are encoded using 'application/x-www-form-urlencoded'
- * which converts spaces to '+'.
- *
- * See: http://unixpapa.com/js/querystring.html for a description of the
- * problem.
- */
-var decodeComponent = function(str){
-	return decodeURIComponent(str.replace(/\+/g, ' '));
-};
-
-String.implement({
-
-	parseQueryString: function(decodeKeys, decodeValues){
-		if (decodeKeys == null) decodeKeys = true;
-		if (decodeValues == null) decodeValues = true;
-
-		var vars = this.split(/[&;]/),
-			object = {};
-		if (!vars.length) return object;
-
-		vars.each(function(val){
-			var index = val.indexOf('=') + 1,
-				value = index ? val.substr(index) : '',
-				keys = index ? val.substr(0, index - 1).match(/([^\]\[]+|(\B)(?=\]))/g) : [val],
-				obj = object;
-			if (!keys) return;
-			if (decodeValues) value = decodeComponent(value);
-			keys.each(function(key, i){
-				if (decodeKeys) key = decodeComponent(key);
-				var current = obj[key];
-
-				if (i < keys.length - 1) obj = obj[key] = current || {};
-				else if (typeOf(current) == 'array') current.push(value);
-				else obj[key] = current != null ? [current, value] : value;
-			});
-		});
-
-		return object;
-	},
-
-	cleanQueryString: function(method){
-		return this.split('&').filter(function(val){
-			var index = val.indexOf('='),
-				key = index < 0 ? '' : val.substr(0, index),
-				value = val.substr(index + 1);
-
-			return method ? method.call(null, key, value) : (value || value === 0);
-		}).join('&');
-	}
-
-});
-
-})();
-/*
----
-
-script: URI.js
-
-name: URI
-
-description: Provides methods useful in managing the window location and uris.
-
-license: MIT-style license
-
-authors:
-  - Sebastian Markbåge
-  - Aaron Newton
-
-requires:
-  - Core/Object
-  - Core/Class
-  - Core/Class.Extras
-  - Core/Element
-  - String.QueryString
-
-provides: [URI]
-
-...
-*/
-
-(function(){
-
-var toString = function(){
-	return this.get('value');
-};
-
-var URI = this.URI = new Class({
-
-	Implements: Options,
-
-	options: {
-		/*base: false*/
-	},
-
-	regex: /^(?:(\w+):)?(?:\/\/(?:(?:([^:@\/]*):?([^:@\/]*))?@)?(\[[A-Fa-f0-9:]+\]|[^:\/?#]*)(?::(\d*))?)?(\.\.?$|(?:[^?#\/]*\/)*)([^?#]*)(?:\?([^#]*))?(?:#(.*))?/,
-	parts: ['scheme', 'user', 'password', 'host', 'port', 'directory', 'file', 'query', 'fragment'],
-	schemes: {http: 80, https: 443, ftp: 21, rtsp: 554, mms: 1755, file: 0},
-
-	initialize: function(uri, options){
-		this.setOptions(options);
-		var base = this.options.base || URI.base;
-		if (!uri) uri = base;
-
-		if (uri && uri.parsed) this.parsed = Object.clone(uri.parsed);
-		else this.set('value', uri.href || uri.toString(), base ? new URI(base) : false);
-	},
-
-	parse: function(value, base){
-		var bits = value.match(this.regex);
-		if (!bits) return false;
-		bits.shift();
-		return this.merge(bits.associate(this.parts), base);
-	},
-
-	merge: function(bits, base){
-		if ((!bits || !bits.scheme) && (!base || !base.scheme)) return false;
-		if (base){
-			this.parts.every(function(part){
-				if (bits[part]) return false;
-				bits[part] = base[part] || '';
-				return true;
-			});
-		}
-		bits.port = bits.port || this.schemes[bits.scheme.toLowerCase()];
-		bits.directory = bits.directory ? this.parseDirectory(bits.directory, base ? base.directory : '') : '/';
-		return bits;
-	},
-
-	parseDirectory: function(directory, baseDirectory){
-		directory = (directory.substr(0, 1) == '/' ? '' : (baseDirectory || '/')) + directory;
-		if (!directory.test(URI.regs.directoryDot)) return directory;
-		var result = [];
-		directory.replace(URI.regs.endSlash, '').split('/').each(function(dir){
-			if (dir == '..' && result.length > 0) result.pop();
-			else if (dir != '.') result.push(dir);
-		});
-		return result.join('/') + '/';
-	},
-
-	combine: function(bits){
-		return bits.value || bits.scheme + '://' +
-			(bits.user ? bits.user + (bits.password ? ':' + bits.password : '') + '@' : '') +
-			(bits.host || '') + (bits.port && bits.port != this.schemes[bits.scheme] ? ':' + bits.port : '') +
-			(bits.directory || '/') + (bits.file || '') +
-			(bits.query ? '?' + bits.query : '') +
-			(bits.fragment ? '#' + bits.fragment : '');
-	},
-
-	set: function(part, value, base){
-		if (part == 'value'){
-			var scheme = value.match(URI.regs.scheme);
-			if (scheme) scheme = scheme[1];
-			if (scheme && this.schemes[scheme.toLowerCase()] == null) this.parsed = { scheme: scheme, value: value };
-			else this.parsed = this.parse(value, (base || this).parsed) || (scheme ? { scheme: scheme, value: value } : { value: value });
-		} else if (part == 'data'){
-			this.setData(value);
-		} else {
-			this.parsed[part] = value;
-		}
-		return this;
-	},
-
-	get: function(part, base){
-		switch (part){
-			case 'value': return this.combine(this.parsed, base ? base.parsed : false);
-			case 'data' : return this.getData();
-		}
-		return this.parsed[part] || '';
-	},
-
-	go: function(){
-		document.location.href = this.toString();
-	},
-
-	toURI: function(){
-		return this;
-	},
-
-	getData: function(key, part){
-		var qs = this.get(part || 'query');
-		if (!(qs || qs === 0)) return key ? null : {};
-		var obj = qs.parseQueryString();
-		return key ? obj[key] : obj;
-	},
-
-	setData: function(values, merge, part){
-		if (typeof values == 'string'){
-			var data = this.getData();
-			data[arguments[0]] = arguments[1];
-			values = data;
-		} else if (merge){
-			values = Object.merge(this.getData(null, part), values);
-		}
-		return this.set(part || 'query', Object.toQueryString(values));
-	},
-
-	clearData: function(part){
-		return this.set(part || 'query', '');
-	},
-
-	toString: toString,
-	valueOf: toString
-
-});
-
-URI.regs = {
-	endSlash: /\/$/,
-	scheme: /^(\w+):/,
-	directoryDot: /\.\/|\.$/
-};
-
-URI.base = new URI(Array.convert(document.getElements('base[href]', true)).getLast(), {base: document.location});
-
-String.implement({
-
-	toURI: function(options){
-		return new URI(this, options);
-	}
-
-});
-
-})();
-/*
----
-
-script: Tips.js
-
-name: Tips
-
-description: Class for creating nice tips that follow the mouse cursor when hovering an element.
-
-license: MIT-style license
-
-authors:
-  - Valerio Proietti
-  - Christoph Pojer
-  - Luis Merino
-
-requires:
-  - Core/Options
-  - Core/Events
-  - Core/Element.Event
-  - Core/Element.Style
-  - Core/Element.Dimensions
-  - MooTools.More
-
-provides: [Tips]
-
-...
-*/
-
-(function(){
-
-var read = function(option, element){
-	return (option) ? (typeOf(option) == 'function' ? option(element) : element.get(option)) : '';
-};
-
-var Tips = this.Tips = new Class({
-
-	Implements: [Events, Options],
-
-	options: {/*
-		id: null,
-		onAttach: function(element){},
-		onDetach: function(element){},
-		onBound: function(coords){},*/
-		onShow: function(){
-			this.tip.setStyle('display', 'block');
-		},
-		onHide: function(){
-			this.tip.setStyle('display', 'none');
-		},
-		title: 'title',
-		text: function(element){
-			return element.get('rel') || element.get('href');
-		},
-		showDelay: 100,
-		hideDelay: 100,
-		className: 'tip-wrap',
-		offset: {x: 16, y: 16},
-		windowPadding: {x:0, y:0},
-		fixed: false,
-		waiAria: true,
-		hideEmpty: false
-	},
-
-	initialize: function(){
-		var params = Array.link(arguments, {
-			options: Type.isObject,
-			elements: function(obj){
-				return obj != null;
-			}
-		});
-		this.setOptions(params.options);
-		if (params.elements) this.attach(params.elements);
-		this.container = new Element('div', {'class': 'tip'});
-
-		if (this.options.id){
-			this.container.set('id', this.options.id);
-			if (this.options.waiAria) this.attachWaiAria();
-		}
-	},
-
-	toElement: function(){
-		if (this.tip) return this.tip;
-
-		this.tip = new Element('div', {
-			'class': this.options.className,
-			styles: {
-				position: 'absolute',
-				top: 0,
-				left: 0,
-				display: 'none'
-			}
-		}).adopt(
-			new Element('div', {'class': 'tip-top'}),
-			this.container,
-			new Element('div', {'class': 'tip-bottom'})
-		);
-
-		return this.tip;
-	},
-
-	attachWaiAria: function(){
-		var id = this.options.id;
-		this.container.set('role', 'tooltip');
-
-		if (!this.waiAria){
-			this.waiAria = {
-				show: function(element){
-					if (id) element.set('aria-describedby', id);
-					this.container.set('aria-hidden', 'false');
-				},
-				hide: function(element){
-					if (id) element.erase('aria-describedby');
-					this.container.set('aria-hidden', 'true');
-				}
-			};
-		}
-		this.addEvents(this.waiAria);
-	},
-
-	detachWaiAria: function(){
-		if (this.waiAria){
-			this.container.erase('role');
-			this.container.erase('aria-hidden');
-			this.removeEvents(this.waiAria);
-		}
-	},
-
-	attach: function(elements){
-		$$(elements).each(function(element){
-			var title = read(this.options.title, element),
-				text = read(this.options.text, element);
-
-			element.set('title', '').store('tip:native', title).retrieve('tip:title', title);
-			element.retrieve('tip:text', text);
-			this.fireEvent('attach', [element]);
-
-			var events = ['enter', 'leave'];
-			if (!this.options.fixed) events.push('move');
-
-			events.each(function(value){
-				var event = element.retrieve('tip:' + value);
-				if (!event) event = function(event){
-					this['element' + value.capitalize()].apply(this, [event, element]);
-				}.bind(this);
-
-				element.store('tip:' + value, event).addEvent('mouse' + value, event);
-			}, this);
-		}, this);
-
-		return this;
-	},
-
-	detach: function(elements){
-		$$(elements).each(function(element){
-			['enter', 'leave', 'move'].each(function(value){
-				element.removeEvent('mouse' + value, element.retrieve('tip:' + value)).eliminate('tip:' + value);
-			});
-
-			this.fireEvent('detach', [element]);
-
-			if (this.options.title == 'title'){ // This is necessary to check if we can revert the title
-				var original = element.retrieve('tip:native');
-				if (original) element.set('title', original);
-			}
-		}, this);
-
-		return this;
-	},
-
-	elementEnter: function(event, element){
-		clearTimeout(this.timer);
-		this.timer = (function(){
-			this.container.empty();
-			var showTip = !this.options.hideEmpty;
-			['title', 'text'].each(function(value){
-				var content = element.retrieve('tip:' + value);
-				var div = this['_' + value + 'Element'] = new Element('div', {
-					'class': 'tip-' + value
-				}).inject(this.container);
-				if (content){
-					this.fill(div, content);
-					showTip = true;
-				}
-			}, this);
-			if (showTip){
-				this.show(element);
-			} else {
-				this.hide(element);
-			}
-			this.position((this.options.fixed) ? {page: element.getPosition()} : event);
-		}).delay(this.options.showDelay, this);
-	},
-
-	elementLeave: function(event, element){
-		clearTimeout(this.timer);
-		this.timer = this.hide.delay(this.options.hideDelay, this, element);
-		this.fireForParent(event, element);
-	},
-
-	setTitle: function(title){
-		if (this._titleElement){
-			this._titleElement.empty();
-			this.fill(this._titleElement, title);
-		}
-		return this;
-	},
-
-	setText: function(text){
-		if (this._textElement){
-			this._textElement.empty();
-			this.fill(this._textElement, text);
-		}
-		return this;
-	},
-
-	fireForParent: function(event, element){
-		element = element.getParent();
-		if (!element || element == document.body) return;
-		if (element.retrieve('tip:enter')) element.fireEvent('mouseenter', event);
-		else this.fireForParent(event, element);
-	},
-
-	elementMove: function(event, element){
-		this.position(event);
-	},
-
-	position: function(event){
-		if (!this.tip) document.id(this);
-
-		var size = window.getSize(), scroll = window.getScroll(),
-			tip = {x: this.tip.offsetWidth, y: this.tip.offsetHeight},
-			props = {x: 'left', y: 'top'},
-			bounds = {y: false, x2: false, y2: false, x: false},
-			obj = {};
-
-		for (var z in props){
-			obj[props[z]] = event.page[z] + this.options.offset[z];
-			if (obj[props[z]] < 0) bounds[z] = true;
-			if ((obj[props[z]] + tip[z] - scroll[z]) > size[z] - this.options.windowPadding[z]){
-				obj[props[z]] = event.page[z] - this.options.offset[z] - tip[z];
-				bounds[z+'2'] = true;
-			}
-		}
-
-		this.fireEvent('bound', bounds);
-		this.tip.setStyles(obj);
-	},
-
-	fill: function(element, contents){
-		if (typeof contents == 'string') element.set('html', contents);
-		else element.adopt(contents);
-	},
-
-	show: function(element){
-		if (!this.tip) document.id(this);
-		if (!this.tip.getParent()) this.tip.inject(document.body);
-		this.fireEvent('show', [this.tip, element]);
-	},
-
-	hide: function(element){
-		if (!this.tip) document.id(this);
-		this.fireEvent('hide', [this.tip, element]);
-	}
-
-});
-
-})();
-/*
----
-
 script: Class.Occlude.js
 
 name: Class.Occlude
@@ -8056,46 +6331,6 @@ Class.Occlude = new Class({
 	}
 
 });
-/*
----
-
-script: Elements.From.js
-
-name: Elements.From
-
-description: Returns a collection of elements from a string of html.
-
-license: MIT-style license
-
-authors:
-  - Aaron Newton
-
-requires:
-  - Core/String
-  - Core/Element
-  - MooTools.More
-
-provides: [Elements.from, Elements.From]
-
-...
-*/
-
-Elements.from = function(text, excludeScripts){
-	if (excludeScripts || excludeScripts == null) text = text.stripScripts();
-
-	var container, match = text.match(/^\s*(?:<!--.*?-->\s*)*<(t[dhr]|tbody|tfoot|thead)/i);
-
-	if (match){
-		container = new Element('table');
-		var tag = match[1].toLowerCase();
-		if (['td', 'th', 'tr'].contains(tag)){
-			container = new Element('tbody').inject(container);
-			if (tag != 'tr') container = new Element('tr').inject(container);
-		}
-	}
-
-	return (container || new Element('div')).set('html', text).getChildren();
-};
 /*
 ---
 
@@ -8839,6 +7074,46 @@ var Sortables = this.Sortables = new Class({
 /*
 ---
 
+script: Elements.From.js
+
+name: Elements.From
+
+description: Returns a collection of elements from a string of html.
+
+license: MIT-style license
+
+authors:
+  - Aaron Newton
+
+requires:
+  - Core/String
+  - Core/Element
+  - MooTools.More
+
+provides: [Elements.from, Elements.From]
+
+...
+*/
+
+Elements.from = function(text, excludeScripts){
+	if (excludeScripts || excludeScripts == null) text = text.stripScripts();
+
+	var container, match = text.match(/^\s*(?:<!--.*?-->\s*)*<(t[dhr]|tbody|tfoot|thead)/i);
+
+	if (match){
+		container = new Element('table');
+		var tag = match[1].toLowerCase();
+		if (['td', 'th', 'tr'].contains(tag)){
+			container = new Element('tbody').inject(container);
+			if (tag != 'tr') container = new Element('tr').inject(container);
+		}
+	}
+
+	return (container || new Element('div')).set('html', text).getChildren();
+};
+/*
+---
+
 name: Element.Delegation
 
 description: Extends the Element native object to include the delegate method for more efficient event management.
@@ -9043,6 +7318,238 @@ var delegation = {
 /*
 ---
 
+script: Object.Extras.js
+
+name: Object.Extras
+
+description: Extra Object generics, like getFromPath which allows a path notation to child elements.
+
+license: MIT-style license
+
+authors:
+  - Aaron Newton
+
+requires:
+  - Core/Object
+  - MooTools.More
+
+provides: [Object.Extras]
+
+...
+*/
+
+(function(){
+
+var defined = function(value){
+	return value != null;
+};
+
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+
+Object.extend({
+
+	getFromPath: function(source, parts){
+		if (typeof parts == 'string') parts = parts.split('.');
+		for (var i = 0, l = parts.length; i < l; i++){
+			if (hasOwnProperty.call(source, parts[i])) source = source[parts[i]];
+			else return null;
+		}
+		return source;
+	},
+
+	cleanValues: function(object, method){
+		method = method || defined;
+		for (var key in object) if (!method(object[key])){
+			delete object[key];
+		}
+		return object;
+	},
+
+	erase: function(object, key){
+		if (hasOwnProperty.call(object, key)) delete object[key];
+		return object;
+	},
+
+	run: function(object){
+		var args = Array.slice(arguments, 1);
+		for (var key in object) if (object[key].apply){
+			object[key].apply(object, args);
+		}
+		return object;
+	}
+
+});
+
+})();
+/*
+---
+
+script: Locale.js
+
+name: Locale
+
+description: Provides methods for localization.
+
+license: MIT-style license
+
+authors:
+  - Aaron Newton
+  - Arian Stolwijk
+
+requires:
+  - Core/Events
+  - Object.Extras
+  - MooTools.More
+
+provides: [Locale, Lang]
+
+...
+*/
+
+(function(){
+
+var current = null,
+	locales = {},
+	inherits = {};
+
+var getSet = function(set){
+	if (instanceOf(set, Locale.Set)) return set;
+	else return locales[set];
+};
+
+var Locale = this.Locale = {
+
+	define: function(locale, set, key, value){
+		var name;
+		if (instanceOf(locale, Locale.Set)){
+			name = locale.name;
+			if (name) locales[name] = locale;
+		} else {
+			name = locale;
+			if (!locales[name]) locales[name] = new Locale.Set(name);
+			locale = locales[name];
+		}
+
+		if (set) locale.define(set, key, value);
+
+		
+
+		if (!current) current = locale;
+
+		return locale;
+	},
+
+	use: function(locale){
+		locale = getSet(locale);
+
+		if (locale){
+			current = locale;
+
+			this.fireEvent('change', locale);
+
+			
+		}
+
+		return this;
+	},
+
+	getCurrent: function(){
+		return current;
+	},
+
+	get: function(key, args){
+		return (current) ? current.get(key, args) : '';
+	},
+
+	inherit: function(locale, inherits, set){
+		locale = getSet(locale);
+
+		if (locale) locale.inherit(inherits, set);
+		return this;
+	},
+
+	list: function(){
+		return Object.keys(locales);
+	}
+
+};
+
+Object.append(Locale, new Events);
+
+Locale.Set = new Class({
+
+	sets: {},
+
+	inherits: {
+		locales: [],
+		sets: {}
+	},
+
+	initialize: function(name){
+		this.name = name || '';
+	},
+
+	define: function(set, key, value){
+		var defineData = this.sets[set];
+		if (!defineData) defineData = {};
+
+		if (key){
+			if (typeOf(key) == 'object') defineData = Object.merge(defineData, key);
+			else defineData[key] = value;
+		}
+		this.sets[set] = defineData;
+
+		return this;
+	},
+
+	get: function(key, args, _base){
+		var value = Object.getFromPath(this.sets, key);
+		if (value != null){
+			var type = typeOf(value);
+			if (type == 'function') value = value.apply(null, Array.convert(args));
+			else if (type == 'object') value = Object.clone(value);
+			return value;
+		}
+
+		// get value of inherited locales
+		var index = key.indexOf('.'),
+			set = index < 0 ? key : key.substr(0, index),
+			names = (this.inherits.sets[set] || []).combine(this.inherits.locales).include('en-US');
+		if (!_base) _base = [];
+
+		for (var i = 0, l = names.length; i < l; i++){
+			if (_base.contains(names[i])) continue;
+			_base.include(names[i]);
+
+			var locale = locales[names[i]];
+			if (!locale) continue;
+
+			value = locale.get(key, args, _base);
+			if (value != null) return value;
+		}
+
+		return '';
+	},
+
+	inherit: function(names, set){
+		names = Array.convert(names);
+
+		if (set && !this.inherits.sets[set]) this.inherits.sets[set] = [];
+
+		var l = names.length;
+		while (l--) (set ? this.inherits.sets[set] : this.inherits.locales).unshift(names[l]);
+
+		return this;
+	}
+
+});
+
+
+
+})();
+/*
+---
+
 script: Class.Binds.js
 
 name: Class.Binds
@@ -9077,6 +7584,636 @@ Class.Mutators.initialize = function(initialize){
 		return initialize.apply(this, arguments);
 	};
 };
+/*
+---
+
+name: Locale.en-US.Date
+
+description: Date messages for US English.
+
+license: MIT-style license
+
+authors:
+  - Aaron Newton
+
+requires:
+  - Locale
+
+provides: [Locale.en-US.Date]
+
+...
+*/
+
+Locale.define('en-US', 'Date', {
+
+	months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+	months_abbr: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+	days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+	days_abbr: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+
+	// Culture's date order: MM/DD/YYYY
+	dateOrder: ['month', 'date', 'year'],
+	shortDate: '%m/%d/%Y',
+	shortTime: '%I:%M%p',
+	AM: 'AM',
+	PM: 'PM',
+	firstDayOfWeek: 0,
+
+	// Date.Extras
+	ordinal: function(dayOfMonth){
+		// 1st, 2nd, 3rd, etc.
+		return (dayOfMonth > 3 && dayOfMonth < 21) ? 'th' : ['th', 'st', 'nd', 'rd', 'th'][Math.min(dayOfMonth % 10, 4)];
+	},
+
+	lessThanMinuteAgo: 'less than a minute ago',
+	minuteAgo: 'about a minute ago',
+	minutesAgo: '{delta} minutes ago',
+	hourAgo: 'about an hour ago',
+	hoursAgo: 'about {delta} hours ago',
+	dayAgo: '1 day ago',
+	daysAgo: '{delta} days ago',
+	weekAgo: '1 week ago',
+	weeksAgo: '{delta} weeks ago',
+	monthAgo: '1 month ago',
+	monthsAgo: '{delta} months ago',
+	yearAgo: '1 year ago',
+	yearsAgo: '{delta} years ago',
+
+	lessThanMinuteUntil: 'less than a minute from now',
+	minuteUntil: 'about a minute from now',
+	minutesUntil: '{delta} minutes from now',
+	hourUntil: 'about an hour from now',
+	hoursUntil: 'about {delta} hours from now',
+	dayUntil: '1 day from now',
+	daysUntil: '{delta} days from now',
+	weekUntil: '1 week from now',
+	weeksUntil: '{delta} weeks from now',
+	monthUntil: '1 month from now',
+	monthsUntil: '{delta} months from now',
+	yearUntil: '1 year from now',
+	yearsUntil: '{delta} years from now'
+
+});
+/*
+---
+
+script: Date.js
+
+name: Date
+
+description: Extends the Date native object to include methods useful in managing dates.
+
+license: MIT-style license
+
+authors:
+  - Aaron Newton
+  - Nicholas Barthelemy - https://svn.nbarthelemy.com/date-js/
+  - Harald Kirshner - mail [at] digitarald.de; http://digitarald.de
+  - Scott Kyle - scott [at] appden.com; http://appden.com
+
+requires:
+  - Core/Array
+  - Core/String
+  - Core/Number
+  - MooTools.More
+  - Locale
+  - Locale.en-US.Date
+
+provides: [Date]
+
+...
+*/
+
+(function(){
+
+var Date = this.Date;
+
+var DateMethods = Date.Methods = {
+	ms: 'Milliseconds',
+	year: 'FullYear',
+	min: 'Minutes',
+	mo: 'Month',
+	sec: 'Seconds',
+	hr: 'Hours'
+};
+
+[
+	'Date', 'Day', 'FullYear', 'Hours', 'Milliseconds', 'Minutes', 'Month', 'Seconds', 'Time', 'TimezoneOffset',
+	'Week', 'Timezone', 'GMTOffset', 'DayOfYear', 'LastMonth', 'LastDayOfMonth', 'UTCDate', 'UTCDay', 'UTCFullYear',
+	'AMPM', 'Ordinal', 'UTCHours', 'UTCMilliseconds', 'UTCMinutes', 'UTCMonth', 'UTCSeconds', 'UTCMilliseconds'
+].each(function(method){
+	Date.Methods[method.toLowerCase()] = method;
+});
+
+var pad = function(n, digits, string){
+	if (digits == 1) return n;
+	return n < Math.pow(10, digits - 1) ? (string || '0') + pad(n, digits - 1, string) : n;
+};
+
+Date.implement({
+
+	set: function(prop, value){
+		prop = prop.toLowerCase();
+		var method = DateMethods[prop] && 'set' + DateMethods[prop];
+		if (method && this[method]) this[method](value);
+		return this;
+	}.overloadSetter(),
+
+	get: function(prop){
+		prop = prop.toLowerCase();
+		var method = DateMethods[prop] && 'get' + DateMethods[prop];
+		if (method && this[method]) return this[method]();
+		return null;
+	}.overloadGetter(),
+
+	clone: function(){
+		return new Date(this.get('time'));
+	},
+
+	increment: function(interval, times){
+		interval = interval || 'day';
+		times = times != null ? times : 1;
+
+		switch (interval){
+			case 'year':
+				return this.increment('month', times * 12);
+			case 'month':
+				var d = this.get('date');
+				this.set('date', 1).set('mo', this.get('mo') + times);
+				return this.set('date', d.min(this.get('lastdayofmonth')));
+			case 'week':
+				return this.increment('day', times * 7);
+			case 'day':
+				return this.set('date', this.get('date') + times);
+		}
+
+		if (!Date.units[interval]) throw new Error(interval + ' is not a supported interval');
+
+		return this.set('time', this.get('time') + times * Date.units[interval]());
+	},
+
+	decrement: function(interval, times){
+		return this.increment(interval, -1 * (times != null ? times : 1));
+	},
+
+	isLeapYear: function(){
+		return Date.isLeapYear(this.get('year'));
+	},
+
+	clearTime: function(){
+		return this.set({hr: 0, min: 0, sec: 0, ms: 0});
+	},
+
+	diff: function(date, resolution){
+		if (typeOf(date) == 'string') date = Date.parse(date);
+
+		return ((date - this) / Date.units[resolution || 'day'](3, 3)).round(); // non-leap year, 30-day month
+	},
+
+	getLastDayOfMonth: function(){
+		return Date.daysInMonth(this.get('mo'), this.get('year'));
+	},
+
+	getDayOfYear: function(){
+		return (Date.UTC(this.get('year'), this.get('mo'), this.get('date') + 1)
+			- Date.UTC(this.get('year'), 0, 1)) / Date.units.day();
+	},
+
+	setDay: function(day, firstDayOfWeek){
+		if (firstDayOfWeek == null){
+			firstDayOfWeek = Date.getMsg('firstDayOfWeek');
+			if (firstDayOfWeek === '') firstDayOfWeek = 1;
+		}
+
+		day = (7 + Date.parseDay(day, true) - firstDayOfWeek) % 7;
+		var currentDay = (7 + this.get('day') - firstDayOfWeek) % 7;
+
+		return this.increment('day', day - currentDay);
+	},
+
+	getWeek: function(firstDayOfWeek){
+		if (firstDayOfWeek == null){
+			firstDayOfWeek = Date.getMsg('firstDayOfWeek');
+			if (firstDayOfWeek === '') firstDayOfWeek = 1;
+		}
+
+		var date = this,
+			dayOfWeek = (7 + date.get('day') - firstDayOfWeek) % 7,
+			dividend = 0,
+			firstDayOfYear;
+
+		if (firstDayOfWeek == 1){
+			// ISO-8601, week belongs to year that has the most days of the week (i.e. has the thursday of the week)
+			var month = date.get('month'),
+				startOfWeek = date.get('date') - dayOfWeek;
+
+			if (month == 11 && startOfWeek > 28) return 1; // Week 1 of next year
+
+			if (month == 0 && startOfWeek < -2){
+				// Use a date from last year to determine the week
+				date = new Date(date).decrement('day', dayOfWeek);
+				dayOfWeek = 0;
+			}
+
+			firstDayOfYear = new Date(date.get('year'), 0, 1).get('day') || 7;
+			if (firstDayOfYear > 4) dividend = -7; // First week of the year is not week 1
+		} else {
+			// In other cultures the first week of the year is always week 1 and the last week always 53 or 54.
+			// Days in the same week can have a different weeknumber if the week spreads across two years.
+			firstDayOfYear = new Date(date.get('year'), 0, 1).get('day');
+		}
+
+		dividend += date.get('dayofyear');
+		dividend += 6 - dayOfWeek; // Add days so we calculate the current date's week as a full week
+		dividend += (7 + firstDayOfYear - firstDayOfWeek) % 7; // Make up for first week of the year not being a full week
+
+		return (dividend / 7);
+	},
+
+	getOrdinal: function(day){
+		return Date.getMsg('ordinal', day || this.get('date'));
+	},
+
+	getTimezone: function(){
+		return this.toString()
+			.replace(/^.*? ([A-Z]{3}).[0-9]{4}.*$/, '$1')
+			.replace(/^.*?\(([A-Z])[a-z]+ ([A-Z])[a-z]+ ([A-Z])[a-z]+\)$/, '$1$2$3');
+	},
+
+	getGMTOffset: function(){
+		var off = this.get('timezoneOffset');
+		return ((off > 0) ? '-' : '+') + pad((off.abs() / 60).floor(), 2) + pad(off % 60, 2);
+	},
+
+	setAMPM: function(ampm){
+		ampm = ampm.toUpperCase();
+		var hr = this.get('hr');
+		if (hr > 11 && ampm == 'AM') return this.decrement('hour', 12);
+		else if (hr < 12 && ampm == 'PM') return this.increment('hour', 12);
+		return this;
+	},
+
+	getAMPM: function(){
+		return (this.get('hr') < 12) ? 'AM' : 'PM';
+	},
+
+	parse: function(str){
+		this.set('time', Date.parse(str));
+		return this;
+	},
+
+	isValid: function(date){
+		if (!date) date = this;
+		return typeOf(date) == 'date' && !isNaN(date.valueOf());
+	},
+
+	format: function(format){
+		if (!this.isValid()) return 'invalid date';
+
+		if (!format) format = '%x %X';
+		if (typeof format == 'string') format = formats[format.toLowerCase()] || format;
+		if (typeof format == 'function') return format(this);
+
+		var d = this;
+		return format.replace(/%([a-z%])/gi,
+			function($0, $1){
+				switch ($1){
+					case 'a': return Date.getMsg('days_abbr')[d.get('day')];
+					case 'A': return Date.getMsg('days')[d.get('day')];
+					case 'b': return Date.getMsg('months_abbr')[d.get('month')];
+					case 'B': return Date.getMsg('months')[d.get('month')];
+					case 'c': return d.format('%a %b %d %H:%M:%S %Y');
+					case 'd': return pad(d.get('date'), 2);
+					case 'e': return pad(d.get('date'), 2, ' ');
+					case 'H': return pad(d.get('hr'), 2);
+					case 'I': return pad((d.get('hr') % 12) || 12, 2);
+					case 'j': return pad(d.get('dayofyear'), 3);
+					case 'k': return pad(d.get('hr'), 2, ' ');
+					case 'l': return pad((d.get('hr') % 12) || 12, 2, ' ');
+					case 'L': return pad(d.get('ms'), 3);
+					case 'm': return pad((d.get('mo') + 1), 2);
+					case 'M': return pad(d.get('min'), 2);
+					case 'o': return d.get('ordinal');
+					case 'p': return Date.getMsg(d.get('ampm'));
+					case 's': return Math.round(d / 1000);
+					case 'S': return pad(d.get('seconds'), 2);
+					case 'T': return d.format('%H:%M:%S');
+					case 'U': return pad(d.get('week'), 2);
+					case 'w': return d.get('day');
+					case 'x': return d.format(Date.getMsg('shortDate'));
+					case 'X': return d.format(Date.getMsg('shortTime'));
+					case 'y': return d.get('year').toString().substr(2);
+					case 'Y': return d.get('year');
+					case 'z': return d.get('GMTOffset');
+					case 'Z': return d.get('Timezone');
+				}
+				return $1;
+			}
+		);
+	},
+
+	toISOString: function(){
+		return this.format('iso8601');
+	}
+
+}).alias({
+	toJSON: 'toISOString',
+	compare: 'diff',
+	strftime: 'format'
+});
+
+// The day and month abbreviations are standardized, so we cannot use simply %a and %b because they will get localized
+var rfcDayAbbr = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+	rfcMonthAbbr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+var formats = {
+	db: '%Y-%m-%d %H:%M:%S',
+	compact: '%Y%m%dT%H%M%S',
+	'short': '%d %b %H:%M',
+	'long': '%B %d, %Y %H:%M',
+	rfc822: function(date){
+		return rfcDayAbbr[date.get('day')] + date.format(', %d ') + rfcMonthAbbr[date.get('month')] + date.format(' %Y %H:%M:%S %Z');
+	},
+	rfc2822: function(date){
+		return rfcDayAbbr[date.get('day')] + date.format(', %d ') + rfcMonthAbbr[date.get('month')] + date.format(' %Y %H:%M:%S %z');
+	},
+	iso8601: function(date){
+		return (
+			date.getUTCFullYear() + '-' +
+			pad(date.getUTCMonth() + 1, 2) + '-' +
+			pad(date.getUTCDate(), 2) + 'T' +
+			pad(date.getUTCHours(), 2) + ':' +
+			pad(date.getUTCMinutes(), 2) + ':' +
+			pad(date.getUTCSeconds(), 2) + '.' +
+			pad(date.getUTCMilliseconds(), 3) + 'Z'
+		);
+	}
+};
+
+var parsePatterns = [],
+	nativeParse = Date.parse;
+
+var parseWord = function(type, word, num){
+	var ret = -1,
+		translated = Date.getMsg(type + 's');
+	switch (typeOf(word)){
+		case 'object':
+			ret = translated[word.get(type)];
+			break;
+		case 'number':
+			ret = translated[word];
+			if (!ret) throw new Error('Invalid ' + type + ' index: ' + word);
+			break;
+		case 'string':
+			var match = translated.filter(function(name){
+				return this.test(name);
+			}, new RegExp('^' + word, 'i'));
+			if (!match.length) throw new Error('Invalid ' + type + ' string');
+			if (match.length > 1) throw new Error('Ambiguous ' + type);
+			ret = match[0];
+	}
+
+	return (num) ? translated.indexOf(ret) : ret;
+};
+
+var startCentury = 1900,
+	startYear = 70;
+
+Date.extend({
+
+	getMsg: function(key, args){
+		return Locale.get('Date.' + key, args);
+	},
+
+	units: {
+		ms: Function.convert(1),
+		second: Function.convert(1000),
+		minute: Function.convert(60000),
+		hour: Function.convert(3600000),
+		day: Function.convert(86400000),
+		week: Function.convert(608400000),
+		month: function(month, year){
+			var d = new Date;
+			return Date.daysInMonth(month != null ? month : d.get('mo'), year != null ? year : d.get('year')) * 86400000;
+		},
+		year: function(year){
+			year = year || new Date().get('year');
+			return Date.isLeapYear(year) ? 31622400000 : 31536000000;
+		}
+	},
+
+	daysInMonth: function(month, year){
+		return [31, Date.isLeapYear(year) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month];
+	},
+
+	isLeapYear: function(year){
+		return ((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0);
+	},
+
+	parse: function(from){
+		var t = typeOf(from);
+		if (t == 'number') return new Date(from);
+		if (t != 'string') return from;
+		from = from.clean();
+		if (!from.length) return null;
+
+		var parsed;
+		parsePatterns.some(function(pattern){
+			var bits = pattern.re.exec(from);
+			return (bits) ? (parsed = pattern.handler(bits)) : false;
+		});
+
+		if (!(parsed && parsed.isValid())){
+			parsed = new Date(nativeParse(from));
+			if (!(parsed && parsed.isValid())) parsed = new Date(from.toInt());
+		}
+		return parsed;
+	},
+
+	parseDay: function(day, num){
+		return parseWord('day', day, num);
+	},
+
+	parseMonth: function(month, num){
+		return parseWord('month', month, num);
+	},
+
+	parseUTC: function(value){
+		var localDate = new Date(value);
+		var utcSeconds = Date.UTC(
+			localDate.get('year'),
+			localDate.get('mo'),
+			localDate.get('date'),
+			localDate.get('hr'),
+			localDate.get('min'),
+			localDate.get('sec'),
+			localDate.get('ms')
+		);
+		return new Date(utcSeconds);
+	},
+
+	orderIndex: function(unit){
+		return Date.getMsg('dateOrder').indexOf(unit) + 1;
+	},
+
+	defineFormat: function(name, format){
+		formats[name] = format;
+		return this;
+	},
+
+	
+
+	defineParser: function(pattern){
+		parsePatterns.push((pattern.re && pattern.handler) ? pattern : build(pattern));
+		return this;
+	},
+
+	defineParsers: function(){
+		Array.flatten(arguments).each(Date.defineParser);
+		return this;
+	},
+
+	define2DigitYearStart: function(year){
+		startYear = year % 100;
+		startCentury = year - startYear;
+		return this;
+	}
+
+}).extend({
+	defineFormats: Date.defineFormat.overloadSetter()
+});
+
+var regexOf = function(type){
+	return new RegExp('(?:' + Date.getMsg(type).map(function(name){
+		return name.substr(0, 3);
+	}).join('|') + ')[a-z]*');
+};
+
+var replacers = function(key){
+	switch (key){
+		case 'T':
+			return '%H:%M:%S';
+		case 'x': // iso8601 covers yyyy-mm-dd, so just check if month is first
+			return ((Date.orderIndex('month') == 1) ? '%m[-./]%d' : '%d[-./]%m') + '([-./]%y)?';
+		case 'X':
+			return '%H([.:]%M)?([.:]%S([.:]%s)?)? ?%p? ?%z?';
+	}
+	return null;
+};
+
+var keys = {
+	d: /[0-2]?[0-9]|3[01]/,
+	H: /[01]?[0-9]|2[0-3]/,
+	I: /0?[1-9]|1[0-2]/,
+	M: /[0-5]?\d/,
+	s: /\d+/,
+	o: /[a-z]*/,
+	p: /[ap]\.?m\.?/,
+	y: /\d{2}|\d{4}/,
+	Y: /\d{4}/,
+	z: /Z|[+-]\d{2}(?::?\d{2})?/
+};
+
+keys.m = keys.I;
+keys.S = keys.M;
+
+var currentLanguage;
+
+var recompile = function(language){
+	currentLanguage = language;
+
+	keys.a = keys.A = regexOf('days');
+	keys.b = keys.B = regexOf('months');
+
+	parsePatterns.each(function(pattern, i){
+		if (pattern.format) parsePatterns[i] = build(pattern.format);
+	});
+};
+
+var build = function(format){
+	if (!currentLanguage) return {format: format};
+
+	var parsed = [];
+	var re = (format.source || format) // allow format to be regex
+	.replace(/%([a-z])/gi,
+		function($0, $1){
+			return replacers($1) || $0;
+		}
+	).replace(/\((?!\?)/g, '(?:') // make all groups non-capturing
+	.replace(/ (?!\?|\*)/g, ',? ') // be forgiving with spaces and commas
+	.replace(/%([a-z%])/gi,
+		function($0, $1){
+			var p = keys[$1];
+			if (!p) return $1;
+			parsed.push($1);
+			return '(' + p.source + ')';
+		}
+	).replace(/\[a-z\]/gi, '[a-z\\u00c0-\\uffff;\&]'); // handle unicode words
+
+	return {
+		format: format,
+		re: new RegExp('^' + re + '$', 'i'),
+		handler: function(bits){
+			bits = bits.slice(1).associate(parsed);
+			var date = new Date().clearTime(),
+				year = bits.y || bits.Y;
+
+			if (year != null) handle.call(date, 'y', year); // need to start in the right year
+			if ('d' in bits) handle.call(date, 'd', 1);
+			if ('m' in bits || bits.b || bits.B) handle.call(date, 'm', 1);
+
+			for (var key in bits) handle.call(date, key, bits[key]);
+			return date;
+		}
+	};
+};
+
+var handle = function(key, value){
+	if (!value) return this;
+
+	switch (key){
+		case 'a': case 'A': return this.set('day', Date.parseDay(value, true));
+		case 'b': case 'B': return this.set('mo', Date.parseMonth(value, true));
+		case 'd': return this.set('date', value);
+		case 'H': case 'I': return this.set('hr', value);
+		case 'm': return this.set('mo', value - 1);
+		case 'M': return this.set('min', value);
+		case 'p': return this.set('ampm', value.replace(/\./g, ''));
+		case 'S': return this.set('sec', value);
+		case 's': return this.set('ms', ('0.' + value) * 1000);
+		case 'w': return this.set('day', value);
+		case 'Y': return this.set('year', value);
+		case 'y':
+			value = +value;
+			if (value < 100) value += startCentury + (value < startYear ? 100 : 0);
+			return this.set('year', value);
+		case 'z':
+			if (value == 'Z') value = '+00';
+			var offset = value.match(/([+-])(\d{2}):?(\d{2})?/);
+			offset = (offset[1] + '1') * (offset[2] * 60 + (+offset[3] || 0)) + this.getTimezoneOffset();
+			return this.set('time', this - offset * 60000);
+	}
+
+	return this;
+};
+
+Date.defineParsers(
+	'%Y([-./]%m([-./]%d((T| )%X)?)?)?', // "1999-12-31", "1999-12-31 11:59pm", "1999-12-31 23:59:59", ISO8601
+	'%Y%m%d(T%H(%M%S?)?)?', // "19991231", "19991231T1159", compact
+	'%x( %X)?', // "12/31", "12.31.99", "12-31-1999", "12/31/2008 11:59 PM"
+	'%d%o( %b( %Y)?)?( %X)?', // "31st", "31st December", "31 Dec 1999", "31 Dec 1999 11:59pm"
+	'%b( %d%o)?( %Y)?( %X)?', // Same as above with month and day switched
+	'%Y %b( %d%o( %X)?)?', // Same as above with year coming first
+	'%o %b %d %X %z %Y', // "Thu Oct 22 08:11:23 +0000 2009"
+	'%T', // %H:%M:%S
+	'%H:%M( ?%p)?' // "11:05pm", "11:05 am" and "11:05"
+);
+
+Locale.addEvent('change', function(language){
+	if (Locale.get('Date')) recompile(language);
+}).fireEvent('change', Locale.getCurrent());
+
+})();
 /*
 ---
 
@@ -10253,6 +9390,869 @@ Form.Validator.Inline = new Class({
 /*
 ---
 
+script: Fx.Scroll.js
+
+name: Fx.Scroll
+
+description: Effect to smoothly scroll any element, including the window.
+
+license: MIT-style license
+
+authors:
+  - Valerio Proietti
+
+requires:
+  - Core/Fx
+  - Core/Element.Event
+  - Core/Element.Dimensions
+  - MooTools.More
+
+provides: [Fx.Scroll]
+
+...
+*/
+
+(function(){
+
+Fx.Scroll = new Class({
+
+	Extends: Fx,
+
+	options: {
+		offset: {x: 0, y: 0},
+		wheelStops: true
+	},
+
+	initialize: function(element, options){
+		this.element = this.subject = document.id(element);
+		this.parent(options);
+
+		if (typeOf(this.element) != 'element') this.element = document.id(this.element.getDocument().body);
+
+		if (this.options.wheelStops){
+			var stopper = this.element,
+				cancel = this.cancel.pass(false, this);
+			this.addEvent('start', function(){
+				stopper.addEvent('mousewheel', cancel);
+			}, true);
+			this.addEvent('complete', function(){
+				stopper.removeEvent('mousewheel', cancel);
+			}, true);
+		}
+	},
+
+	set: function(){
+		var now = Array.flatten(arguments);
+		this.element.scrollTo(now[0], now[1]);
+		return this;
+	},
+
+	compute: function(from, to, delta){
+		return [0, 1].map(function(i){
+			return Fx.compute(from[i], to[i], delta);
+		});
+	},
+
+	start: function(x, y){
+		if (!this.check(x, y)) return this;
+		var scroll = this.element.getScroll();
+		return this.parent([scroll.x, scroll.y], [x, y]);
+	},
+
+	calculateScroll: function(x, y){
+		var element = this.element,
+			scrollSize = element.getScrollSize(),
+			scroll = element.getScroll(),
+			size = element.getSize(),
+			offset = this.options.offset,
+			values = {x: x, y: y};
+
+		for (var z in values){
+			if (!values[z] && values[z] !== 0) values[z] = scroll[z];
+			if (typeOf(values[z]) != 'number') values[z] = scrollSize[z] - size[z];
+			values[z] += offset[z];
+		}
+
+		return [values.x, values.y];
+	},
+
+	toTop: function(){
+		return this.start.apply(this, this.calculateScroll(false, 0));
+	},
+
+	toLeft: function(){
+		return this.start.apply(this, this.calculateScroll(0, false));
+	},
+
+	toRight: function(){
+		return this.start.apply(this, this.calculateScroll('right', false));
+	},
+
+	toBottom: function(){
+		return this.start.apply(this, this.calculateScroll(false, 'bottom'));
+	},
+
+	toElement: function(el, axes){
+		axes = axes ? Array.convert(axes) : ['x', 'y'];
+		var scroll = isBody(this.element) ? {x: 0, y: 0} : this.element.getScroll();
+		var position = Object.map(document.id(el).getPosition(this.element), function(value, axis){
+			return axes.contains(axis) ? value + scroll[axis] : false;
+		});
+		return this.start.apply(this, this.calculateScroll(position.x, position.y));
+	},
+
+	toElementEdge: function(el, axes, offset){
+		axes = axes ? Array.convert(axes) : ['x', 'y'];
+		el = document.id(el);
+		var to = {},
+			position = el.getPosition(this.element),
+			size = el.getSize(),
+			scroll = this.element.getScroll(),
+			containerSize = this.element.getSize(),
+			edge = {
+				x: position.x + size.x,
+				y: position.y + size.y
+			};
+
+		['x', 'y'].each(function(axis){
+			if (axes.contains(axis)){
+				if (edge[axis] > scroll[axis] + containerSize[axis]) to[axis] = edge[axis] - containerSize[axis];
+				if (position[axis] < scroll[axis]) to[axis] = position[axis];
+			}
+			if (to[axis] == null) to[axis] = scroll[axis];
+			if (offset && offset[axis]) to[axis] = to[axis] + offset[axis];
+		}, this);
+
+		if (to.x != scroll.x || to.y != scroll.y) this.start(to.x, to.y);
+		return this;
+	},
+
+	toElementCenter: function(el, axes, offset){
+		axes = axes ? Array.convert(axes) : ['x', 'y'];
+		el = document.id(el);
+		var to = {},
+			position = el.getPosition(this.element),
+			size = el.getSize(),
+			scroll = this.element.getScroll(),
+			containerSize = this.element.getSize();
+
+		['x', 'y'].each(function(axis){
+			if (axes.contains(axis)){
+				to[axis] = position[axis] - (containerSize[axis] - size[axis]) / 2;
+			}
+			if (to[axis] == null) to[axis] = scroll[axis];
+			if (offset && offset[axis]) to[axis] = to[axis] + offset[axis];
+		}, this);
+
+		if (to.x != scroll.x || to.y != scroll.y) this.start(to.x, to.y);
+		return this;
+	}
+
+});
+
+
+
+function isBody(element){
+	return (/^(?:body|html)$/i).test(element.tagName);
+}
+
+})();
+/*
+---
+
+script: Fx.Slide.js
+
+name: Fx.Slide
+
+description: Effect to slide an element in and out of view.
+
+license: MIT-style license
+
+authors:
+  - Valerio Proietti
+
+requires:
+  - Core/Fx
+  - Core/Element.Style
+  - MooTools.More
+
+provides: [Fx.Slide]
+
+...
+*/
+
+Fx.Slide = new Class({
+
+	Extends: Fx,
+
+	options: {
+		mode: 'vertical',
+		wrapper: false,
+		hideOverflow: true,
+		resetHeight: false
+	},
+
+	initialize: function(element, options){
+		element = this.element = this.subject = document.id(element);
+		this.parent(options);
+		options = this.options;
+
+		var wrapper = element.retrieve('wrapper'),
+			styles = element.getStyles('margin', 'position', 'overflow');
+
+		if (options.hideOverflow) styles = Object.append(styles, {overflow: 'hidden'});
+		if (options.wrapper) wrapper = document.id(options.wrapper).setStyles(styles);
+
+		if (!wrapper) wrapper = new Element('div', {
+			styles: styles
+		}).wraps(element);
+
+		element.store('wrapper', wrapper).setStyle('margin', 0);
+		if (element.getStyle('overflow') == 'visible') element.setStyle('overflow', 'hidden');
+
+		this.now = [];
+		this.open = true;
+		this.wrapper = wrapper;
+
+		this.addEvent('complete', function(){
+			this.open = (wrapper['offset' + this.layout.capitalize()] != 0);
+			if (this.open && this.options.resetHeight) wrapper.setStyle('height', '');
+		}, true);
+	},
+
+	vertical: function(){
+		this.margin = 'margin-top';
+		this.layout = 'height';
+		this.offset = this.element.offsetHeight;
+	},
+
+	horizontal: function(){
+		this.margin = 'margin-left';
+		this.layout = 'width';
+		this.offset = this.element.offsetWidth;
+	},
+
+	set: function(now){
+		this.element.setStyle(this.margin, now[0]);
+		this.wrapper.setStyle(this.layout, now[1]);
+		return this;
+	},
+
+	compute: function(from, to, delta){
+		return [0, 1].map(function(i){
+			return Fx.compute(from[i], to[i], delta);
+		});
+	},
+
+	start: function(how, mode){
+		if (!this.check(how, mode)) return this;
+		this[mode || this.options.mode]();
+
+		var margin = this.element.getStyle(this.margin).toInt(),
+			layout = this.wrapper.getStyle(this.layout).toInt(),
+			caseIn = [[margin, layout], [0, this.offset]],
+			caseOut = [[margin, layout], [-this.offset, 0]],
+			start;
+
+		switch (how){
+			case 'in': start = caseIn; break;
+			case 'out': start = caseOut; break;
+			case 'toggle': start = (layout == 0) ? caseIn : caseOut;
+		}
+		return this.parent(start[0], start[1]);
+	},
+
+	slideIn: function(mode){
+		return this.start('in', mode);
+	},
+
+	slideOut: function(mode){
+		return this.start('out', mode);
+	},
+
+	hide: function(mode){
+		this[mode || this.options.mode]();
+		this.open = false;
+		return this.set([-this.offset, 0]);
+	},
+
+	show: function(mode){
+		this[mode || this.options.mode]();
+		this.open = true;
+		return this.set([0, this.offset]);
+	},
+
+	toggle: function(mode){
+		return this.start('toggle', mode);
+	}
+
+});
+
+Element.Properties.slide = {
+
+	set: function(options){
+		this.get('slide').cancel().setOptions(options);
+		return this;
+	},
+
+	get: function(){
+		var slide = this.retrieve('slide');
+		if (!slide){
+			slide = new Fx.Slide(this, {link: 'cancel'});
+			this.store('slide', slide);
+		}
+		return slide;
+	}
+
+};
+
+Element.implement({
+
+	slide: function(how, mode){
+		how = how || 'toggle';
+		var slide = this.get('slide'), toggle;
+		switch (how){
+			case 'hide': slide.hide(mode); break;
+			case 'show': slide.show(mode); break;
+			case 'toggle':
+				var flag = this.retrieve('slide:flag', slide.open);
+				slide[flag ? 'slideOut' : 'slideIn'](mode);
+				this.store('slide:flag', !flag);
+				toggle = true;
+				break;
+			default: slide.start(how, mode);
+		}
+		if (!toggle) this.eliminate('slide:flag');
+		return this;
+	}
+
+});
+/*
+---
+
+script: Tips.js
+
+name: Tips
+
+description: Class for creating nice tips that follow the mouse cursor when hovering an element.
+
+license: MIT-style license
+
+authors:
+  - Valerio Proietti
+  - Christoph Pojer
+  - Luis Merino
+
+requires:
+  - Core/Options
+  - Core/Events
+  - Core/Element.Event
+  - Core/Element.Style
+  - Core/Element.Dimensions
+  - MooTools.More
+
+provides: [Tips]
+
+...
+*/
+
+(function(){
+
+var read = function(option, element){
+	return (option) ? (typeOf(option) == 'function' ? option(element) : element.get(option)) : '';
+};
+
+var Tips = this.Tips = new Class({
+
+	Implements: [Events, Options],
+
+	options: {/*
+		id: null,
+		onAttach: function(element){},
+		onDetach: function(element){},
+		onBound: function(coords){},*/
+		onShow: function(){
+			this.tip.setStyle('display', 'block');
+		},
+		onHide: function(){
+			this.tip.setStyle('display', 'none');
+		},
+		title: 'title',
+		text: function(element){
+			return element.get('rel') || element.get('href');
+		},
+		showDelay: 100,
+		hideDelay: 100,
+		className: 'tip-wrap',
+		offset: {x: 16, y: 16},
+		windowPadding: {x:0, y:0},
+		fixed: false,
+		waiAria: true,
+		hideEmpty: false
+	},
+
+	initialize: function(){
+		var params = Array.link(arguments, {
+			options: Type.isObject,
+			elements: function(obj){
+				return obj != null;
+			}
+		});
+		this.setOptions(params.options);
+		if (params.elements) this.attach(params.elements);
+		this.container = new Element('div', {'class': 'tip'});
+
+		if (this.options.id){
+			this.container.set('id', this.options.id);
+			if (this.options.waiAria) this.attachWaiAria();
+		}
+	},
+
+	toElement: function(){
+		if (this.tip) return this.tip;
+
+		this.tip = new Element('div', {
+			'class': this.options.className,
+			styles: {
+				position: 'absolute',
+				top: 0,
+				left: 0,
+				display: 'none'
+			}
+		}).adopt(
+			new Element('div', {'class': 'tip-top'}),
+			this.container,
+			new Element('div', {'class': 'tip-bottom'})
+		);
+
+		return this.tip;
+	},
+
+	attachWaiAria: function(){
+		var id = this.options.id;
+		this.container.set('role', 'tooltip');
+
+		if (!this.waiAria){
+			this.waiAria = {
+				show: function(element){
+					if (id) element.set('aria-describedby', id);
+					this.container.set('aria-hidden', 'false');
+				},
+				hide: function(element){
+					if (id) element.erase('aria-describedby');
+					this.container.set('aria-hidden', 'true');
+				}
+			};
+		}
+		this.addEvents(this.waiAria);
+	},
+
+	detachWaiAria: function(){
+		if (this.waiAria){
+			this.container.erase('role');
+			this.container.erase('aria-hidden');
+			this.removeEvents(this.waiAria);
+		}
+	},
+
+	attach: function(elements){
+		$$(elements).each(function(element){
+			var title = read(this.options.title, element),
+				text = read(this.options.text, element);
+
+			element.set('title', '').store('tip:native', title).retrieve('tip:title', title);
+			element.retrieve('tip:text', text);
+			this.fireEvent('attach', [element]);
+
+			var events = ['enter', 'leave'];
+			if (!this.options.fixed) events.push('move');
+
+			events.each(function(value){
+				var event = element.retrieve('tip:' + value);
+				if (!event) event = function(event){
+					this['element' + value.capitalize()].apply(this, [event, element]);
+				}.bind(this);
+
+				element.store('tip:' + value, event).addEvent('mouse' + value, event);
+			}, this);
+		}, this);
+
+		return this;
+	},
+
+	detach: function(elements){
+		$$(elements).each(function(element){
+			['enter', 'leave', 'move'].each(function(value){
+				element.removeEvent('mouse' + value, element.retrieve('tip:' + value)).eliminate('tip:' + value);
+			});
+
+			this.fireEvent('detach', [element]);
+
+			if (this.options.title == 'title'){ // This is necessary to check if we can revert the title
+				var original = element.retrieve('tip:native');
+				if (original) element.set('title', original);
+			}
+		}, this);
+
+		return this;
+	},
+
+	elementEnter: function(event, element){
+		clearTimeout(this.timer);
+		this.timer = (function(){
+			this.container.empty();
+			var showTip = !this.options.hideEmpty;
+			['title', 'text'].each(function(value){
+				var content = element.retrieve('tip:' + value);
+				var div = this['_' + value + 'Element'] = new Element('div', {
+					'class': 'tip-' + value
+				}).inject(this.container);
+				if (content){
+					this.fill(div, content);
+					showTip = true;
+				}
+			}, this);
+			if (showTip){
+				this.show(element);
+			} else {
+				this.hide(element);
+			}
+			this.position((this.options.fixed) ? {page: element.getPosition()} : event);
+		}).delay(this.options.showDelay, this);
+	},
+
+	elementLeave: function(event, element){
+		clearTimeout(this.timer);
+		this.timer = this.hide.delay(this.options.hideDelay, this, element);
+		this.fireForParent(event, element);
+	},
+
+	setTitle: function(title){
+		if (this._titleElement){
+			this._titleElement.empty();
+			this.fill(this._titleElement, title);
+		}
+		return this;
+	},
+
+	setText: function(text){
+		if (this._textElement){
+			this._textElement.empty();
+			this.fill(this._textElement, text);
+		}
+		return this;
+	},
+
+	fireForParent: function(event, element){
+		element = element.getParent();
+		if (!element || element == document.body) return;
+		if (element.retrieve('tip:enter')) element.fireEvent('mouseenter', event);
+		else this.fireForParent(event, element);
+	},
+
+	elementMove: function(event, element){
+		this.position(event);
+	},
+
+	position: function(event){
+		if (!this.tip) document.id(this);
+
+		var size = window.getSize(), scroll = window.getScroll(),
+			tip = {x: this.tip.offsetWidth, y: this.tip.offsetHeight},
+			props = {x: 'left', y: 'top'},
+			bounds = {y: false, x2: false, y2: false, x: false},
+			obj = {};
+
+		for (var z in props){
+			obj[props[z]] = event.page[z] + this.options.offset[z];
+			if (obj[props[z]] < 0) bounds[z] = true;
+			if ((obj[props[z]] + tip[z] - scroll[z]) > size[z] - this.options.windowPadding[z]){
+				obj[props[z]] = event.page[z] - this.options.offset[z] - tip[z];
+				bounds[z+'2'] = true;
+			}
+		}
+
+		this.fireEvent('bound', bounds);
+		this.tip.setStyles(obj);
+	},
+
+	fill: function(element, contents){
+		if (typeof contents == 'string') element.set('html', contents);
+		else element.adopt(contents);
+	},
+
+	show: function(element){
+		if (!this.tip) document.id(this);
+		if (!this.tip.getParent()) this.tip.inject(document.body);
+		this.fireEvent('show', [this.tip, element]);
+	},
+
+	hide: function(element){
+		if (!this.tip) document.id(this);
+		this.fireEvent('hide', [this.tip, element]);
+	}
+
+});
+
+})();
+/*
+---
+
+script: String.QueryString.js
+
+name: String.QueryString
+
+description: Methods for dealing with URI query strings.
+
+license: MIT-style license
+
+authors:
+  - Sebastian Markbåge
+  - Aaron Newton
+  - Lennart Pilon
+  - Valerio Proietti
+
+requires:
+  - Core/Array
+  - Core/String
+  - MooTools.More
+
+provides: [String.QueryString]
+
+...
+*/
+
+(function(){
+
+/**
+ * decodeURIComponent doesn't do the correct thing with query parameter keys or
+ * values. Specifically, it leaves '+' as '+' when it should be converting them
+ * to spaces as that's the specification. When browsers submit HTML forms via
+ * GET, the values are encoded using 'application/x-www-form-urlencoded'
+ * which converts spaces to '+'.
+ *
+ * See: http://unixpapa.com/js/querystring.html for a description of the
+ * problem.
+ */
+var decodeComponent = function(str){
+	return decodeURIComponent(str.replace(/\+/g, ' '));
+};
+
+String.implement({
+
+	parseQueryString: function(decodeKeys, decodeValues){
+		if (decodeKeys == null) decodeKeys = true;
+		if (decodeValues == null) decodeValues = true;
+
+		var vars = this.split(/[&;]/),
+			object = {};
+		if (!vars.length) return object;
+
+		vars.each(function(val){
+			var index = val.indexOf('=') + 1,
+				value = index ? val.substr(index) : '',
+				keys = index ? val.substr(0, index - 1).match(/([^\]\[]+|(\B)(?=\]))/g) : [val],
+				obj = object;
+			if (!keys) return;
+			if (decodeValues) value = decodeComponent(value);
+			keys.each(function(key, i){
+				if (decodeKeys) key = decodeComponent(key);
+				var current = obj[key];
+
+				if (i < keys.length - 1) obj = obj[key] = current || {};
+				else if (typeOf(current) == 'array') current.push(value);
+				else obj[key] = current != null ? [current, value] : value;
+			});
+		});
+
+		return object;
+	},
+
+	cleanQueryString: function(method){
+		return this.split('&').filter(function(val){
+			var index = val.indexOf('='),
+				key = index < 0 ? '' : val.substr(0, index),
+				value = val.substr(index + 1);
+
+			return method ? method.call(null, key, value) : (value || value === 0);
+		}).join('&');
+	}
+
+});
+
+})();
+/*
+---
+
+script: URI.js
+
+name: URI
+
+description: Provides methods useful in managing the window location and uris.
+
+license: MIT-style license
+
+authors:
+  - Sebastian Markbåge
+  - Aaron Newton
+
+requires:
+  - Core/Object
+  - Core/Class
+  - Core/Class.Extras
+  - Core/Element
+  - String.QueryString
+
+provides: [URI]
+
+...
+*/
+
+(function(){
+
+var toString = function(){
+	return this.get('value');
+};
+
+var URI = this.URI = new Class({
+
+	Implements: Options,
+
+	options: {
+		/*base: false*/
+	},
+
+	regex: /^(?:(\w+):)?(?:\/\/(?:(?:([^:@\/]*):?([^:@\/]*))?@)?(\[[A-Fa-f0-9:]+\]|[^:\/?#]*)(?::(\d*))?)?(\.\.?$|(?:[^?#\/]*\/)*)([^?#]*)(?:\?([^#]*))?(?:#(.*))?/,
+	parts: ['scheme', 'user', 'password', 'host', 'port', 'directory', 'file', 'query', 'fragment'],
+	schemes: {http: 80, https: 443, ftp: 21, rtsp: 554, mms: 1755, file: 0},
+
+	initialize: function(uri, options){
+		this.setOptions(options);
+		var base = this.options.base || URI.base;
+		if (!uri) uri = base;
+
+		if (uri && uri.parsed) this.parsed = Object.clone(uri.parsed);
+		else this.set('value', uri.href || uri.toString(), base ? new URI(base) : false);
+	},
+
+	parse: function(value, base){
+		var bits = value.match(this.regex);
+		if (!bits) return false;
+		bits.shift();
+		return this.merge(bits.associate(this.parts), base);
+	},
+
+	merge: function(bits, base){
+		if ((!bits || !bits.scheme) && (!base || !base.scheme)) return false;
+		if (base){
+			this.parts.every(function(part){
+				if (bits[part]) return false;
+				bits[part] = base[part] || '';
+				return true;
+			});
+		}
+		bits.port = bits.port || this.schemes[bits.scheme.toLowerCase()];
+		bits.directory = bits.directory ? this.parseDirectory(bits.directory, base ? base.directory : '') : '/';
+		return bits;
+	},
+
+	parseDirectory: function(directory, baseDirectory){
+		directory = (directory.substr(0, 1) == '/' ? '' : (baseDirectory || '/')) + directory;
+		if (!directory.test(URI.regs.directoryDot)) return directory;
+		var result = [];
+		directory.replace(URI.regs.endSlash, '').split('/').each(function(dir){
+			if (dir == '..' && result.length > 0) result.pop();
+			else if (dir != '.') result.push(dir);
+		});
+		return result.join('/') + '/';
+	},
+
+	combine: function(bits){
+		return bits.value || bits.scheme + '://' +
+			(bits.user ? bits.user + (bits.password ? ':' + bits.password : '') + '@' : '') +
+			(bits.host || '') + (bits.port && bits.port != this.schemes[bits.scheme] ? ':' + bits.port : '') +
+			(bits.directory || '/') + (bits.file || '') +
+			(bits.query ? '?' + bits.query : '') +
+			(bits.fragment ? '#' + bits.fragment : '');
+	},
+
+	set: function(part, value, base){
+		if (part == 'value'){
+			var scheme = value.match(URI.regs.scheme);
+			if (scheme) scheme = scheme[1];
+			if (scheme && this.schemes[scheme.toLowerCase()] == null) this.parsed = { scheme: scheme, value: value };
+			else this.parsed = this.parse(value, (base || this).parsed) || (scheme ? { scheme: scheme, value: value } : { value: value });
+		} else if (part == 'data'){
+			this.setData(value);
+		} else {
+			this.parsed[part] = value;
+		}
+		return this;
+	},
+
+	get: function(part, base){
+		switch (part){
+			case 'value': return this.combine(this.parsed, base ? base.parsed : false);
+			case 'data' : return this.getData();
+		}
+		return this.parsed[part] || '';
+	},
+
+	go: function(){
+		document.location.href = this.toString();
+	},
+
+	toURI: function(){
+		return this;
+	},
+
+	getData: function(key, part){
+		var qs = this.get(part || 'query');
+		if (!(qs || qs === 0)) return key ? null : {};
+		var obj = qs.parseQueryString();
+		return key ? obj[key] : obj;
+	},
+
+	setData: function(values, merge, part){
+		if (typeof values == 'string'){
+			var data = this.getData();
+			data[arguments[0]] = arguments[1];
+			values = data;
+		} else if (merge){
+			values = Object.merge(this.getData(null, part), values);
+		}
+		return this.set(part || 'query', Object.toQueryString(values));
+	},
+
+	clearData: function(part){
+		return this.set(part || 'query', '');
+	},
+
+	toString: toString,
+	valueOf: toString
+
+});
+
+URI.regs = {
+	endSlash: /\/$/,
+	scheme: /^(\w+):/,
+	directoryDot: /\.\/|\.$/
+};
+
+URI.base = new URI(Array.convert(document.getElements('base[href]', true)).getLast(), {base: document.location});
+
+String.implement({
+
+	toURI: function(options){
+		return new URI(this, options);
+	}
+
+});
+
+})();
+/*
+---
+
 script: Assets.js
 
 name: Assets
@@ -10735,16 +10735,29 @@ var Table = this.Table = function(){
 if (this.Type) new Type('Table', Table);
 
 })();
-Locale.define('en-US', 'Dummy', 'dummy', 'dummy');
-Locale.use('en-US');
-/*--|/home/user/ngn-env/ngn/i/js/ngn/Ngn.Items.js|--*/
+//Locale.define('en-US', 'Dummy', 'dummy', 'dummy');
+//Locale.use('en-US');
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/Ngn.js|--*/
+Ngn.toObj = function(s, value) {
+  var a = s.split('.');
+  for (var i = 0; i < a.length; i++) {
+    var ss = a.slice(0, i + 1).join('.');
+    eval('var def = ' + ss + ' === undefined');
+    if (def) eval((i == 0 ? 'var ' : '') + ss + ' = {}');
+  }
+  if (value) eval(s + ' = value');
+};
+
+if (!Ngn.tpls) Ngn.tpls = {};
+
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/Ngn.Items.js|--*/
 Ngn.Items = new Class({
   Implements: [Options, Events],
   
   options: {
     idParam: 'id',
     mainElementSelector: '.mainContent',
-    eItems: 'items',
+    eItems: '#items',
     itemElementSelector: '.item',
     deleteAction: 'delete',
     isSorting: false,
@@ -10777,7 +10790,7 @@ Ngn.Items = new Class({
   },
   
   initItems: function() {
-    this.eItems = $(this.options.eItems);
+    this.eItems = document.getElement(this.options.eItems);
     var esItems = this.eItems.getElements(this.options.itemElementSelector);
     this.esItems = {};
     for (var i=0; i<esItems.length; i++) {
@@ -10796,7 +10809,7 @@ Ngn.Items = new Class({
   initToolActions: function() {
     this.addBtnsActions([
       ['.delete', function(id, eBtn, eItem) {
-        new Ngn.Dialog.Confirm.Mem({
+        new Ngn.Dialog.Confirm.Mem(Object.merge({
           id: 'itemsDelete',
           notAskSomeTime: true,
           onOkClose: function() {
@@ -10810,7 +10823,7 @@ Ngn.Items = new Class({
               }.bind(this)
             }).GET(g);
           }.bind(this)
-        });
+        }, Ngn.Grid.defaultDialogOpts));
       }.bind(this)],
       ['a[class~=flagOn],a[class~=flagOff]', function(id, eBtn) {
         /*
@@ -10883,7 +10896,7 @@ Ngn.Items = new Class({
   }
 
 });
-/*--|/home/user/ngn-env/ngn/i/js/ngn/core/Ngn.RequiredOptions.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/core/Ngn.RequiredOptions.js|--*/
 Ngn.RequiredOptions = new Class({
   Extends: Options,
 
@@ -10900,7 +10913,7 @@ Ngn.RequiredOptions = new Class({
 
 });
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/core/Ngn.Locale.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/core/Ngn.Locale.js|--*/
 Ngn.Locale = {
   get: function(key) {
     return Locale.get(key) || Ngn.String.ucfirst(String(key).replace(/\w+\.(.+)/g, '$1').replace(/[A-Z]/g, function(match){
@@ -10908,7 +10921,7 @@ Ngn.Locale = {
     }));
   }
 };
-/*--|/home/user/ngn-env/ngn/i/js/ngn/core/Ngn.String.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/core/Ngn.String.js|--*/
 Ngn.String = {};
 Ngn.String.rand = function(len) {
   var allchars = 'abcdefghijknmpqrstuvwxyzABCDEFGHIJKLNMPQRSTUVWXYZ'.split('');
@@ -10940,15 +10953,15 @@ Ngn.String.trim = function(s) {
 };
 
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/core/Ngn.Number.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/core/Ngn.Number.js|--*/
 Ngn.Number = {};
 Ngn.Number.randomInt = function(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-/*--|/home/user/ngn-env/ngn/more/scripts/js/locale.php| (with request data)--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/more/scripts/js/locale.php| (with request data)--*/
 Locale.define("ru-RU", "Core", {"add":"\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c","clean":"\u041e\u0447\u0438\u0441\u0442\u0438\u0442\u044c","delete":"\u0423\u0434\u0430\u043b\u0438\u0442\u044c","edit":"\u0420\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u0442\u044c","cancel":"\u041e\u0442\u043c\u0435\u043d\u0430","upload":"\u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c","uploading":"\u0417\u0430\u0433\u0440\u0443\u0437\u043a\u0430","uploadComplete":"\u0417\u0430\u0433\u0440\u0443\u0437\u043a\u0430 \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043d\u0430","change":"\u0418\u0437\u043c\u0435\u043d\u0438\u0442\u044c","areYouSure":"\u0412\u044b \u0443\u0432\u0435\u0440\u0435\u043d\u044b?","loading":"\u0417\u0430\u0433\u0440\u0443\u0437\u043a\u0430","save":"\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c","fontSize":"\u0420\u0430\u0437\u043c\u0435\u0440 \u0448\u0440\u0438\u0444\u0442\u0430","color":"\u0426\u0432\u0435\u0442","font":"\u0428\u0440\u0438\u0444\u0442","create":"\u0421\u043e\u0437\u0434\u0430\u0442\u044c","search":"\u041f\u043e\u0438\u0441\u043a","totalItemsCount":"\u0412\u0441\u0435\u0433\u043e \u0437\u0430\u043f\u0438\u0441\u0435\u0439","doNotAskMeSomeTimeAboutThat":"\u041d\u0435 \u0441\u043f\u0440\u0430\u0448\u0438\u0432\u0430\u0442\u044c \u043c\u0435\u043d\u044f \u043e\u0431 \u044d\u0442\u043e\u043c \u043a\u0430\u043a\u043e\u0435-\u0442\u043e \u0432\u0440\u0435\u043c\u044f","doNotAskMeAnymoreAboutThat":"\u0411\u043e\u043b\u044c\u0448\u0435 \u043d\u0435 \u0441\u043f\u0440\u0430\u0448\u0438\u0432\u0430\u0442\u044c \u043f\u043e \u044d\u0442\u043e\u043c\u0443 \u043f\u043e\u0432\u043e\u0434\u0443","creationDate":"\u0414\u0430\u0442\u0430 \u0441\u043e\u0437\u0434\u0430\u043d\u0438\u044f","updateDate":"\u0414\u0430\u0442\u0430 \u0438\u0437\u043c\u0435\u043d\u0435\u043d\u0438\u044f","author":"\u0410\u0432\u0442\u043e\u0440","yes":"\u0414\u0430","no":"\u041d\u0435\u0442","at":"\u0432","userDoesNotExists":"\u0418\u043c\u044f \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044f \u0438 \u043f\u0430\u0440\u043e\u043b\u044c \u043d\u0435 \u0441\u043e\u0432\u043f\u0430\u0434\u0430\u044e\u0442 \u0438\u043b\u0438 \u0443 \u0432\u0430\u0441 \u0435\u0449\u0451 \u043d\u0435\u0442 \u0443\u0447\u0451\u0442\u043d\u043e\u0439 \u0437\u0430\u043f\u0438\u0441\u0438 \u043d\u0430 \u0441\u0430\u0439\u0442\u0435","wrongPassword":"\u0418\u043c\u044f \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044f \u0438 \u043f\u0430\u0440\u043e\u043b\u044c \u043d\u0435 \u0441\u043e\u0432\u043f\u0430\u0434\u0430\u044e\u0442 \u0438\u043b\u0438 \u0443 \u0432\u0430\u0441 \u0435\u0449\u0451 \u043d\u0435\u0442 \u0443\u0447\u0451\u0442\u043d\u043e\u0439 \u0437\u0430\u043f\u0438\u0441\u0438 \u043d\u0430 \u0441\u0430\u0439\u0442\u0435"});
-/*--|/home/user/ngn-env/ngn/i/js/ngn/dialog/Ngn.Dialog.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/dialog/Ngn.Dialog.js|--*/
 // @requiresBefore s2/js/locale?key=core
 Ngn.Dialog = new Class({
   Implements: [Ngn.RequiredOptions, Events],
@@ -11003,6 +11016,7 @@ Ngn.Dialog = new Class({
     vResize: false,
     fixed: false,
     //maxHeight: null,
+    requestOptions: {}, // [Object] Опции AJAX запроса
     onComplete: Function.from(),
     onClose: Function.from(),
     onOkClose: Function.from(),
@@ -11040,20 +11054,20 @@ Ngn.Dialog = new Class({
     }
     if (this.options.noPadding) this.options.messageAreaClass += ' dialog-nopadding';
     if (this.options.reduceHeight) this.options.messageAreaClass += ' dialog-scroll';
-    if ($(this.options.id + '_dialog')) {
+    if (document.getElement('#' + this.options.id + '_dialog')) {
       console.debug('Dialog with id=' + this.options.id + ' already opened. Aborted');
       return null;
     }
     if (this.options.bindBuildMessageFunction) this.options.message = this.buildMessage.bind(this, this.options.message);
-    this.request = new (this.options.jsonRequest ? Ngn.Request.JSON : Ngn.Request)({
+    this.request = new (this.options.jsonRequest ? Ngn.Request.JSON : Ngn.Request)(Object.merge({
       evalScripts: true,
       onSuccess: this.urlResponse.bind(this),
       onFailure: this.errorMessage.bind(this)
-    });
+    }, this.options.requestOptions));
     this.dialogId = this.options.id + '_dialog';
     this.dialogN = Ngn.Dialog.dialogs.getLength() + 1;
     Ngn.Dialog.dialogs[this.dialogId] = this;
-    this.parentElement = $((this.options.parent || document.body));
+    this.parentElement = document.getElement(this.options.parent || document.body);
     var dialog_styles = Object.merge({
       'display': 'none',
       'width': this.options.width.toInt() + 'px',
@@ -11067,7 +11081,7 @@ Ngn.Dialog = new Class({
     }).inject(this.parentElement);
     if (this.options.fixed) this.dialog.setStyle('position', 'fixed');
     this.fx = this.options.useFx ? new Fx.Tween(this.dialog, Object.merge({
-      duration: 300
+      duration: 200
     }, this.options.fxOptions)) : null;
     if (this.fx) this.fx.set('opacity', 0);
 
@@ -11090,7 +11104,7 @@ Ngn.Dialog = new Class({
 
       this.titleText = new Element('span', {'class': this.options.titleTextClass, 'html': this.options.title}).inject(this.titlebar);
 
-      if (this.options.titleClose != false) {
+      if (this.options.titleClose !== false) {
         this.btnClose = Ngn.Btn.opacity(new Element('span', {
           'id': this.options.id + '_closer',
           'class': this.options.titleCloseClass
@@ -11112,9 +11126,7 @@ Ngn.Dialog = new Class({
       this.dotter.start();
       this.request.options.url = this.options.url;
       this.startupLoading(true);
-      (function() {
-        this.request.get()
-      }).delay(100, this);
+      this.makeStartupRequest();
       if (this.options.autoShow) this.delayedShow = true;
     } else if (this.options.message != undefined) {
       if (this.options.setMessageDelay) {
@@ -11181,6 +11193,12 @@ Ngn.Dialog = new Class({
       this.show();
     }
     window.document.currentDialog = this;
+  },
+
+  makeStartupRequest: function() {
+    (function() {
+      this.request.get()
+    }).delay(100, this);
   },
 
   initSavedPosition: function() {
@@ -11279,7 +11297,7 @@ Ngn.Dialog = new Class({
 
   toggle: function(name, flag) {
     if (!this.btns[name]) return;
-    this.btns[name].setStyle('display', flag ? 'block' : 'none');
+    this.btns[name].setStyle('display', flag ? 'inline-block' : 'none');
   },
 
   errorMessage: function(xhr) {
@@ -11303,15 +11321,19 @@ Ngn.Dialog = new Class({
   },
 
   createButton: function(name, id, text, cls, action, unforceClose, tabindex, okClose) {
-    var self = this;
-    var eButton = new Element('div', { 'class': 'goright image-button ' + cls });
-    var eLink = new Element('a', {
+    var eLink = new Element('button', {
       id: id + '_' + name,
       href: 'javascript:void(0)',
       'class': 'btn',
       tabindex: (tabindex != undefined ? tabindex : (++this.tab_index)),
       html: this.getButtonInnerHtml(text)
-    }).inject(eButton);
+    });
+    if (this.options.buttonExtraClass) {
+      var buttonExtraClass = this.options.buttonExtraClass(name);
+      if (buttonExtraClass) {
+        eLink.addClass(buttonExtraClass);
+      }
+    }
     if (action && action instanceof Function) {
       eLink.addEvent('click', action);
     }
@@ -11322,8 +11344,7 @@ Ngn.Dialog = new Class({
      okClose ? this.okClose.bind(this) : this.close.bind(this);
      }.bind(this));
      */
-    this.btns[name] = eButton;
-    return eButton;
+    return this.btns[name] = eLink;
   },
 
   openShade: function() {
@@ -11431,7 +11452,7 @@ Ngn.Dialog.openWhenClosed = function(closingDialogObject, openDialogClass, optio
 
 Ngn.Dialog.dialogs = new Hash({});
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/dialog/Ngn.Dialog.VResize.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/dialog/Ngn.Dialog.VResize.js|--*/
 Ngn.Dialog.VResize = new Class({
 
   initialize: function(dialog) {
@@ -11465,7 +11486,7 @@ Ngn.Dialog.VResize = new Class({
 
 });
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/core/Ngn.Element.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/core/Ngn.Element.js|--*/
 Ngn.Element = {};
 
 Ngn.Element._whenElPresents = function(elGetter, action, maxAttempts) {
@@ -11520,7 +11541,7 @@ Ngn.Element.setTip = function(el, title) {
   }
 };
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/core/Ngn.Storage.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/core/Ngn.Storage.js|--*/
 Ngn.Storage = {
   get: function(key) {
     if (localStorage) {
@@ -11579,7 +11600,7 @@ Ngn.Storage.json = {
   }
 };
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/core/Ngn.LocalStorage.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/core/Ngn.LocalStorage.js|--*/
 Ngn.LocalStorage = {
 
   clean: function() {
@@ -11614,7 +11635,7 @@ Ngn.LocalStorage.json = {
 
 };
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/Ngn.Request.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/Ngn.Request.js|--*/
 Ngn.Request = new Class({
   Extends: Request,
 
@@ -11733,9 +11754,9 @@ Ngn.Request.sflJsDeltaUrlOnLoad = false;
 Ngn.Request.Iface = {};
 
 Ngn.Request.Iface.loading = function(state) {
-  var el = $('globalLoader');
+  var el = document.getElement('#globalLoader');
   if (!el) {
-    var el = Elements.from('<div id="globalLoader" class="globalLoader"></div>')[0].inject(document.getElement('body'), 'top');
+    el = Elements.from('<div id="globalLoader" class="globalLoader"></div>')[0].inject(document.getElement('body'), 'top');
     el.setStyle('top', window.getScroll().y);
     window.addEvent('scroll', function() {
       el.setStyle('top', window.getScroll().y);
@@ -11752,7 +11773,7 @@ Ngn.Request.settings = function(name, callback) {
   });
 };
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/core/Ngn.Arr.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/core/Ngn.Arr.js|--*/
 Ngn.Arr = {};
 Ngn.Arr.inn = function(needle, haystack, strict) {  // Checks if a value exists in an array
   var found = false, key, strict = !!strict;
@@ -11770,7 +11791,7 @@ Ngn.Arr.drop = function(array, value) {
 };
 
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/core/controls/Ngn.Btn.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/core/controls/Ngn.Btn.js|--*/
 // @requires Ngn.Frm
 
 Ngn.Btn = new Class({
@@ -11884,7 +11905,7 @@ Ngn.Btn.btn = function(opt) {
   if (!opt) opt = {};
   if (!opt.cls) opt.cls = '';
   if (!opt.title && !opt.cls.contains('btn')) opt.cls = 'bordered ' + opt.cls;
-  var a = new Element('a', Object.merge({
+  var a = new Element('button', Object.merge({
     'class': (opt.cls.contains('icon') ? '' : 'smIcons ') + opt.cls,
     html: opt.title || ''
   }, opt.prop || {}));
@@ -11892,7 +11913,8 @@ Ngn.Btn.btn = function(opt) {
     a.set('title', opt.caption);
     //Ngn.Element.setTip(a, opt.caption);
   }
-  new Element('i').inject(a, 'top');
+  var i = new Element('i').inject(a, 'top');
+  if (opt.icon) i.addClass('fa fa-' + opt.icon);
   return a;
 };
 
@@ -11999,7 +12021,7 @@ Ngn.Btn.addAjaxAction = function(eBtn, action, onComplete) {
   });
 };
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/core/Ngn.elementExtras.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/core/Ngn.elementExtras.js|--*/
 Element.implement({
   values: function() {
     var r = {};
@@ -12077,7 +12099,7 @@ Element.implement({
   }
 });
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/form/Ngn.Frm.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/form/Ngn.Frm.js|--*/
 Ngn.Frm = {};
 Ngn.Frm.init = {}; // объект для хранения динамических функций иниыиализации
 Ngn.Frm.html = {};
@@ -12236,7 +12258,6 @@ Ngn.Frm.objTo = function(eContainer, obj) {
 Ngn.Frm.toObj = function(eContainer, except) {
   var rv = {};
   except = except || [];
-  eContainer = $(eContainer);
   var typeMatch = 'text' + (!except.contains('hidden') ? '|hidden' : '') + (!except.contains('password') ? '|password' : '');
   var elements = eContainer.getElements(Ngn.Frm.selector);
   for (var i = 0; i < elements.length; i++) {
@@ -12359,7 +12380,7 @@ Ngn.Frm.maxLength = function(eForm, defaultMaxLength) {
   });
 };
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/core/controls/Ngn.Dotter.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/core/controls/Ngn.Dotter.js|--*/
 // @requiresBefore s2/js/locale?key=core
 Ngn.Dotter = new Class({
   Implements: [Options,Events],
@@ -12417,7 +12438,7 @@ Ngn.Dotter = new Class({
   }
 
 });
-/*--|/home/user/ngn-env/ngn/i/js/ngn/dialog/Ngn.Dialog.Msg.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/dialog/Ngn.Dialog.Msg.js|--*/
 Ngn.Dialog.Msg = new Class({
   Extends: Ngn.Dialog,
 
@@ -12429,19 +12450,19 @@ Ngn.Dialog.Msg = new Class({
 
 });
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/dialog/Ngn.Dialog.Confirm.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/dialog/Ngn.Dialog.Confirm.js|--*/
 // @requiresBefore s2/js/locale?key=core
 Ngn.Dialog.Confirm = new Class({
   Extends: Ngn.Dialog.Msg,
 
   options: {
     width: 300,
-    message: Locale.get('Core.areYouSure')
+    message: Locale.get('Core.areYouSure'),
+    dialogClass: 'dialog dialog-confirm'
   },
 
   initialize: function(_opts) {
     var opts = Object.merge(_opts, {
-      cancel: false,
       titleClose: false,
       ok: this.closeAction.bind(this, true),
       cancel: this.closeAction.bind(this, false)
@@ -12455,7 +12476,7 @@ Ngn.Dialog.Confirm = new Class({
 
 });
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/dialog/Ngn.Dialog.Confirm.Mem.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/dialog/Ngn.Dialog.Confirm.Mem.js|--*/
 Ngn.Dialog.Confirm.Mem = new Class({
   Extends: Ngn.Dialog.Confirm,
 
@@ -12463,12 +12484,14 @@ Ngn.Dialog.Confirm.Mem = new Class({
     width: 250,
     okText: Ngn.Locale.get('core.delete'),
     bindBuildMessageFunction: true,
-    notAskSomeTime: false
+    notAskSomeTime: false,
+    title: false
   },
 
   timeoutId: null,
 
   initialize: function(_opts) {
+    if (_opts) _opts.title = false; // force title disabling
     this.setOptions(_opts);
     this.options.dialogClass += ' dialog-confirm';
     if (this.options.notAskSomeTime) {
@@ -12507,7 +12530,7 @@ Ngn.Dialog.Confirm.Mem = new Class({
 
 });
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/Ngn.Items.Table.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/Ngn.Items.Table.js|--*/
 /**
  * Компонент для вывода и редактирования табличных данных
  */
@@ -12712,7 +12735,7 @@ Ngn.Items.toolActions = {
   }
 
 };
-/*--|/home/user/ngn-env/ngn/i/js/ngn/core/Ngn.Html.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/core/Ngn.Html.js|--*/
 Ngn.Html = {};
 
 Ngn.Html.fixEmptyTds = function(el) {
@@ -12721,7 +12744,7 @@ Ngn.Html.fixEmptyTds = function(el) {
     if (!tds[i].get('html').trim()) tds[i].set('html', '&nbsp;');
 };
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/Ngn.SwitcherLink.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/Ngn.SwitcherLink.js|--*/
 Ngn.SwitcherLink = new Class({
 
   Implements: [Options, Events],
@@ -12784,7 +12807,7 @@ Ngn.SwitcherLink = new Class({
 
 });
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/core/Ngn.EmptyError.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/core/Ngn.EmptyError.js|--*/
 Ngn.EmptyError = new Class({
   Extends: Error,
 
@@ -12794,7 +12817,7 @@ Ngn.EmptyError = new Class({
 
 });
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/grid/Ngn.Grid.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/grid/Ngn.Grid.js|--*/
 /**
  * Компонент для вывода и редактирования табличных данных
  */
@@ -12815,7 +12838,7 @@ Ngn.Grid = new Class({
     id: null,
     toolActions: {},
     toolLinks: {},
-    eParent: 'table',
+    eParent: '#table',
     fromDialog: false,
     listAction: null,
     listAjaxAction: 'json_getItems',
@@ -12828,12 +12851,10 @@ Ngn.Grid = new Class({
   btns: {},
 
   init: function() {
-
     if (!this.options.eParent) throw new Ngn.EmptyError('this.options.eParent');
     if (this.options.basePath == '/') this.options.basePath = '';
     if (this.options.basePath && !this.options.id) this.options.id = Ngn.String.hashCode(this.options.basePath);
-    this.eParent = document.getElement('#' + this.options.eParent);
-		console.log(this.eParent);
+    this.eParent = document.getElement(this.options.eParent);
     this.initMenu();
     if (this.options.search) new Ngn.Grid.Search(this);
     this.options.eItems = Elements.from('<table width="100%" cellpadding="0" cellspacing="0" class="items itemsTable' + (this.options.resizeble ? ' resizeble' : '') + '"><thead><tr></tr></thead><tbody></tbody></table>')[0].inject(this.eParent);
@@ -12901,9 +12922,10 @@ Ngn.Grid = new Class({
     new Ngn.Request.JSON({
       url: this.getLink(true),
       onComplete: function(r) {
-        if (!this.options.fromDialog) {
-          if (window.history.pushState) window.history.pushState(null, null, this.getLink(false));
-        }
+        // todo: bad support. remove temporary
+        //if (!this.options.fromDialog) {
+        //  if (window.history.pushState) window.history.pushState(null, null, this.getLink(false));
+        //}
         this.initInterface(r, true);
         this.fireEvent('reloadComplete', r);
         Ngn.Request.Iface.loading(false);
@@ -12974,7 +12996,7 @@ Ngn.Grid = new Class({
       if (this.options.checkboxes) {
         Elements.from('<td><input type="checkbox" name="itemIds[]" value="' + row.id + '"/></td>')[0].inject(eTools);
       } else {
-        Elements.from('<td></td>')[0].inject(eTools);
+        //Elements.from('<td></td>')[0].inject(eTools);
       }
       if (this.options.isSorting) Elements.from('<td><div class="dragBox"></div></td>')[0].inject(eTools);
       var n = 0;
@@ -12987,7 +13009,7 @@ Ngn.Grid = new Class({
         } else {
           value = row.data[index];
         }
-        if (this.options.formatters[index]) value = this.options.formatters[index]();
+        if (this.options.formatters[index]) value = this.options.formatters[index](value);
         prop.html = this.replaceHtmlValue(value);
         new Element('td', prop).
           addClass('n_' + index).
@@ -13014,7 +13036,6 @@ Ngn.Grid = new Class({
   },
 
   initPagination: function(data, fromAjax) {
-		console.log('!!!');
     if (this.ePagination) this.ePagination.dispose();
     this.ePagination = Elements.from('<div class="pNums"><div class="bookmarks">' + data.pNums + '</div></div>')[0].inject(this.eMenu, 'top');
     new Element('div', {
@@ -13035,7 +13056,7 @@ Ngn.Grid = new Class({
             Ngn.Request.Iface.loading(false);
             this.initInterface(r, true);
           }.bind(this)
-        }).send();
+        }).get();
         return false;
       }.bind(this));
     }.bind(this));
@@ -13056,10 +13077,20 @@ Ngn.Grid = new Class({
       return;
     }
 
-    var el = new Element('a', {
+    var cls = ((typeOf(tool) == 'object' && tool.cls) ? tool.cls : toolName);
+    // fa fix
+    var faCls = cls;
+    if (faCls == 'delete') {
+      faCls = 'trash';
+      var colorCls = 'danger';
+    } else {
+      colorCls = 'primary';
+    }
+    // ---
+    var el = new Element('button', {
       'href': this.options.toolLinks[toolName] ? this.options.toolLinks[toolName](row) : '#',
-      'class': 'iconBtn ' + ((typeOf(tool) == 'object' && tool.cls) ? tool.cls : toolName),
-      'html': '<i></i>',
+      'class': 'btn btn-' + colorCls + ' btn-sm  ' + cls,
+      'html': '<i class="fa fa-' + faCls + '"></i>',
       'title': typeOf(tool) == 'object' ? tool.title : tool
     }).inject(new Element('td').inject(row.eTools));
 
@@ -13110,7 +13141,7 @@ Ngn.GridBtnAction.New = new Class({
   },
   getDialogOptions: function() {
     return Object.merge({
-      id: 'CHANGE_ME',
+      id: 'dlgNew',
       dialogClass: 'dialog fieldFullWidth',
       url: this.grid.options.basePath + '/json_new',
       title: false,
@@ -13129,19 +13160,20 @@ Ngn.Grid.menu['new'] = {
 Ngn.Grid.defaultMenu = [Ngn.Grid.menu['new']];
 
 Ngn.Grid.toolActions = {};
-Ngn.Grid.toolActions.edit = function(row, opt) {
+Ngn.Grid.toolActions.edit = function(row, btn) {
   new Ngn.Dialog.RequestForm(Object.merge({
-    id: 'CHANGE_ME',
+    id: 'dlgEdit' + row.id,
     url: this.options.basePath + '/json_edit?id=' + row.id,
     width: 500,
     height: 300,
     title: false,
+    dialogClass: 'dialog fieldFullWidth',
     onOkClose: function() {
       this.reload(row.id);
     }.bind(this)
   }, Ngn.Grid.defaultDialogOpts));
 };
-/*--|/home/user/ngn-env/ngn/i/js/ngn/grid/Ngn.Grid.Search.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/grid/Ngn.Grid.Search.js|--*/
 Ngn.Grid.Search = new Class({
 
   initialize: function(grid) {
@@ -13177,7 +13209,7 @@ Ngn.Grid.Search = new Class({
   }
 
 });
-/*--|/home/user/ngn-env/ngn/i/js/ngn/grid/Ngn.Grid.Resizeble.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/grid/Ngn.Grid.Resizeble.js|--*/
 Ngn.Grid.Resizeble = new Class({
   Implements: [Options, Events],
 
@@ -13268,7 +13300,7 @@ Ngn.Grid.Resizeble = new Class({
 
 });
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/grid/Ngn.Grid.Resizeble.Col.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/grid/Ngn.Grid.Resizeble.Col.js|--*/
 Ngn.Grid.Resizeble.Col = new Class({
 
   initialize: function(resizeble, colN, eHandler) {
@@ -13336,7 +13368,7 @@ Ngn.Grid.Resizeble.Col = new Class({
 
 });
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/core/Ngn.Object.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/core/Ngn.Object.js|--*/
 Ngn.Object = {};
 
 Ngn.Object.fromString = function(s, value) {
@@ -13356,7 +13388,7 @@ Ngn.Object.fromArray = function(arr) {
   return r;
 };
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/dialog/Ngn.Dialog.RequestForm.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/dialog/Ngn.Dialog.RequestForm.js|--*/
 Ngn.Dialog.RequestFormBase = new Class({
   Extends: Ngn.Dialog,
 
@@ -13367,6 +13399,8 @@ Ngn.Dialog.RequestFormBase = new Class({
     getFormData: function() {
       return Ngn.Frm.toObj(this.form.eForm);
     },
+    formOptions: null,
+    formRequestOptions: null, // [null|Object] Опции AJAX запроса к форме
     onFormResponse: Function.from(),
     onFormRequest: Function.from(),
     onSubmitSuccess: Function.from()
@@ -13400,11 +13434,18 @@ Ngn.Dialog.RequestFormBase = new Class({
         this.addEvent('okClose', r.jsOptions.onOkClose);
     }
     this.setMessage(r.form, false);
-    this.form = Ngn.Form.factory(this.message.getElement('form'), {
+    var formOptions = {
       ajaxSubmit: true,
       ajaxSubmitUrl: this.options.submitUrl,
       disableInit: true
-    });
+    };
+    if (this.options.formOptions) {
+      formOptions = Object.merge(formOptions, this.options.formOptions);
+    }
+    if (this.options.formRequestOptions) {
+      formOptions.requestOptions = this.options.formRequestOptions;
+    }
+    this.form = Ngn.Form.factory(this.message.getElement('form'), formOptions);
     this.form.options.dialog = this; // Важно передавать объект Диалога в объект
     // Формы после выполнения конструктура, иначе объект
     // Даилога не будет содержать созданого объекта Формы
@@ -13414,10 +13455,7 @@ Ngn.Dialog.RequestFormBase = new Class({
       this.fireEvent('formRequest');
       this.loading(true);
     }.bind(this));
-    this.form.addEvent('failed', function(r) {
-      this.urlResponse(r);
-      this.loading(false);
-    }.bind(this));
+    this.initFailedEvent();
     this.form.addEvent('complete', function(r) {
       this.response = r;
       this.okClose();
@@ -13433,6 +13471,13 @@ Ngn.Dialog.RequestFormBase = new Class({
     this.initEvents();
     this.formInit();
     this.initPosition();
+  },
+
+  initFailedEvent: function() {
+    this.form.addEvent('failed', function(r) {
+      this.urlResponse(r);
+      this.loading(false);
+    }.bind(this));
   },
 
   // abstract
@@ -13532,9 +13577,9 @@ Ngn.Dialog.RequestForm.Static = new Class({
   }
 
 });
-/*--|/home/user/ngn-env/ngn/more/scripts/js/locale.php| (with request data)--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/more/scripts/js/locale.php| (with request data)--*/
 Locale.define("ru-RU", "Form", {"fileNotChosen":"\u0424\u0430\u0439\u043b \u043d\u0435 \u0432\u044b\u0431\u0440\u0430\u043d","images":"\u0418\u0437\u043e\u0431\u0440\u0430\u0436\u0435\u043d\u0438\u044f"});
-/*--|/home/user/ngn-env/ngn/i/js/ngn/form/Ngn.Form.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/form/Ngn.Form.js|--*/
 /**
  * Класс `Ngn.Form` в паре с серверным PHP классом `Form` образует свзяку для работы с HTML-формами
  *
@@ -13555,7 +13600,8 @@ Ngn.Form = new Class({
     dialog: null, // [null|Ngn.Dialog] Диалог, из которого была создана форма
     focusFirst: false, // [boolean] Делать фокус на первом элементе
     ajaxSubmit: false, // [boolean] Сабмитить форму ajax-ом
-    disableInit: false // [boolean] Не производить инициализацию в формы в конструкторе
+    disableInit: false, // [boolean] Не производить инициализацию в формы в конструкторе
+    requestOptions: {} // [Object] Опции AJAX запроса
   },
 
   els: {},
@@ -13892,22 +13938,36 @@ Ngn.Form = new Class({
   },
 
   _submitAjax: function() {
-    new Ngn.Request.JSON({
+    var failed = false;
+    new Ngn.Request.JSON(Object.merge({
       url: this.options.ajaxSubmitUrl || this.eForm.get('action'),
+      onFailure: function(r) {
+        this.fireEvent('failed', JSON.decode(r.responseText));
+        failed = true;
+      }.bind(this),
       onComplete: function(r) {
-        this.disable(false);
-        this.submiting = false;
-        if (r && r.form) {
-          this.fireEvent('failed', r);
-          return;
-        }
-        this.fireEvent('complete', r);
+        setTimeout(function() {
+          this.disable(false);
+          this.submiting = false;
+          if (failed) return;
+          if (r && (r.error || r.form)) {
+            this.fireEvent('failed', r);
+            return;
+          }
+          this.fireEvent('complete', r);
+        }.bind(this), 1);
       }.bind(this)
-    }).post(Ngn.Frm.toObj(this.eForm));
+    }, this.options.requestOptions)).post(Ngn.Frm.toObj(this.eForm));
   },
 
   _submit: function() {
     this.eForm.submit();
+  },
+
+  showGlobalError: function(message) {
+    if (this.eGlobalError) this.eGlobalError.dispose();
+    var html = '<div class="element errorRow padBottom"><div class="validation-advice">' + message + '</div></div>';
+    this.eGlobalError = Elements.from(html)[0].inject(this.eForm, 'top');
   }
 
 });
@@ -14220,7 +14280,7 @@ Form.Validator.addAllThese([['should-be-changed', {
   }
 }]]);
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/form/Ngn.PlaceholderSupport.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/form/Ngn.PlaceholderSupport.js|--*/
 Ngn.PlaceholderSupport = new Class({
 
   initialize : function(els){
@@ -14277,7 +14337,7 @@ Ngn.PlaceholderSupport = new Class({
   }
 
 });
-/*--|/home/user/ngn-env/ngn/i/js/ngn/Ngn.Milkbox.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/Ngn.Milkbox.js|--*/
 (function() {
 
   var milkbox_singleton = null;
@@ -15474,7 +15534,7 @@ Ngn.Milkbox.add = function(els, name) {
   }]);
 };
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/form/Ngn.Form.Upload.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/form/Ngn.Form.Upload.js|--*/
 Ngn.Form.Upload = new Class({
   Implements: [Options, Events],
 
@@ -15591,7 +15651,7 @@ Ngn.Form.Upload.Multi = new Class({
 
 });
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/form/Ngn.Request.File.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/form/Ngn.Request.File.js|--*/
 Ngn.progressSupport = ('onprogress' in new Browser.Request);
 
 // Обёртка для Request с поддержкой FormData
@@ -15671,7 +15731,7 @@ Ngn.Request.File = new Class({
 
 });
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/form/Ngn.Form.MultipleFileInput.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/form/Ngn.Form.MultipleFileInput.js|--*/
 Object.append(Element.NativeEvents, {
   dragenter: 2, dragleave: 2, dragover: 2, dragend: 2, drop: 2
 });
@@ -15787,7 +15847,7 @@ Ngn.Form.MultipleFileInput.Adv = new Class({
   }
 
 });
-/*--|/home/user/ngn-env/ngn/i/js/ngn/form/Ngn.Frm.HeaderToggle.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/form/Ngn.Frm.HeaderToggle.js|--*/
 Ngn.Frm.HeaderToggle = new Class({
   Implements: [Options, Events],
 
@@ -15848,7 +15908,7 @@ Ngn.Frm.headerToggleFx = function(btns) {
     });
   });
 };
-/*--|/home/user/ngn-env/ngn/i/js/ngn/trash/Ngn.IframeFormRequest.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/trash/Ngn.IframeFormRequest.js|--*/
 Ngn.IframeFormRequest = new Class({
 
   Implements: [Options, Events],
@@ -15932,7 +15992,7 @@ Ngn.IframeFormRequest.JSON = new Class({
   }
   
 });
-/*--|/home/user/ngn-env/ngn/i/js/ngn/dialog/Ngn.Dialog.Alert.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/dialog/Ngn.Dialog.Alert.js|--*/
 Ngn.Dialog.Alert = new Class({
   Extends: Ngn.Dialog,
 
@@ -15959,7 +16019,7 @@ Ngn.Dialog.Alert = new Class({
   }
 });
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/dialog/Ngn.Dialog.Error.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/dialog/Ngn.Dialog.Error.js|--*/
 Ngn.Dialog.Error = new Class({
   Extends: Ngn.Dialog.Alert,
 
@@ -15975,7 +16035,7 @@ Ngn.Dialog.Error = new Class({
 
 });
 
-/*--|/home/user/ngn-env/ngn/i/js/ngn/form/Ngn.Frm.Saver.js|--*/
+/*--|C:\www\mersal\chat-dev\abc\ngn-env/ngn/i/js/ngn/form/Ngn.Frm.Saver.js|--*/
 Ngn.Frm.SaverBase = new Class({
   Implements: [Options],
   

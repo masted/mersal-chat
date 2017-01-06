@@ -43,6 +43,7 @@ module.exports = function(server) {
    * @apiSuccess {String} result Result in JSON
    */
   server.app.get('/api/v1/sendCode', function(req, res) {
+    console.log(123);
     if (!req.query.phone) {
       res.status(404).json({error: 'phone is required'});
       return;
@@ -110,18 +111,21 @@ module.exports = function(server) {
       code: req.query.code,
       phone: req.query.phone
     });
-    server.db.collection('phoneCodes').find({
+    server.db.collection('phoneCodes').findOne({
       code: req.query.code,
       phone: req.query.phone
     }, function(err, phoneCode) {
       if (!phoneCode) {
         res.status(404).json({error: 'wrong code or phone'});
-        console.log('no found');
+        console.log('not found');
         return;
       }
       server.db.collection('users').findOne({
         phone: req.query.phone
       }, function(err, profile) {
+        console.log('***************');
+        console.log(profile);
+        console.log('***************');
         if (profile === null) {
           res.status(404).json({error: 'no user by phone ' + req.query.phone});
           return;
