@@ -3,7 +3,7 @@ module.exports = function(server) {
   function genCode() {
     var text = "";
     var possible = "0123456789";
-    for (var i = 0; i < 4; i++)
+    for (var i = 0; i < 5; i++)
       text += possible.charAt(Math.floor(Math.random() * possible.length));
     return text;
   }
@@ -133,8 +133,12 @@ module.exports = function(server) {
         profile.device = req.query.device;
         profile.deviceToken = req.query.deviceToken;
         console.log('Login ' + profile.phone);
-        var token = server.jwt.sign(profile, server.config.jwtSecret, {expiresIn: 60 * 60 * 24 * 7});
-        res.json(Object.assign({token: token}, profile));
+        var expiresIn = 60 * 60 * 24 * 7;
+        var token = server.jwt.sign(profile, server.config.jwtSecret, {expiresIn: expiresIn});
+        res.json(Object.assign({
+          token: token,
+          expiresIn: new Date() + expiresIn
+        }, profile));
       });
     });
   });

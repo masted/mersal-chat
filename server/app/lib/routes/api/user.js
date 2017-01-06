@@ -116,10 +116,16 @@ module.exports = function(server) {
     server.tokenReq(req, res, function(res, user) {
       console.log(user);
       server.db.collection('chatUsers').find({
-       userId: server.db.ObjectID(user._id)
+        userId: server.db.ObjectID(user._id)
       }).toArray(function(err, items) {
         res.send({chats: items});
       });
+    });
+  });
+
+  server.app.get('/api/v1/user/check', function(req, res) {
+    server.tokenReq(req, res, function(res, user) {
+      res.send({success: 1});
     });
   });
 

@@ -31,7 +31,7 @@ module.exports = function(server) {
       }
       new MessageActions(server.db).send(user._id, req.query.chatId, req.query.message, function(message) {
         server.event.emit('newMessage', message);
-        res.json({success: 1});
+        res.json(message);
       });
     });
   });
