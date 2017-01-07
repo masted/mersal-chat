@@ -102,6 +102,8 @@ module.exports = function(server) {
    *
    * @apiParam {String} token JWT token
    * @apiParam {String} chatId Chat ID
+   * @apiParam {Integer} n Number of messages per page (default: 20)
+   * @apiParam {Integer} pageN Page number starting from 1 (default: 1)
    */
   server.app.get('/api/v1/message/list', function(req, res) {
     server.tokenReq(req, res, function(res, user) {
@@ -109,11 +111,16 @@ module.exports = function(server) {
         res.status(404).send({error: 'chatId not defined'});
         return;
       }
+      var n = req.query.n || 20;
+      var pageN = req.query.pageN || 1;
       server.db.collection('messages').find({
         chatId: server.db.ObjectID(req.query.chatId)
-      }).sort({
-        $natural: -1
-      }).toArray(function(err, messages) {
+      }). //
+      sort({ //
+        createTime: -1
+      }).
+      skip(n * (pageN - 1)).limit(n). //
+      toArray(function(err, messages) {
         res.json(messages);
       });
     });
