@@ -94,7 +94,7 @@
       }).bind(this));
     };
 
-    MessageActions.prototype.userSend = function(userId, toUserId, chatId, message, onComplete) {
+    MessageActions.prototype.userSend = function(userId, toUserId, chatId, message, onComplete, onError) {
       userId = this.db.ObjectID(userId);
       toUserId = this.db.ObjectID(toUserId);
       chatId = this.db.ObjectID(chatId);
@@ -110,18 +110,7 @@
       return this.db.collection('messages').insertOne(message, (function(err, r) {
         return this.saveStatuses([message], userId, true, (function() {
           return this.saveStatuses([message], toUserId, false, (function() {
-            return this.db.collection('chatUsers').updateOne({
-              chatId: message.chatId,
-              userId: toUserId
-            }, {
-              chatId: message.chatId,
-              userId: toUserId
-            }, {
-              upsert: true
-            }, function() {
-              console.log('add user ' + toUserId + ' to chat ' + chatId);
-              return onComplete(message);
-            });
+            return onComplete(message);
           }).bind(this));
         }).bind(this));
       }).bind(this));

@@ -74,10 +74,11 @@ class MessageActions
       ).bind(@))
     ).bind(@))
 
-  userSend: (userId, toUserId, chatId, message, onComplete) ->
+  userSend: (userId, toUserId, chatId, message, onComplete, onError) ->
     userId = @db.ObjectID(userId)
     toUserId = @db.ObjectID(toUserId)
     chatId = @db.ObjectID(chatId)
+
     message =
       createTime: new Date().getTime(),
       userId: userId,
@@ -89,21 +90,23 @@ class MessageActions
     @db.collection('messages').insertOne(message, ((err, r) ->
       @saveStatuses([message], userId, true, (-> # sender viewed
         @saveStatuses([message], toUserId, false, (-> # recipient not yet
-          @db.collection('chatUsers').updateOne({
-            chatId: message.chatId,
-            userId: toUserId
-          }, {
-            chatId: message.chatId,
-            userId: toUserId,
-          }, {
-            upsert: true
-          }, ->
-            console.log 'add user ' + toUserId + ' to chat ' + chatId
-            onComplete(message)
-          )
+          onComplete(message)
+#            @db.collection('chatUsers').updateOne({
+#              chatId: message.chatId,
+#              userId: toUserId
+#            }, {
+#              chatId: message.chatId,
+#              userId: toUserId,
+#            }, {
+#              upsert: true
+#            }, ->
+#              console.log 'add user ' + toUserId + ' to chat ' + chatId
+#              onComplete(message)
+#            )
         ).bind(@))
       ).bind(@))
     ).bind(@))
+
 
   getUnseen: (ownUserId, onComplete) ->
     @db.collection('messageStatuses').find({
@@ -133,8 +136,8 @@ class MessageActions
       onComplete(statuses)
     )
 
-  # get messages for all users that must receive it
-  # todo move statuses to messages
+# get messages for all users that must receive it
+# todo move statuses to messages
   getUserMessages: (message, onComplete) ->
     @getStatuses(message._id, (statuses) ->
       userMessages = {}

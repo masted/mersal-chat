@@ -146,6 +146,47 @@
       }).bind(this));
     };
 
+    ChatActions.prototype.getByUser = function(userId, callback) {
+      return this.db.collection('chatUsers').find({
+        userId: this.db.ObjectID(userId)
+      }).toArray((function(err, chats) {
+        var _chats, chat, chatIds, j, len;
+        _chats = {};
+        chatIds = [];
+        for (j = 0, len = chats.length; j < len; j++) {
+          chat = chats[j];
+          _chats[chat.chatId] = {
+            chatId: chat.chatId
+          };
+          chatIds.push(chat.chatId);
+        }
+        return this.db.collection('messages').aggregate({
+          $match: {
+            chatId: {
+              $in: chatIds
+            }
+          }
+        }, {
+          $sort: {
+            createTime: -1
+          }
+        }, {
+          $limit: 1
+        }, {
+          $project: {
+            message: 1
+          }
+        }).toArray(function(err, messages) {
+          var k, len1, message;
+          for (k = 0, len1 = messages.length; k < len1; k++) {
+            message = messages[k];
+            _chats[message.chatId].message = message;
+          }
+          return callback(_chats);
+        });
+      }).bind(this));
+    };
+
     return ChatActions;
 
   })();

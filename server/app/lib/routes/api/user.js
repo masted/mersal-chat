@@ -1,3 +1,5 @@
+var ChatActions = require('../../actions/ChatActions');
+
 module.exports = function(server) {
 
   /**
@@ -123,11 +125,8 @@ module.exports = function(server) {
    */
   server.app.get('/api/v1/user/chats', function(req, res) {
     server.tokenReq(req, res, function(res, user) {
-      console.log(user);
-      server.db.collection('chatUsers').find({
-        userId: server.db.ObjectID(user._id)
-      }).toArray(function(err, items) {
-        res.send({chats: items});
+      (new ChatActions(server.db)).getByUser(user._id, function(r) {
+        res.send(r);
       });
     });
   });
@@ -139,7 +138,7 @@ module.exports = function(server) {
    *
    * @apiParam {String} token JWT token
    *
-   * @apiSuccess {String} JSON with success or error
+   * @apiSuccess {String} {success: 1} on success and {error: ""} on error
    */
   server.app.get('/api/v1/user/check', function(req, res) {
     server.tokenReq(req, res, function(res, user) {
@@ -148,13 +147,13 @@ module.exports = function(server) {
   });
 
   /**
-   * @api {get} /user/updateDeviceToken Updates device token
+   * @api {get} /user/check Check user token
    * @apiName Updates device token
    * @apiGroup User
    *
    * @apiParam {String} token JWT token
    *
-   * @apiSuccess {String} JSON with success or error
+   * @apiSuccess {String} {success: 1} on success and {error: ""} on error
    */
   server.app.get('/api/v1/user/updateDeviceToken', function(req, res) {
     server.tokenReq(req, res, function(res, user) {

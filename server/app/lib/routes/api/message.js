@@ -68,9 +68,17 @@ module.exports = function(server) {
         res.status(404).send({error: 'message not defined'});
         return;
       }
-      new MessageActions(server.db).userSend(user._id, req.query.userId, req.query.chatId, req.query.message, function(message) {
-        server.event.emit('newUserMessage', message);
-        res.json(message);
+      (new ChatActions(server.db)).canJoin(user._id, req.query.chatId, function(canJoin) {
+        if (!canJoin) {
+          res.status(404).send({error: 'user has no access to that chat'});
+        } else {
+          new MessageActions(server.db).userSend(user._id, req.query.userId, req.query.chatId, req.query.message, function(message) {
+            server.event.emit('newUserMessage', message);
+            res.json(message);
+          }, function(error) {
+            res.status(404).json({error: error});
+          });
+        }
       });
     });
   });

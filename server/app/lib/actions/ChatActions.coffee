@@ -125,5 +125,29 @@ class ChatActions
         )
     ).bind(@))
 
+  getByUser: (userId, callback) ->
+    @db.collection('chatUsers').find({
+      userId: @db.ObjectID(userId)
+    }).toArray(((err, chats) ->
+      _chats = {}
+      chatIds = []
+      for chat in chats
+        _chats[chat.chatId] = {chatId: chat.chatId};
+        chatIds.push(chat.chatId)
+      @db.collection('messages').aggregate(
+        {$match: {
+          chatId: {
+            $in: chatIds
+          }
+        }},
+        {$sort: {createTime: -1}},
+        {$limit: 1},
+        {$project: {message: 1}}
+      ).toArray((err, messages) ->
+        for message in messages
+          _chats[message.chatId].message = message
+        callback(_chats)
+      )
+    ).bind(@))
 
 module.exports = ChatActions

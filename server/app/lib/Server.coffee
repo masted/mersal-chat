@@ -60,5 +60,9 @@ class Server
     return 'chat-' + userId1 + '-' + userId2
   addApiCors: (res) ->
     res.header 'Access-Control-Allow-Origin', '*'
+  wrapErrors: (res, action) ->
+    try action()
+    catch e then (e) ->
+      req.error(404).json(e.message)
 
 module.exports = Server

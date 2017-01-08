@@ -91,6 +91,18 @@
       return res.header('Access-Control-Allow-Origin', '*');
     };
 
+    Server.prototype.wrapErrors = function(res, action) {
+      var e;
+      try {
+        return action();
+      } catch (error) {
+        e = error;
+        return function(e) {
+          return req.error(404).json(e.message);
+        };
+      }
+    };
+
     return Server;
 
   })();
