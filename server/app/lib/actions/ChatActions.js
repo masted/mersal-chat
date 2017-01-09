@@ -176,14 +176,29 @@
           $project: {
             message: 1
           }
-        }).toArray(function(err, messages) {
+        }).toArray((function(err, messages) {
           var k, len1, message;
           for (k = 0, len1 = messages.length; k < len1; k++) {
             message = messages[k];
             _chats[message.chatId].message = message;
           }
-          return callback(_chats);
-        });
+          return this.db.collection('chatUsers').find({
+            chatId: {
+              $in: chatIds
+            }
+          }).toArray(function(err, chatUsers) {
+            var chatId, chatUser, l, len2, len3, m;
+            for (l = 0, len2 = chatIds.length; l < len2; l++) {
+              chatId = chatIds[l];
+              _chats[chatId].userIds = [];
+            }
+            for (m = 0, len3 = chatUsers.length; m < len3; m++) {
+              chatUser = chatUsers[m];
+              _chats[chatUser.chatId].userIds.push(chatUser.userId);
+            }
+            return callback(_chats);
+          });
+        }).bind(this));
       }).bind(this));
     };
 

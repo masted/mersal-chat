@@ -143,11 +143,22 @@ class ChatActions
         {$sort: {createTime: -1}},
         {$limit: 1},
         {$project: {message: 1}}
-      ).toArray((err, messages) ->
+      ).toArray(((err, messages) ->
         for message in messages
           _chats[message.chatId].message = message
-        callback(_chats)
-      )
+
+        @db.collection('chatUsers').find({
+          chatId: {
+            $in: chatIds
+          }
+        }).toArray((err, chatUsers) ->
+          for chatId in chatIds
+            _chats[chatId].userIds = []
+          for chatUser in chatUsers
+            _chats[chatUser.chatId].userIds.push(chatUser.userId)
+          callback(_chats)
+        )
+      ).bind(@))
     ).bind(@))
 
 module.exports = ChatActions
