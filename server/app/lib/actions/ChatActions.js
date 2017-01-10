@@ -160,34 +160,53 @@
           };
           chatIds.push(chat.chatId);
         }
-        return this.db.collection('messages').aggregate({
-          $match: {
-            chatId: {
-              $in: chatIds
+        return this.db.collection('messages').aggregate([
+          {
+            $match: {
+              chatId: {
+                $in: chatIds
+              }
+            }
+          }, {
+            $sort: {
+              chatId: 1,
+              createTime: -1
+            }
+          }, {
+            $group: {
+              _id: "$chatId",
+              createTime: {
+                $first: "$createTime"
+              },
+              messageId: {
+                $first: "$_id"
+              },
+              userId: {
+                $first: "$userId"
+              },
+              toUserId: {
+                $first: "$toUserId"
+              },
+              message: {
+                $first: "$message"
+              }
             }
           }
-        }, {
-          $sort: {
-            createTime: -1
-          }
-        }, {
-          $limit: 1
-        }, {
-          $project: {
-            message: 1
-          }
-        }).toArray((function(err, messages) {
-          var k, len1, message;
+        ]).toArray((function(err, messages) {
+          var chatId, k, len1, message;
           for (k = 0, len1 = messages.length; k < len1; k++) {
             message = messages[k];
-            _chats[message.chatId].message = message;
+            chatId = message._id;
+            _chats[message._id].message = message;
+            _chats[message._id].message.chatId = chatId;
+            delete _chats[message._id].message._id;
           }
           return this.db.collection('chatUsers').find({
             chatId: {
               $in: chatIds
             }
           }).toArray(function(err, chatUsers) {
-            var chatId, chatUser, l, len2, len3, m;
+            var chatUser, l, len2, len3, m;
             for (l = 0, len2 = chatIds.length; l < len2; l++) {
               chatId = chatIds[l];
               _chats[chatId].userIds = [];
