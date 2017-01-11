@@ -28,41 +28,42 @@ module.exports = function(server) {
     //   return;
     // }
     var head = ['ID', 'Phone', 'Login', 'Status'];
-
     var pagination = new Pagination({
       basePath: 'http://185.98.87.28:8081/admin/users/json_getItems'
     });
-    var paginationData = pagination.data(req, 15);
-
-    server.db.collection('users').find().skip(pagination.options.n * (paginationData.page - 1)).limit(pagination.options.n)
-      .toArray().then(function(users) {
-      var data = {};
-      data.head = head;
-      data.body = [];
-      for (var i = 0; i < users.length; i++) {
-        var item = {
-          id: users[i]._id,
-          tools: {
-            delete: 'Delete',
-            edit: 'Edit'
-          },
-          data: {
+    server.db.collection('users').count(function(err, count) {
+      var paginationData = pagination.data(req, count);
+      server.db.collection('users').find().skip(pagination.options.n * (paginationData.page - 1)).limit(pagination.options.n)
+        .toArray().then(function(users) {
+        var data = {};
+        data.head = head;
+        data.body = [];
+        for (var i = 0; i < users.length; i++) {
+          var item = {
             id: users[i]._id,
-            phone: users[i].phone,
-            login: users[i].login,
-            status: users[i].status
-          }
-        };
+            tools: {
+              delete: 'Delete',
+              edit: 'Edit'
+            },
+            data: {
+              id: users[i]._id,
+              phone: users[i].phone,
+              login: users[i].login || '',
+              status: users[i].status
+            }
+          };
+          data.body.push(item);
+        }
         data.pagination = paginationData;
-        data.body.push(item);
-      }
-      res.json(data);
+        res.json(data);
+      });
     });
   };
 
   server.app.get('/admin/users/json_getItems', function(req, res) {
     getItemsRequest(req, res);
   });
+
   server.app.get('/admin/users/json_getItems/pg:pg', function(req, res) {
     getItemsRequest(req, res);
   });

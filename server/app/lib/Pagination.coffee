@@ -7,7 +7,7 @@ tmpl = (tpl, data) ->
 class Pagination
 
   options: {
-    n: 50,
+    n: 10,
     maxPages: 5,
     sep: '',
     type: '',
@@ -21,6 +21,7 @@ class Pagination
 
   data: (req, totalCount) ->
     page = req.params.pg || 1
+
     if (page <= 0)
       page = 1 # Если №страницы меньше или равен 0, считаем, что это первая страница
     if @options.n == 0
@@ -34,32 +35,35 @@ class Pagination
       page = pagesN # Если №страницы больше возможного кол-ва страниц
     if @options.desc
       page = pagesN - page + 1
+
     html = ''
 
     links = pNext = pPrev = []
     if pagesN != 0 && pagesN != 1
       links = []
       descN = 0
-      for i in [0..pagesN]
-        pageNumber = i + 1
+      for pageNumber in [1..pagesN]
         descN--
-        if i <= page - Math.round(@options.maxPages / 2) - 1 || i >= page + Math.round(@options.maxPages / 2) - 1
+        if pageNumber < page - Math.round(@options.maxPages / 2) - 1 || pageNumber > page + Math.round(@options.maxPages / 2) - 1
           continue
         if @options.basePath == '/'
-          qstr2 = @options.basePath + 'pg'
+          link = @options.basePath + 'pg'
         else
-          qstr2 = @options.basePath + '/pg'
-        qstr2 += @options.type + pageNumber
+          link = @options.basePath + '/pg'
+        link += @options.type + pageNumber
 
         @options.type + pageNumber
         d = {
           title: pageNumber,
-          link: qstr2
+          link: link
         }
-        if ((i + 1) == page)
+
+        _page = Number(page)
+        if (pageNumber == _page)
           links.push(tmpl(@options.tmplSelected, d))
         else
           links.push(tmpl(@options.tmpl, d))
+
         if (page != pagesN)
           pNext = @options.basePath + '/pg' + @options.type + (page + 1)
         if (page - 1 != 0)

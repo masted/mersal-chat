@@ -1,0 +1,21 @@
+<link href="/css/grid/itemsTable.css" rel="stylesheet">
+<link href="/css/grid/pagination.css" rel="stylesheet">
+
+<script src="/js/cache/grid.js"></script>
+
+<div class="animated fadeIn">
+  <div class="row" style="background: #fff">
+      <div id="table">
+
+      </div>
+  </div>
+</div>
+
+<script>
+  setTimeout(function() {
+    new Ngn.Grid({
+      basePath: 'http://185.98.87.28:8081/admin/logs',
+      resizeble: true,
+    }).reload();
+  }, 500);
+</script>

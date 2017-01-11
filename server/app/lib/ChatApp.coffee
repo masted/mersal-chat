@@ -1,20 +1,26 @@
 class ChatApp
+
   constructor: (@config) ->
+
   start: ->
     @initApp()
     @initMongo()
     @startHttp()
     require('./cAdminApp')(@)
+
   initApp: ->
     @express = require 'express'
     @path = require 'path'
     @bodyParser = require 'body-parser'
 
     @app = @express()
-    @app.use @bodyParser.urlencoded
-      extended: true
+
     cors = require 'cors'
     @app.use(cors())
+
+    @app.use @bodyParser.urlencoded
+      extended: true
+
     @app.set 'view engine', 'jade'
     @app.set 'views', @path.normalize @config.appFolder + '/../views'
     @app.use @express.static @path.join @config.appFolder, 'public'
@@ -22,14 +28,42 @@ class ChatApp
       res.sendFile(@config.appFolder + '/index.html')
     ).bind(@)
     @http = require('http').Server(@app)
+
   initMongo: (onInit) ->
     @connectMongo(((db)->
+      @initLogger(db)
       Server = require('./Server')
       server = new Server(@config, @app, db, require('socket.io')(@http), require('jsonwebtoken'))
       if onInit
         onInit(server)
     ).bind(@))
     @initSession()
+
+  initLogger: (db) ->
+    logger = (req, res, next) ->
+      if !req.url.match(/\/api.*/)
+        next()
+        return
+      oldWrite = res.write
+      oldEnd = res.end
+      chunks = []
+      res.write = (chunk) ->
+        chunks.push(chunk)
+        oldWrite.apply(res, arguments)
+      res.end = (chunk) ->
+        if (chunk)
+          chunks.push(chunk);
+        body = Buffer.concat(chunks).toString('utf8');
+        db.collection('logs').insertOne({
+          dt: new Date(),
+          url: req.url,
+          code: res.statusCode,
+          body: body
+        })
+        oldEnd.apply(res, arguments)
+      next()
+    @app.use logger
+
   connectMongo: (onConnect) ->
     @mongoUrl = 'mongodb://localhost:27017/' + @config.dbName
     mongodb = require 'mongodb'
@@ -43,6 +77,7 @@ class ChatApp
           return id
       onConnect(db)
     ).bind(@)
+
   initSession: ->
     session = require 'express-session'
     MongoStore = require('connect-mongo')(session)
@@ -56,6 +91,7 @@ class ChatApp
         collection: 'session'
         auto_reconnect: true
         url: @mongoUrl
+
   startHttp: ->
     @http.listen @config.port, (->
       console.log 'listening on *:' + @config.port
