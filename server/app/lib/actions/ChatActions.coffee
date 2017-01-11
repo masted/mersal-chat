@@ -134,20 +134,50 @@ class ChatActions
       for chat in chats
         _chats[chat.chatId] = {chatId: chat.chatId};
         chatIds.push(chat.chatId)
-      @db.collection('messages').aggregate(
-        {$match: {
+      # get last messages in every chat
+      @db.collection('messages').aggregate([
+        {
+          $match: {
+            chatId: {
+              $in: chatIds
+            }
+          }
+        },
+        {
+          $sort: {
+            chatId: 1,
+            createTime: -1
+          }
+        },
+        {
+          $group: {
+            _id: "$chatId",
+            createTime: { $first: "$createTime" },
+            messageId: { $first: "$_id" },
+            userId: { $first: "$userId" },
+            toUserId: { $first: "$toUserId" },
+            message: { $first: "$message"}
+          }
+        }
+      ]).toArray(((err, messages) ->
+        for message in messages
+          chatId = message._id;
+          _chats[message._id].message = message
+          _chats[message._id].message.chatId = chatId
+          delete _chats[message._id].message._id
+        # add users
+        @db.collection('chatUsers').find({
           chatId: {
             $in: chatIds
           }
-        }},
-        {$sort: {createTime: -1}},
-        {$limit: 1},
-        {$project: {message: 1}}
-      ).toArray((err, messages) ->
-        for message in messages
-          _chats[message.chatId].message = message
-        callback(_chats)
-      )
+        }).toArray((err, chatUsers) ->
+          for chatId in chatIds
+            _chats[chatId].userIds = []
+          for chatUser in chatUsers
+            _chats[chatUser.chatId].userIds.push(chatUser.userId)
+          callback(_chats)
+        )
+      ).bind(@))
     ).bind(@))
 
 module.exports = ChatActions

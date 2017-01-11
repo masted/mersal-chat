@@ -137,8 +137,6 @@ module.exports = function(server) {
    * @apiGroup User
    *
    * @apiParam {String} token JWT token
-   *
-   * @apiSuccess {String} {success: 1} on success and {error: ""} on error
    */
   server.app.get('/api/v1/user/check', function(req, res) {
     server.tokenReq(req, res, function(res, user) {
@@ -152,8 +150,6 @@ module.exports = function(server) {
    * @apiGroup User
    *
    * @apiParam {String} token JWT token
-   *
-   * @apiSuccess {String} {success: 1} on success and {error: ""} on error
    */
   server.app.get('/api/v1/user/updateDeviceToken', function(req, res) {
     server.tokenReq(req, res, function(res, user) {

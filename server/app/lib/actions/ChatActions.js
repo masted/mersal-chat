@@ -160,30 +160,64 @@
           };
           chatIds.push(chat.chatId);
         }
-        return this.db.collection('messages').aggregate({
-          $match: {
+        return this.db.collection('messages').aggregate([
+          {
+            $match: {
+              chatId: {
+                $in: chatIds
+              }
+            }
+          }, {
+            $sort: {
+              chatId: 1,
+              createTime: -1
+            }
+          }, {
+            $group: {
+              _id: "$chatId",
+              createTime: {
+                $first: "$createTime"
+              },
+              messageId: {
+                $first: "$_id"
+              },
+              userId: {
+                $first: "$userId"
+              },
+              toUserId: {
+                $first: "$toUserId"
+              },
+              message: {
+                $first: "$message"
+              }
+            }
+          }
+        ]).toArray((function(err, messages) {
+          var chatId, k, len1, message;
+          for (k = 0, len1 = messages.length; k < len1; k++) {
+            message = messages[k];
+            chatId = message._id;
+            _chats[message._id].message = message;
+            _chats[message._id].message.chatId = chatId;
+            delete _chats[message._id].message._id;
+          }
+          return this.db.collection('chatUsers').find({
             chatId: {
               $in: chatIds
             }
-          }
-        }, {
-          $sort: {
-            createTime: -1
-          }
-        }, {
-          $limit: 1
-        }, {
-          $project: {
-            message: 1
-          }
-        }).toArray(function(err, messages) {
-          var k, len1, message;
-          for (k = 0, len1 = messages.length; k < len1; k++) {
-            message = messages[k];
-            _chats[message.chatId].message = message;
-          }
-          return callback(_chats);
-        });
+          }).toArray(function(err, chatUsers) {
+            var chatUser, l, len2, len3, m;
+            for (l = 0, len2 = chatIds.length; l < len2; l++) {
+              chatId = chatIds[l];
+              _chats[chatId].userIds = [];
+            }
+            for (m = 0, len3 = chatUsers.length; m < len3; m++) {
+              chatUser = chatUsers[m];
+              _chats[chatUser.chatId].userIds.push(chatUser.userId);
+            }
+            return callback(_chats);
+          });
+        }).bind(this));
       }).bind(this));
     };
 
