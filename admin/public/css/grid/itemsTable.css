@@ -116,3 +116,7 @@ opacity: 0.3;
 .itemsTable.resizeble .handler:hover {
 opacity: 1;
 }
+
+.card-full {
+    width: 100% !important;
+}

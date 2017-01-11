@@ -1,21 +1,41 @@
 <link href="/css/grid/itemsTable.css" rel="stylesheet">
 <link href="/css/grid/pagination.css" rel="stylesheet">
+<link href="/css/grid/dialog.css" rel="stylesheet">
 
 <script src="/js/cache/grid.js"></script>
 
 <div class="animated fadeIn">
-  <div class="row" style="background: #fff">
-      <div id="table">
-
+  <div class="row">
+    <div class="card card-full">
+      <div class="card-block">
+        <div id="table">
+        </div>
       </div>
+    </div>
   </div>
 </div>
 
 <script>
-  setTimeout(function() {
+  setTimeout(function () {
     new Ngn.Grid({
       basePath: 'http://185.98.87.28:8081/admin/logs',
       resizeble: true,
+      toolActions: {
+        details: function (row) {
+          new Ngn.Dialog({
+            noPadding: false,
+            reduceHeight: true,
+            title: false,
+            cancel: false,
+            draggable: false,
+            message: //
+            '<p><b>Date:</b><br>' + row.data.dt + '</p>' + //
+            '<p><b>URL:</b><br>' + row.data.url + '</p>' + //
+            '<p><b>Code:</b><br>' + row.data.code + '</p>' + //
+            '<p><b>Body:</b><br>' + row.data.body + '</p>'
+          });
+        }
+      }
     }).reload();
   }, 500);
 </script>

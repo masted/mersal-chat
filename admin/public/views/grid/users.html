@@ -8,16 +8,16 @@
 
 <div class="animated fadeIn">
   <div class="row">
-      <div class="card">
-        <div class="card-block">
-          <div id="table"></div>
-        </div>
+    <div class="card card-full">
+      <div class="card-block">
+        <div id="table"></div>
       </div>
+    </div>
   </div>
 </div>
 
 <script>
-  setTimeout(function() {
+  setTimeout(function () {
     new Ngn.Grid({
       basePath: 'http://185.98.87.28:8081/admin/users',
       menu: [
@@ -32,7 +32,7 @@
         edit: Ngn.Grid.toolActions.edit
       },
       formatters: {
-        status: function(status) {
+        status: function (status) {
           return '<span class="tag tag-' + (status == 'online' ? 'success' : 'danger') + '">' + //
             status + '</span>';
         }
@@ -40,18 +40,18 @@
     }).reload();
   }, 500);
 
-Ngn.Grid.defaultDialogOpts = {
-  draggable: false,
-  reduceHeight: true,
-  width: 300,
-  title: true,
-  buttonExtraClass: function(name) {
-    if (name == 'ok') {
-      return 'btn-primary';
-    } else if (name == 'cancel') {
-      return 'btn-secondary';
+  Ngn.Grid.defaultDialogOpts = {
+    draggable: false,
+    reduceHeight: true,
+    width: 300,
+    title: true,
+    buttonExtraClass: function (name) {
+      if (name == 'ok') {
+        return 'btn-primary';
+      } else if (name == 'cancel') {
+        return 'btn-secondary';
+      }
+      return false;
     }
-    return false;
-  }
-};
+  };
 </script>

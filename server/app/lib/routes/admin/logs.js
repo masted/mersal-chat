@@ -5,6 +5,7 @@ module.exports = function (server) {
     var pagination = new Pagination({
       basePath: 'http://185.98.87.28:8081/admin/users/json_getItems'
     });
+    var dateFormat = require('dateformat');
     server.db.collection('logs').count(function (err, count) {
       var paginationData = pagination.data(req, count);
       server.db.collection('logs').
@@ -18,8 +19,14 @@ module.exports = function (server) {
         for (var i = 0; i < logs.length; i++) {
           var item = {
             id: logs[i]._id,
+            tools: {
+              details: {
+                title: 'Details',
+                cls: 'search-plus'
+              }
+            },
             data: {
-              dt: logs[i].dt || '',
+              dt: dateFormat(logs[i].dt, "yyyy-mm-dd HH:MM"),
               url: logs[i].url,
               code: logs[i].code,
               body: logs[i].body
