@@ -92,12 +92,27 @@
         if (chat === null) {
           return onComplete(false);
         } else {
-          return onComplete({
-            users: [],
+          return this.db.collection('chatUsers').find({
             chatId: chat._id
-          });
+          }, {
+            userId: 1
+          }).toArray((function(err, users) {
+            var userIds;
+            userIds = users.map(function(user) {
+              return user.userId;
+            });
+            return this.extendByUsers(userIds, chat, onComplete);
+          }).bind(this));
         }
       }).bind(this));
+    };
+
+    ChatActions.prototype.userPublicFields = {
+      _id: 1,
+      login: 1,
+      phone: 1,
+      status: 1,
+      lastOnline: 1
     };
 
     ChatActions.prototype.extendByUsers = function(userIds, chat, onComplete) {
@@ -105,11 +120,7 @@
         _id: {
           $in: userIds
         }
-      }, {
-        _id: 1,
-        login: 1,
-        phone: 1
-      }).toArray(function(err, _users) {
+      }, this.userPublicFields).toArray(function(err, _users) {
         var j, len, user, users;
         users = {};
         for (j = 0, len = _users.length; j < len; j++) {
@@ -117,7 +128,7 @@
           users[user._id] = user;
         }
         return onComplete({
-          users: users,
+          users: Object.values(users),
           chatId: chat._id
         });
       });
@@ -205,18 +216,35 @@
             chatId: {
               $in: chatIds
             }
-          }).toArray(function(err, chatUsers) {
-            var chatUser, l, len2, len3, m;
-            for (l = 0, len2 = chatIds.length; l < len2; l++) {
-              chatId = chatIds[l];
-              _chats[chatId].userIds = [];
+          }).toArray((function(err, chatUsers) {
+            var chatUser, l, len2, len3, m, userId2ChatId, userIds;
+            userId2ChatId = {};
+            for (l = 0, len2 = chatUsers.length; l < len2; l++) {
+              chatUser = chatUsers[l];
+              userId2ChatId[chatUser.userId] = chatUser.chatId;
             }
+            userIds = [];
             for (m = 0, len3 = chatUsers.length; m < len3; m++) {
               chatUser = chatUsers[m];
-              _chats[chatUser.chatId].userIds.push(chatUser.userId);
+              userIds.push(chatUser.userId);
             }
-            return callback(Object.values(_chats));
-          });
+            return this.db.collection('users').find({
+              _id: {
+                $in: userIds
+              }
+            }, this.userPublicFields).toArray(function(err, users) {
+              var _chat, len4, n, user;
+              for (n = 0, len4 = users.length; n < len4; n++) {
+                user = users[n];
+                _chat = _chats[userId2ChatId[user._id]];
+                if (!_chat.users) {
+                  _chat.users = [];
+                }
+                _chat.users.push(user);
+              }
+              return callback(Object.values(_chats));
+            });
+          }).bind(this));
         }).bind(this));
       }).bind(this));
     };

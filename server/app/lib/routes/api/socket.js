@@ -78,7 +78,8 @@ module.exports = function (server) {
     // update status
     server.db.collection('users').update({_id: server.db.ObjectID(userId)}, {
       $set: {
-        status: 'online'
+        status: 'online',
+        lastOnline: new Date()
       }
     }, function (/*err, result*/) {
       socket.emit('event', {type: 'authenticated'});
@@ -191,7 +192,8 @@ module.exports = function (server) {
         console.log('disconnect');
         server.db.collection('users').update({_id: server.db.ObjectID(socket.decoded_token._id)}, {
           $set: {
-            status: 'offline'
+            status: 'offline',
+            lastOnline: new Date()
           }
         });
         // при смене статуса

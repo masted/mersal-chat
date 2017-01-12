@@ -145,7 +145,7 @@ module.exports = function(server) {
   });
 
   /**
-   * @api {get} /user/check Check user token
+   * @api {get} /user/updateDeviceToken Check user token
    * @apiName Updates device token
    * @apiGroup User
    *

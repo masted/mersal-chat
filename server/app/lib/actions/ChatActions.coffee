@@ -78,29 +78,38 @@ class ChatActions
         if (chat == null)
           onComplete(false)
         else
-          onComplete(
-            users: []
+          @db.collection('chatUsers').find({
             chatId: chat._id
-          )
+          }, {
+            userId: 1
+          }).toArray(((err, users) ->
+            userIds = users.map((user) ->
+              user.userId
+            )
+            @extendByUsers(userIds, chat, onComplete)
+          ).bind(@))
       ).bind(@)
     )
+
+  userPublicFields: {
+    _id: 1,
+    login: 1,
+    phone: 1,
+    status: 1,
+    lastOnline: 1
+  }
 
   extendByUsers: (userIds, chat, onComplete) ->
     @db.collection('users').find({
       _id: {
         $in: userIds
       }
-    }, {
-      _id: 1,
-      login: 1,
-      phone: 1
-    }).toArray((err, _users) ->
-      #console.log 'chat exists ' + chat._id
+    }, @userPublicFields).toArray((err, _users) ->
       users = {}
       for user in _users
         users[user._id] = user
       onComplete(
-        users: users
+        users: Object.values(users)
         chatId: chat._id
       )
     )
@@ -170,13 +179,29 @@ class ChatActions
           chatId: {
             $in: chatIds
           }
-        }).toArray((err, chatUsers) ->
-          for chatId in chatIds
-            _chats[chatId].userIds = []
+        }).toArray(((err, chatUsers) ->
+
+          userId2ChatId = {}
           for chatUser in chatUsers
-            _chats[chatUser.chatId].userIds.push(chatUser.userId)
-          callback(Object.values(_chats))
-        )
+            userId2ChatId[chatUser.userId] = chatUser.chatId
+
+          userIds = []
+          for chatUser in chatUsers
+            userIds.push(chatUser.userId)
+
+          @db.collection('users').find({
+            _id: {
+              $in: userIds
+            }
+          }, @userPublicFields).toArray((err, users) ->
+            for user in users
+              _chat = _chats[userId2ChatId[user._id]]
+              if !_chat.users
+                _chat.users = []
+              _chat.users.push(user)
+            callback(Object.values(_chats))
+          )
+        ).bind(@))
       ).bind(@))
     ).bind(@))
 
