@@ -45,6 +45,7 @@ module.exports = function(server) {
    * @apiParam {Number} userId User ID
    * @apiParam {Number} chatId Chat ID
    * @apiParam {String} message Message text
+   * @apiParam {Boolean} isFile Message is attachment
    *
    * @apiSuccess {String} json
    *
@@ -72,12 +73,19 @@ module.exports = function(server) {
         if (!canJoin) {
           res.status(404).send({error: 'user has no access to that chat'});
         } else {
-          new MessageActions(server.db).userSend(user._id, req.query.userId, req.query.chatId, req.query.message, function(message) {
-            server.event.emit('newUserMessage', message);
-            res.json(message);
-          }, function(error) {
-            res.status(404).json({error: error});
-          });
+          new MessageActions(server.db).userSend(
+            user._id,
+            req.query.userId,
+            req.query.chatId,
+            req.query.message,
+            req.query.isFile || false,
+            function(message) {
+              server.event.emit('newUserMessage', message);
+              res.json(message);
+            }, function(error) {
+              res.status(404).json({error: error});
+            }
+          );
         }
       });
     });

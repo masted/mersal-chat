@@ -74,10 +74,11 @@ class MessageActions
       ).bind(@))
     ).bind(@))
 
-  userSend: (userId, toUserId, chatId, message, onComplete, onError) ->
+  userSend: (userId, toUserId, chatId, message, isFile, onComplete, onError) ->
     userId = @db.ObjectID(userId)
     toUserId = @db.ObjectID(toUserId)
     chatId = @db.ObjectID(chatId)
+    isFile = !!isFile
 
     message =
       createTime: new Date().getTime(),
@@ -85,6 +86,7 @@ class MessageActions
       toUserId: toUserId,
       chatId: chatId,
       message: message,
+      isFile: isFile,
       viewed: false,
       delivered: false
     @db.collection('messages').insertOne(message, ((err, r) ->

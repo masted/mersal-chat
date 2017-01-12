@@ -94,16 +94,18 @@
       }).bind(this));
     };
 
-    MessageActions.prototype.userSend = function(userId, toUserId, chatId, message, onComplete, onError) {
+    MessageActions.prototype.userSend = function(userId, toUserId, chatId, message, isFile, onComplete, onError) {
       userId = this.db.ObjectID(userId);
       toUserId = this.db.ObjectID(toUserId);
       chatId = this.db.ObjectID(chatId);
+      isFile = !!isFile;
       message = {
         createTime: new Date().getTime(),
         userId: userId,
         toUserId: toUserId,
         chatId: chatId,
         message: message,
+        isFile: isFile,
         viewed: false,
         delivered: false
       };
