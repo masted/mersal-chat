@@ -4,7 +4,7 @@ var startSocket = function(token, newMessagesCallback) {
     socket.emit('authenticate', {token: token}) //send the jwt
       .on('authenticated', function() {
         // Start receiving events for user userId
-        socket.emit('join', {
+        socketEvent.event('join', {
           userId: 2,
           chatId: chatId
         });

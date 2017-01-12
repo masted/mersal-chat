@@ -1,4 +1,5 @@
 MessageActions = require './MessageActions'
+SocketEventWrapper = require '../SocketEventWrapper'
 
 class SocketMessageActions
 
@@ -43,9 +44,11 @@ class SocketMessageActions
     for socketId of clients.connected
       if message.toUserId == clients.connected[socketId].userId
         console.log 'newUserMessage SENT'
-        clients.connected[socketId].emit 'event',
+        new SocketEventWrapper(@server, clients.connected[socketId]).event(
           type: 'newUserMessages'
           messages: [message]
+        )
+        #clients.connected[socketId].emit 'event',
 
   _newChatMessageEvent: (message) ->
     clients = @getChatOnlineClients(message.chatId)
@@ -64,9 +67,10 @@ class SocketMessageActions
           onlineMessageStatusIds.push(userMessage._id)
       # emit events
       for onlineUserId of onlineUserSockets
-        onlineUserSockets[onlineUserId].emit 'event',
+        new SocketEventWrapper(@server, onlineUserSockets[onlineUserId]).event(
           type: 'newMessage'
           message: userMessages[onlineUserId]
+        )
     ).bind(@))
 
 module.exports = SocketMessageActions

@@ -4,6 +4,7 @@ module.exports = function (server) {
   var ChatActions = require('../../actions/ChatActions');
   var MessageActions = require('../../actions/MessageActions');
   var SocketChatEventEmitter = require('../../SocketChatEventEmitter');
+  var SocketEventWrapper = require('../../SocketEventWrapper');
 
   // some init
   new SocketMessageActions(server);
@@ -70,6 +71,8 @@ module.exports = function (server) {
     timeout: 15000 // 15 seconds to send the authentication message
   })).on('authenticated', function (socket) {
     var messageActions = new MessageActions(server.db);
+    var socketEvent = new SocketEventWrapper(server, socket);
+
     var userId = socket.decoded_token._id;
     var _userId = server.db.ObjectID(userId);
     socket.userId = userId;
@@ -82,12 +85,12 @@ module.exports = function (server) {
         lastOnline: new Date()
       }
     }, function (/*err, result*/) {
-      socket.emit('event', {type: 'authenticated'});
+      socketEvent.event({type: 'authenticated'});
 
       // getting unseen messages for user
       messageActions.getUnseen(userId, function (messages) {
         if (messages.length == 0) return;
-        socket.emit('event', {
+        socketEvent.event({
           type: 'newUserMessages',
           messages: messages
         });
@@ -95,7 +98,7 @@ module.exports = function (server) {
 
       socket.on('join', function (data) {
         if (!data.chatId) {
-          socket.emit('event', {
+          socketEvent.event({
             type: 'joinError',
             error: 'chaId not presents in data: ' + JSON.stringify(data)
           });
@@ -104,14 +107,14 @@ module.exports = function (server) {
         console.log('joining chat ' + data.chatId);
         new ChatActions(server.db).canJoin(userId, data.chatId, function (success, error) {
           if (success === false) {
-            socket.emit('event', {
+            socketEvent.event({
               type: 'joinError',
               error: error
             });
           } else {
             socket.chatId = data.chatId;
             socket.join(data.chatId);
-            socket.emit('event', {
+            socketEvent.event({
               type: 'joined',
               chatId: data.chatId
             });
@@ -127,7 +130,7 @@ module.exports = function (server) {
       var markAs = function (keyword, data) {
         var context = 'markAs' + ucFirst(keyword);
         if (!data.chatId) {
-          socket.emit('event', {
+          socketEvent.event({
             type: 'error',
             context: context,
             error: 'chatId param is required'
@@ -136,7 +139,7 @@ module.exports = function (server) {
         }
         var messageIds = data.messageIds.trim();
         if (!messageIds) {
-          socket.emit('event', {
+          socketEvent.event({
             type: 'error',
             context: context,
             error: 'Empty messageIds param'
@@ -157,7 +160,7 @@ module.exports = function (server) {
         }).toArray(function (err, messages) {
           for (var i = 0; i < messages.length; i++) {
             if (messages[i].userId.toString() == userId) {
-              socket.emit('event', {
+              socketEvent.event({
                 type: 'error',
                 context: context,
                 error: 'it not allowed to mark as ' + keyword + ' your ouw message'
