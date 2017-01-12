@@ -175,7 +175,7 @@ class ChatActions
             _chats[chatId].userIds = []
           for chatUser in chatUsers
             _chats[chatUser.chatId].userIds.push(chatUser.userId)
-          callback(_chats)
+          callback(Object.values(_chats))
         )
       ).bind(@))
     ).bind(@))

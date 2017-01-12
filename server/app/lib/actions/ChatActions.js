@@ -215,7 +215,7 @@
               chatUser = chatUsers[m];
               _chats[chatUser.chatId].userIds.push(chatUser.userId);
             }
-            return callback(_chats);
+            return callback(Object.values(_chats));
           });
         }).bind(this));
       }).bind(this));
