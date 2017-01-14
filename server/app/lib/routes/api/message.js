@@ -2,23 +2,6 @@ module.exports = function(server) {
   var MessageActions = require('../../actions/MessageActions');
   var ChatActions = require('../../actions/ChatActions');
 
-  /**
-   * @api {get} /message/send Send a message in chat
-   * @apiName SendMessage
-   * @apiGroup Message
-   *
-   * @apiParam {String} token JWT token
-   * @apiParam {Number} chatId Chat ID
-   * @apiParam {String} message Message text
-   *
-   * @apiSuccess {String} json
-   *
-   * @apiSuccessExample Success-Response:
-   *   HTTP/1.1 200 OK
-   *   {
-   *     "success": 1
-   *   }
-   */
   server.app.get('/api/v1/message/send', function(req, res) {
     server.tokenReq(req, res, function(res, user) {
       if (!req.query.chatId) {
