@@ -152,7 +152,6 @@ function setUpUrl(url) {
 }
 
 function loadPage(url) {
-
 	$.ajax({
 		type : 'GET',
 		url : $.subPagesDirectory + url,
@@ -172,7 +171,6 @@ function loadPage(url) {
 		error : function() {
 			window.location.href = $.page404;
 		}
-
 	});
 }
 

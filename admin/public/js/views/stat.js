@@ -129,7 +129,7 @@ $(function() {
     });
   };
   aja()
-    .url('http://' + apiUri + '/admin/stat/data?password=' + adminPassword)
+    .url('/admin/stat/data')
     .on('success', function(d) {
       var menuHtml = '';
       d.charts[0].data = d.charts[0].data.map(function(v) {
@@ -165,13 +165,6 @@ $(function() {
       buildUserChart(d, 1, 'rgba(255,255,255,.3)');
     })
     .go();
-
-
-
-
-
-
-
 
 });
 

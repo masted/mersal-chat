@@ -1,14 +1,14 @@
 var Pagination = require('../../Pagination');
 
-module.exports = function (server) {
+module.exports = function (app, db) {
   var getItemsRequest = function(req, res) {
     var pagination = new Pagination({
-      basePath: 'http://185.98.87.28:8081/admin/logs/json_getItems'
+      basePath: '/admin/logs/json_getItems'
     });
     var dateFormat = require('dateformat');
-    server.db.collection('logs').count(function (err, count) {
+    db.collection('logs').count(function (err, count) {
       var paginationData = pagination.data(req, count);
-      server.db.collection('logs').
+      db.collection('logs').
       find().sort({dt: -1}).//
       skip(pagination.options.n * (paginationData.page - 1)).//
       limit(pagination.options.n).//
@@ -39,10 +39,10 @@ module.exports = function (server) {
       });
     });
   };
-  server.app.get('/admin/logs/json_getItems', function (req, res) {
+  app.get('/admin/logs/json_getItems', function (req, res) {
     getItemsRequest(req, res);
   });
-  server.app.get('/admin/logs/json_getItems/pg:pg', function(req, res) {
+  app.get('/admin/logs/json_getItems/pg:pg', function(req, res) {
     getItemsRequest(req, res);
   });
 

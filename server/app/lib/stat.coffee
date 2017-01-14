@@ -5,8 +5,8 @@ module.exports =
     getSize = require 'get-folder-size'
     setInterval ->
       getSize server.config.appFolder + '/public/uploads', (err, uploadsSize) ->
-        server.db.stats (err, dbStat)->
-          server.db.collection('stat').insert
+        db.stats (err, dbStat)->
+          db.collection('stat').insert
             time: new Date().getTime()
             memory: process.memoryUsage().rss
             cpu: process.cpuUsage().user
@@ -14,11 +14,11 @@ module.exports =
             uploadsSize: uploadsSize
     , 60000 * 10
     setInterval ->
-      server.db.collection('users').count {
+      db.collection('users').count {
         status: 'online'
       }, (err, onlineCount) ->
-        server.db.collection('users').count (err, usersCount) ->
-          server.db.collection('usersStat').insert
+        db.collection('users').count (err, usersCount) ->
+          db.collection('usersStat').insert
             time: new Date().getTime()
             onlineCount: onlineCount
             usersCount: usersCount
@@ -33,15 +33,11 @@ module.exports =
     onlineCount: 'Online Users'
     usersCount: 'Registered Users'
 
-  adminResultHandler: (server, req, res) ->
-    if !req.query.password
-      res.status(404).send({error: 'no password'})
-    if req.query.password != server.config.adminPassword
-      res.status(404).send({error: 'wrong password'})
-    server.db.collection('stat').find().sort({
+  adminResultHandler: (db, req, res) ->
+    db.collection('stat').find().sort({
       time: -1
     }).limit(20).toArray(((err, records)->
-      server.db.collection('usersStat').find().sort({
+      db.collection('usersStat').find().sort({
         time: -1
       }).limit(7).toArray(((err, userRecords)->
         if !records && !userRecords

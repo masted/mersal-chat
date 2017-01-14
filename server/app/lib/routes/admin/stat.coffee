@@ -1,7 +1,7 @@
-module.exports = (server) ->
+module.exports = (app, db) ->
 
-  server.app.get '/admin/stat', (req, res) ->
+  app.get '/admin/stat', (req, res) ->
     res.render 'admin/stat'
 
-  server.app.get '/admin/stat/data', (req, res) ->
-    require('../../stat').adminResultHandler(server, req, res);
+  app.get '/admin/stat/data', (req, res) ->
+    require('../../stat').adminResultHandler(db, req, res);

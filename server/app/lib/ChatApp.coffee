@@ -6,7 +6,6 @@ class ChatApp
     @initApp()
     @initMongo()
     @startHttp()
-    require('./cAdminApp')(@)
 
   initApp: ->
     @express = require 'express'
@@ -32,12 +31,13 @@ class ChatApp
   initMongo: (onInit) ->
     @connectMongo(((db)->
       @initLogger(db)
+      require('./cAdminApp')(@, db)
       Server = require('./Server')
       server = new Server(@config, @app, db, require('socket.io')(@http), require('jsonwebtoken'))
       if onInit
         onInit(server)
     ).bind(@))
-    @initSession()
+    @initSession(@app)
 
   initLogger: (db) ->
     logger = (req, res, next) ->
@@ -78,19 +78,25 @@ class ChatApp
       onConnect(db)
     ).bind(@)
 
-  initSession: ->
-    session = require 'express-session'
-    MongoStore = require('connect-mongo')(session)
-    @app.use session
-      cookie: {maxAge: 1000 * 60 * 2}
-      secret: "session secret"
-      store: new MongoStore
-        db: @config.dbName
-        host: '127.0.0.1'
-        port: 27017
-        collection: 'session'
-        auto_reconnect: true
-        url: @mongoUrl
+  initMongoStore: ->
+    if @mongoStore
+      return
+    @session = require 'express-session'
+    MongoStore = require('connect-mongo')(@session)
+    @mongoStore = new MongoStore
+      db: @config.dbName
+      host: '127.0.0.1'
+      port: 27017
+      collection: 'session'
+      auto_reconnect: true
+      url: @mongoUrl
+
+  initSession: (app) ->
+    @initMongoStore()
+    app.use @session
+      cookie: {maxAge: 1000 * 60 * 60 * 30}
+      secret: "the_session_secret"
+      store: @mongoStore
 
   startHttp: ->
     @http.listen @config.port, (->

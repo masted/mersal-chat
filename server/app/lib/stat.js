@@ -6,8 +6,8 @@
       getSize = require('get-folder-size');
       setInterval(function() {
         return getSize(server.config.appFolder + '/public/uploads', function(err, uploadsSize) {
-          return server.db.stats(function(err, dbStat) {
-            return server.db.collection('stat').insert({
+          return db.stats(function(err, dbStat) {
+            return db.collection('stat').insert({
               time: new Date().getTime(),
               memory: process.memoryUsage().rss,
               cpu: process.cpuUsage().user,
@@ -18,11 +18,11 @@
         });
       }, 60000 * 10);
       return setInterval(function() {
-        return server.db.collection('users').count({
+        return db.collection('users').count({
           status: 'online'
         }, function(err, onlineCount) {
-          return server.db.collection('users').count(function(err, usersCount) {
-            return server.db.collection('usersStat').insert({
+          return db.collection('users').count(function(err, usersCount) {
+            return db.collection('usersStat').insert({
               time: new Date().getTime(),
               onlineCount: onlineCount,
               usersCount: usersCount
@@ -41,21 +41,11 @@
       onlineCount: 'Online Users',
       usersCount: 'Registered Users'
     },
-    adminResultHandler: function(server, req, res) {
-      if (!req.query.password) {
-        res.status(404).send({
-          error: 'no password'
-        });
-      }
-      if (req.query.password !== server.config.adminPassword) {
-        res.status(404).send({
-          error: 'wrong password'
-        });
-      }
-      return server.db.collection('stat').find().sort({
+    adminResultHandler: function(db, req, res) {
+      return db.collection('stat').find().sort({
         time: -1
       }).limit(20).toArray((function(err, records) {
-        return server.db.collection('usersStat').find().sort({
+        return db.collection('usersStat').find().sort({
           time: -1
         }).limit(7).toArray((function(err, userRecords) {
           var charts, key, userCharts;

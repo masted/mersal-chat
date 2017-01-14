@@ -1,10 +1,10 @@
 var Pagination = require('../../Pagination');
 
-module.exports = function(server) {
+module.exports = function(app, db) {
 
-  server.app.param('userId', function(req, res, next, userId) {
-    server.db.collection('users').findOne({
-      _id: server.db.ObjectID(userId)
+  app.param('userId', function(req, res, next, userId) {
+    db.collection('users').findOne({
+      _id: db.ObjectID(userId)
     }, function(err, user) {
       if (err) return next(err);
       if (!user) return next({error: 'no error'});
@@ -13,14 +13,13 @@ module.exports = function(server) {
     });
   });
 
-  server.app.get('/admin/users', function(req, res) {
+  app.get('/admin/users', function(req, res) {
     if (!req.session || !req.session.admin) {
       res.status(404).send('access denied. <a href="/admin">auth</a>');
       return;
     }
     res.render('admin/user/list');
   });
-
 
   var getItemsRequest = function(req, res) {
     // if (!req.session || !req.session.admin) {
@@ -29,11 +28,11 @@ module.exports = function(server) {
     // }
     var head = ['ID', 'Phone', 'Login', 'Status'];
     var pagination = new Pagination({
-      basePath: 'http://185.98.87.28:8081/admin/users/json_getItems'
+      basePath: '/admin/users/json_getItems'
     });
-    server.db.collection('users').count(function(err, count) {
+    db.collection('users').count(function(err, count) {
       var paginationData = pagination.data(req, count);
-      server.db.collection('users').find().skip(pagination.options.n * (paginationData.page - 1)).limit(pagination.options.n)
+      db.collection('users').find().skip(pagination.options.n * (paginationData.page - 1)).limit(pagination.options.n)
         .toArray().then(function(users) {
         var data = {};
         data.head = head;
@@ -60,20 +59,20 @@ module.exports = function(server) {
     });
   };
 
-  server.app.get('/admin/users/json_getItems', function(req, res) {
+  app.get('/admin/users/json_getItems', function(req, res) {
     getItemsRequest(req, res);
   });
 
-  server.app.get('/admin/users/json_getItems/pg:pg', function(req, res) {
+  app.get('/admin/users/json_getItems/pg:pg', function(req, res) {
     getItemsRequest(req, res);
   });
 
-  server.app.get('/admin/users/json_new', function(req, res) {
+  app.get('/admin/users/json_new', function(req, res) {
     // if (!req.session || !req.session.admin) {
     //   res.status(404).json({error: 'access denied'});
     //   return;
     // }
-    server.app.render('admin/user/form', {
+    app.render('admin/user/form', {
       phone: '',
       login: '',
       password: ''
@@ -85,12 +84,12 @@ module.exports = function(server) {
     });
   });
 
-  server.app.post('/admin/users/json_new', function(req, res) {
+  app.post('/admin/users/json_new', function(req, res) {
     // if (!req.session || !req.session.admin) {
     //   res.status(404).json({error: 'access denied'});
     //   return;
     // }
-    server.db.collection('users').insertOne({
+    db.collection('users').insertOne({
       login: req.body.login,
       phone: req.body.phone,
       password: req.body.password
@@ -99,19 +98,19 @@ module.exports = function(server) {
     });
   });
 
-  server.app.get('/admin/users/json_edit', function(req, res) {
+  app.get('/admin/users/json_edit', function(req, res) {
     // if (!req.session || !req.session.admin) {
     //   res.status(404).json({error: 'access denied'});
     //   return;
     // }
-    server.db.collection('users').findOne({
-      _id: server.db.ObjectID(req.query.id)
+    db.collection('users').findOne({
+      _id: db.ObjectID(req.query.id)
     }, function(err, user) {
       if (!user) {
         res.status(404).send({error: 'no user'});
         return;
       }
-      server.app.render('admin/user/form', user, function(err, html) {
+      app.render('admin/user/form', user, function(err, html) {
         res.json({
           form: html,
           title: 'Edit User'
@@ -120,12 +119,12 @@ module.exports = function(server) {
     });
   });
 
-  server.app.post('/admin/users/json_edit', function(req, res) {
+  app.post('/admin/users/json_edit', function(req, res) {
     // if (!req.session || !req.session.admin) {
     //   res.status(404).json({error: 'access denied'});
     //   return;
     // }
-    server.db.collection('users').update({_id: server.db.ObjectID(req.query.id)}, {
+    db.collection('users').update({_id: db.ObjectID(req.query.id)}, {
       $set: {
         login: req.body.login,
         phone: req.body.phone,
@@ -140,13 +139,13 @@ module.exports = function(server) {
     });
   });
 
-  server.app.get('/admin/users/ajax_delete', function(req, res) {
+  app.get('/admin/users/ajax_delete', function(req, res) {
     // if (!req.session || !req.session.admin) {
     //   res.status(404).send('access denied');
     //   return;
     // }
-    server.db.collection('users').remove({
-      _id: server.db.ObjectID(req.query.id)
+    db.collection('users').remove({
+      _id: db.ObjectID(req.query.id)
     });
     res.send('null');
   });

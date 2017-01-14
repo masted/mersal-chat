@@ -8,19 +8,12 @@ class Server
     require('./routes/api/message')(@)
     require('./routes/api/chat')(@)
     require('./routes/api/socket')(@)
-    require('./routes/admin/login')(@)
-    require('./routes/admin/users')(@)
-    require('./routes/admin/contacts')(@)
-    require('./routes/admin/stat')(@)
-    require('./routes/admin/logs')(@)
     require('./routes/doc')(@)
     require('./stat').startCollecting(@)
     require('./dev')(@)
     methodOverride = require('method-override')
     @app.use(methodOverride())
     @app.use((err, req, res, next) ->
-      # TODO: save errors to log file
-      # TODO: restart server on crash
       console.error(err.stack)
       res.status(404).json({error: err.message})
     )
