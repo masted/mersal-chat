@@ -94,6 +94,35 @@ module.exports = function(server) {
    *   {"error": "no user"}
    */
   server.app.get('/api/v1/login', function(req, res) {
+    if (req.query.debug) {
+      server.db.collection('phoneCodes').findOne({
+        phone: req.query.phone
+      }, function(err, phoneCode) {
+        if (!phoneCode) {
+          res.status(404).json({error: 'wrong code or phone'});
+          console.log('not found');
+          return;
+        }
+        server.db.collection('users').findOne({
+          phone: req.query.phone
+        }, function(err, profile) {
+          if (profile === null) {
+            res.status(404).json({error: 'no user by phone ' + req.query.phone});
+            return;
+          }
+          profile.device = req.query.device;
+          profile.deviceToken = req.query.deviceToken;
+          console.log('Login ' + profile.phone);
+          var expiresIn = 60 * 60 * 24 * 7;
+          var token = server.jwt.sign(profile, server.config.jwtSecret, {expiresIn: expiresIn});
+          res.json(Object.assign({
+            token: token,
+            expiresIn: new Date() + expiresIn
+          }, profile));
+        });
+      });
+      return;
+    }
     if (!req.query.phone) {
       res.status(404).json({error: 'phone is required'});
       return;
@@ -106,10 +135,6 @@ module.exports = function(server) {
       res.status(404).json({error: 'wrong device'});
       return;
     }
-    console.log({
-      code: req.query.code,
-      phone: req.query.phone
-    });
     server.db.collection('phoneCodes').findOne({
       code: req.query.code,
       phone: req.query.phone
