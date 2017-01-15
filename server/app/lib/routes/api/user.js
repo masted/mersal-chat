@@ -150,10 +150,20 @@ module.exports = function(server) {
    * @apiGroup User
    *
    * @apiParam {String} token JWT token
+   * @apiParam {String} deviceToken Device token
    */
   server.app.get('/api/v1/user/updateDeviceToken', function(req, res) {
     server.tokenReq(req, res, function(res, user) {
-      res.send({success: 1});
+      if (!req.query.deviceToken) {
+        res.status(404).send({error: 'deviceToken not defined'});
+        return;
+      }
+      var data = {
+        deviceToken: req.query.deviceToken
+      };
+      server.db.collection('users').update({_id: server.db.ObjectID(user._id)}, {$set: data}, function(err, count) {
+        if (count) res.json({success: 1}); else res.json({error: 'user not found'});
+      });
     });
   });
 
