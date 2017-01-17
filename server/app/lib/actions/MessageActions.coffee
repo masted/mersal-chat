@@ -1,3 +1,7 @@
+FCM = require('fcm-push');
+serverKey = 'AAAAVx6r9YU:APA91bE7htPccdrOh_vZ_aCqRmF91SRbN-XcVZ--xQ8LQSfoANyf-ueag_QpJ6qEMcmCxe8tNsb8iTk7BLUt7hsvn6xaAZGXdyUxweHUViIMf2EHjbv7ucL0OrVVoPgTMqpCzxeQtY-owQrTC1NdclAWZe3uXhgphQ';
+fcm = new FCM(serverKey)
+
 class MessageActions
 
   constructor: (@db) ->
@@ -74,6 +78,31 @@ class MessageActions
       ).bind(@))
     ).bind(@))
 
+  sendPush: (userId, message) ->
+    userId = @db.ObjectID(userId)
+    @db.collection('users').findOne({
+      _id: userId
+    }, (err, user) ->
+      if !user
+        console.log 'user not found'
+        return
+      if !user.deviceToken
+        console.log 'no deviceToken. push skipped'
+        return
+      _message =
+        to: user.deviceToken
+        data: message,
+        notification:
+          title: 'New message'
+          body: message.message
+      fcm.send(_message).then((response) ->
+        console.log("Successfully sent " + message.message + "with response: ", response)
+      ).catch((err) ->
+        console.log("Something has gone wrong!" + message.message);
+        console.error(err);
+      )
+    )
+
   userSend: (userId, toUserId, chatId, message, isFile, onComplete, onError) ->
     userId = @db.ObjectID(userId)
     toUserId = @db.ObjectID(toUserId)
@@ -92,6 +121,7 @@ class MessageActions
     @db.collection('messages').insertOne(message, ((err, r) ->
       @saveStatuses([message], userId, true, (-> # sender viewed
         @saveStatuses([message], toUserId, false, (-> # recipient not yet
+          @sendPush(toUserId, message)
           onComplete(message)
 #            @db.collection('chatUsers').updateOne({
 #              chatId: message.chatId,
